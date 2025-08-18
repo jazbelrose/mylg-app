@@ -1,69 +1,49 @@
-# React + TypeScript + Vite
+🛠️ MYLG! App (Making You Look Good)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The MYLG! App is a collaborative project management platform designed for designers, builders, and clients to plan, present, and execute projects seamlessly. Built with React, TypeScript, AWS Amplify, and WebSockets, it combines structured project management tools with real-time communication and visually intuitive design.
 
-Currently, two official plugins are available:
+✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Projects & Budgets
 
-## Expanding the ESLint configuration
+Structured project pages with timeline, budget, and floorplans
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Auto-generated element IDs and budget line tracking (with payment terms, PO, and invoice support)
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+File upload/download (CSV, floorplans, user assets)
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+Messaging & Collaboration
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Real-time WebSocket messaging with optimistic UI
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Project threads and direct messages
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Notifications with deduplication logic
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Role-based access (Admin, CEO, CTO, Designers, Clients, Workers)
+
+Interactive Tools
+
+Calendar integration for task planning and time-blocking
+
+Lexical-based rich text editor for project notes and proposals
+
+Support for voice notes and (planned) voice recognition
+
+Architecture
+
+Frontend: React + TypeScript + custom Webpack/Vite setup
+
+Backend: AWS Amplify, DynamoDB, API Gateway WebSocket, Lambda functions
+
+Auth: AWS Cognito with role claims injected at token issuance
+
+Storage: Amazon S3 for files and assets
+
+🚀 Roadmap
+
+Multi-user calendar sharing and task scheduling
+
+AI-assisted design chat (exploring GPT-J via AWS Bedrock)
+
+Improved rendering workflows for 2D/3D assets
