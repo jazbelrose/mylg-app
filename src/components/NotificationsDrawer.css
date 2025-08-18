@@ -1,0 +1,93 @@
+.notifications-overlay {
+  position: fixed;
+  top: var(--header-height, 60px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 900;
+}
+
+.notifications-drawer {
+  position: fixed;
+  top: var(--header-height, 60px);
+  right: 0;
+  height: calc(var(--notifications-vh, 100vh) - var(--header-height, 60px));
+  max-height: calc(var(--notifications-vh, 100vh) - var(--header-height, 60px));
+  width: 360px;
+  max-width: 100%;
+  background: var(--bg-color);
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  z-index: 901;
+  box-sizing: border-box;
+  padding-bottom: 8px;
+  overflow: hidden;
+}
+
+.notifications-drawer::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 8px;
+  pointer-events: none;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.drawer-top-bar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0px 12px 4px;
+  background: var(--bg-color);
+  z-index: 2;
+}
+
+.drawer-mark-all-read-btn,
+.pin-button,
+.close-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.close-btn {
+  font-size: 20px;
+}
+
+.drawer-search {
+  position: sticky;
+  
+  padding: 0px 16px 12px;
+  background: var(--bg-color);
+  z-index: 1;
+}
+
+.notifications-search-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: var(--bg-color);
+  color: #fff;
+}
+
+.drawer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 24px;
+}
+
+/* Remove border styling from the embedded notifications component */
+.drawer-content .notifications {
+  border: none;
+  border-radius: 0;
+}

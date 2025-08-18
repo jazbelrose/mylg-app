@@ -1,0 +1,702 @@
+[
+    {
+        "id": 9000,
+        "slug": "Academy-of-Pop",
+        "date": "23-01-12",
+        "tags": [
+            "Branding",
+            "3D-Rendering",
+            "Graphic Design"
+        ],
+        "title": "Academy of Pop",
+        "subtitle": "Performing Arts Academy",
+        "description": "Academy of Pop performing art school makes it grand debut...",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/02-Academy+of+Pop/01.jpg" 
+        ],
+        "readingTime": "5 ",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4259",
+        "slug": "elf-Makeup",
+        "date": "22-12-10",
+        "tags": [
+            "3D-Rendering",
+            "Immersive Digital"
+        ],
+        "title": "e.l.f. Makeup",
+        "subtitle": "Mokibaby",
+        "description": "Mokibaby delivered a unique custom brand activation at one of Art Basel Miami's premier events, Nylon House, located at the picturesque Strawberry Moon Hotel",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/08-elf+Makeup/01+elf+makeup.jpg" 
+        ],
+        "readingTime": "6",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4269",
+        "slug": "strikefit",
+        "date": "17-02-03",
+        "tags": [
+            "Brand Identity",
+            "Photography",
+            "3d Rendering"
+        ],
+        "title": "Strikefit",
+        "subtitle": "Strike, Be Fit, Grasp.",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/17-Jack+Masai/01+Jack+Masai.jpg" 
+        ],
+        "readingTime": "4",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4255",
+        "slug": "Bloom-and-Bliss",
+        "date": "23-06-17",
+        "tags": [
+            "3D-Rendering",
+            "Brand Strategy & Identity",
+            "UI/UX Design"
+        ],
+        "title": "Bloom & Bliss",
+        "subtitle": "Product launch campaign",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/04-Bloom+%26+Bliss/01+Bloom+%26+Bliss.jpg" 
+        ],
+        "description": "Shaping Design for Impact. Explore the essence of visionary design and its power in creating lasting impressions.",
+        "readingTime": "6 ",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4257",
+        "slug": "Chevron",
+        "date": "23-08-25",
+        "tags": [
+            "Immersive Digital",
+            "3d Rendering"
+            
+        ],
+        "title": "Chevron",
+        "subtitle": "Turn it Up",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/06-Chevron/01+Chevron.jpg" 
+        ],
+        "readingTime": "8 ",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4287",
+        "slug": "The-gold-princess",
+        "date": "17-12-01",
+        "tags": [
+            "Photography",
+            "Brand Strategy & Identity",
+            "Makeup",
+            "Styling"
+        ],
+        "title": "The Gold Princess",
+        "subtitle": "Royal Allure",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/35-The+Gold+PrIncess/01+The+Gold+Prncess.jpg" 
+        ],
+        "readingTime": "4",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4271",
+        "slug": "Keys-Soulcare",
+        "date": "23-01-17",
+        "tags": [
+            "Immersive Digital",
+            "3d Rendering"
+        ],
+        "title": "Keys Soulcare",
+        "subtitle": "Mokibaby",
+        "description": "Mokibaby collaborated with Keys Soulcare in Hamburg, Germany. Guests were welcomed into the iconic Haller 6 venue where they could explore new rituals and offerings...",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/19-Keys+Soulcare/01+Keys+Soulcare.jpg" 
+        ],
+        "readingTime": "3",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4283",
+        "slug": "Pipe-Dream-Events",
+        "date": "22-12-10",
+        "tags": [
+            "Web",
+            "Design",
+            "Development",
+            "Video & Animation"
+        ],
+        "title": "Pipe Dream Events",
+        "subtitle": "Brand Identity",
+        "description": "We proudly presents Pipe Dream Event's 20th-anniversary branding launch. Design packing an extensive array of branding and design services..",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/31-Pipedream+Events/01+Pipedream+Events.jpg" 
+        ],
+        "readingTime": "7",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4262",
+        "slug": "A-Flower-Bath",
+        "date": "17-09-03",
+        "tags": [
+            "Brand Strategy & Identity",
+            "Photography",
+            "Styling"
+        ],
+        "title": "A Flower Bath",
+        "subtitle": "Botanical Bliss Soaps",
+        "description": "MYLG captures the essence  with recent shoot ‘Flower Bath Rose’  an enchanting blend of fresh flowers, soothing milk tea, invigorating aromas, radiant women, all set against the vibrant backdrop of Los Angeles, CA",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/11-Flower+Bath+Rose/01+Flower+Bath+Rose.jpg" 
+        ],
+        "readingTime": "4",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4265",
+        "slug": "Ghost-Circus-Apparel",
+        "date": "19-02-01",
+        "tags": [
+            "Photography",
+            "Brand Strategy & Identity"
+        ],
+        "title": "Ghost Circus Apparel",
+        "subtitle": "X by Eli James Collection",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/14-Ghost+Circus+Apparel/01+Ghost+Circus+Apparel.JPG" 
+        ],
+        "readingTime": "5",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4278",
+        "slug": "NOCCO",
+        "date": "22-11-18",
+        "tags": [
+            "Photography",
+            "Brand Strategy & Identity"
+        ],
+        "title": "NOCCO",
+        "subtitle": "Influencers Venice Beach, CA",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/26-NOCCO/01+NOCCO.png"
+        ],
+        "readingTime": "3",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4282",
+        "slug": "Shaken-Not-Stirred",
+        "date": "18-07-03",
+        "tags": [
+            "Video & Animation",
+            "Brand Strategy & Identity"
+        ],
+        "title": "Shaken Not Stirred",
+        "subtitle": "Made by berryboots",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/30-Shaken+Not+Stirred/01+Shaken+Not+Stirred.jpg" 
+        ],
+        "readingTime": "2",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4263",
+        "slug": "Frank-Zummo-Sum41",
+        "date": "18-07-03",
+        "tags": [
+            "Photography",
+            "Brand Strategy & Identity"
+        ],
+        "title": "Frank Zummo Sum41",
+        "subtitle": "GCA Collection Campaign",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/12-Frank+Zummo+Sum41/01+Frank+Zummo+Sum41.jpg" 
+        ],
+        "readingTime": "3",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4272",
+        "slug": "Keys-Art-Basel",
+        "date": "22-12-10",
+        "tags": [
+            "3D-Rendering",
+            "Video & Animation"
+        ],
+        "title": "Keys Art Basel",
+        "subtitle": "Mokibaby",
+        "description": "Mokibaby crafts designs for Keys Soulcare during a special pop-up event at Nylon House during Art Basel Miami. This captivating experience unfolded at the scenic Strawberry Moon Hotel",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/20-Keys+Art+Basel/01+Keys+Art+Basel-.jpg" 
+        ],
+        "readingTime": "6",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4254",
+        "slug": "Barebells",
+        "date": "22-09-20",
+        "tags": [
+            "3D-Rendering",
+            "Video & Animation",
+            "Graphic Design"
+        ],
+        "title": "Barebells",
+        "subtitle": "Influencer Studios Venice Beach, CA",
+        "description": "Shaping Design for Impact. Explore the essence of visionary design and its power in creating lasting impressions.",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/03-Barebells/01+Barebells.jpg" 
+        ],
+        "readingTime": "8",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4260",
+        "slug": "elf-studio",
+        "date": "23-03-24",
+        "tags": [
+            "3D-Rendering",
+            "Immersive Digital"
+        ],
+        "title": "e.l.f. Studio",
+        "subtitle": "Mokibaby",
+        "description": "Mokibaby designs passionately for an elite disco club experience. E.l.f. studio takes center stage, pulsating with all things astoundinglye.l.f.ing amazing! ",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/09-elf-studio/01+elf+studio.jpg" 
+        ],
+        "readingTime": "6",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4286",
+        "slug": "Nike-Femme",
+        "date": "17-04-11",
+        "tags": [
+            "Photography",
+            "Brand Strategy & Identity"
+        ],
+        "title": "Nike Femme",
+        "subtitle": "SheMoves: Tara's Fitness Journey",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/34-Nike+Femme/01+Nike+Femme.jpg" 
+        ],
+        "readingTime": "4",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4256",
+        "slug": "The-Party-Never-Ends",
+        "date": "23-08-19",
+        "tags": [
+            "Design",
+            "Art Direction",
+            "3D-Rendering"
+        ],
+        "title": "The Party Never Ends",
+        "subtitle": "Chainsmokers ADPTV",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/05-The+Party+Never+Ends/01+The+Party+Never+Ends.jpg" 
+        ],
+        "readingTime": "3",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4292",
+        "slug": "km-tour",
+        "date": "22-06-28",
+        "tags": [
+            "Art Direction",
+            "O.S.D. Design"
+            
+        ],
+        "title": "KM Tour",
+        "subtitle": "K.Michelle O.S.D TOUR ",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/39-KM+Tour/00+KM+Tour.jpg" 
+        ],
+        "readingTime": "2",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4258",
+        "slug": "D-ROCK",
+        "date": "21-05-02",
+        "tags": [
+            "Photography",
+            "Brand Strategy & Identity"
+        ],
+        "title": "D-ROCK",
+        "subtitle": "Branding Collection Launch 19",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/07-D-Rock/01+DRock.jpg" 
+        ],
+        "readingTime": "3",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4268",
+        "slug": "J22-INTERIORS",
+        "date": "22-08-09",
+        "tags": [
+            "Interior Design",
+            "3D Renderings"
+            
+        ],
+        "title": "J22 INTERIORS",
+        "subtitle": "Interior Design Level 1",
+        "description": "Interior Design Level 1 highlights the transformation of a classic 1920’s retail, club, and amenity space. MYLG has reimagined this historic location with a sleek, fresh, modern touch.”",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/17-J22+Gymfinity/01+J22+Gymfinity.jpg" 
+        ],
+        "readingTime": "6",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4267",
+        "slug": "Gucci-Aria",
+        "date": "21-12-05",
+        "tags": [
+            "3D-Rendering",
+            "Prop Design"
+        ],
+        "title": "Gucci Aria",
+        "subtitle": "Mokibaby",
+        "description": "Mokibaby celebrates Gucci’s 10th anniversary with a pop-up at the Webster Miami. The highlight? A grand, custom-made cake adorned in iconic Gucci style.",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/16-Gucci+Aria/01+Gucci+Aria+.jpg" 
+        ],
+        "readingTime": "4",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4279",
+        "slug": "Now-United",
+        "date": "23-07-28",
+        "tags": [
+            "3D-Rendering",
+            "Graphic Design"
+        ],
+        "title": "Now United",
+        "subtitle": "Mokibaby",
+        "description": "Branding transformation alert! Mokibaby revamps the logo for the global pop band, Now United. Presenting a fresh and modern design that’s soon to become ubiquitous",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/27-Now+United/01+Now+United.jpg" 
+        ],
+        "readingTime": "2",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4274",
+        "slug": "Machine-Head",
+        "date": "19-08-07",
+        "tags": [
+            "Photography",
+            "Brand Strategy & Identity"
+        ],
+        "title": "Machine Head",
+        "subtitle": "C19 Campaign Photography",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/22-Machine+Head/01+Machine+Head.jpg" 
+        ],
+        "readingTime": "6",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4266",
+        "slug": "Goldru$h",
+        "date": "23-05-15",
+        "tags": [
+            "Design",
+            "Art Direction",
+            "Photography"
+        ],
+        "title": "Goldru$h",
+        "subtitle": "Kissed in Karat",
+        "images": [
+            "https://d1cazymewvlm0k.cloudfront.net/15-Lipography/01+Lipography.jpg" 
+        ],
+        "readingTime": "8",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4276",
+        "slug": "Mistifi-Vape",
+        "date": "20-12-14",
+        "tags": [
+            "Design",
+            "Art Direction",
+            "3D-Rendering",
+            "Event",
+            "Production"
+        ],
+        "title": "Mistifi Vape",
+        "subtitle": "Emerald Cup 20",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/24-Mistifi+Vape/01+Mistifi+Vape.jpg" 
+        ],
+        "readingTime": "4",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4270",
+        "slug": "Jewelie-Stark",
+        "date": "17-08-14",
+        "tags": [
+            "Photography",
+            "Brand Strategy & Identity"
+        ],
+        "title": "Jewelie Stark",
+        "subtitle": "Angels Aftermath Collection",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/18-Jewelie+Stark/01+Jewelie+Stark.jpg" 
+        ],
+        "readingTime": "6",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4295",
+        "slug": "gatane",
+        "date": "17-05-17",
+        "tags": [
+            "Photography",
+            "Personal Branding & Identity"
+        ],
+        "title": "Gatane ",
+        "subtitle": "LIFE=MUSIC²",
+        "description": "We branded, shot and realized Gatane’s SMO campaign for his new show “Live Therapy”an offbeat song & stand-up mix that has been touring in Paris since 2014...",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/40-Gatene/00+Gatene.jpg" 
+        ],
+        "readingTime": "7",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4261",
+        "slug": "elf-Makeup-Hollywood-Bowl",
+        "date": "22-10-20",
+        "tags": [
+            "3D-Rendering",
+            "Immersive Digital"
+        ],
+        "title": "e.l.f. Makeup Hollywood Bowl",
+        "subtitle": "Mokibaby",
+        "description": "Mokibaby designs for E.l.f., joining hands with Audacy’s 9th Annual ‘We Can Survive’ gala at the legendary Hollywood Bowl supporting the American Foundation for Suicide Prevention.”",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/10-elf+Makeup+hollywood+bowl/01+elf+hollywood+bowl-.jpg" 
+        ],
+        "readingTime": "3",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4264",
+        "slug": "Be-Sweet-16",
+        "date": "22-06-28",
+        "tags": [
+            "3D-Rendering",
+            "Design",
+            "Art Direction"
+        ],
+        "title": "Be Sweet 16",
+        "subtitle": "Galpin Ford Showroom LA",
+        "description": "Galpin Ford Showroom in LA welcomes MYLG To design & bring to life the ultimate ‘Euphoria’ themed Sweet 16 birthday bash, spotlighting the sparkle of Lemon-head Glitter",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/13-Be+Sweet+16/01+Be+Sweet+16.jpg" 
+        ],
+        "readingTime": "4",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4295",
+        "slug": "yanis",
+        "date": "17-09-11",
+        "tags": [
+            "Photography",
+            "Personal Branding & Identity"
+        ],
+        "title": "Yanis",
+        "subtitle": "Acoustic Soul Sessions",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/41-Yanis/00+Yanis.jpg" 
+        ],
+        "readingTime": "4",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4252",
+        "slug": "Agenda-Festival",
+        "date": "18-08-12",
+        "tags": [
+            "Design",
+            "Art-Direction",
+            "Live-Show-Production",
+            "Activation"
+        ],
+        "title": "Agenda Festival",
+        "subtitle": "AGENDAFEST.CO Long Beach, CA",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/01-Agenda+Festival/00+Agenda+Festival.jpg" 
+        ],
+        "readingTime": "1.5",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4281",
+        "slug": "The-Oscars",
+        "date": "21-01-03",
+        "tags": [
+            "Live Show Production",
+            "Activation"
+        ],
+        "title": "The Oscars",
+        "subtitle": "FAN EXPERIENCE",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/29-The+Oscars/01+The+Oscars.jpg" 
+        ],
+        "readingTime": "4",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4284",
+        "slug": "Solo-J",
+        "date": "19-05-15",
+        "tags": [
+            "Photography",
+            "Brand Strategy & Identity"
+        ],
+        "title": "Solo J",
+        "subtitle": "Paramount Studios",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/32-Solo+J/01+Solo+J.jpg" 
+        ],
+        "readingTime": "3",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4275",
+        "slug": "Ulta",
+        "date": "17-10-24",
+        "tags": [
+           "Branding",
+            "3D-Rendering",
+            "Graphic Design"
+        ],
+        "title": "ULTA",
+        "subtitle": "Ulta-centric Beauty Lounge",
+        "description": "Mokibaby designed an Ulta-inspired Beauty Lounge for AOP, blending clean aesthetics with pop vibes for a glamorous student experience.",
+        "images": [
+            "https://d1cazymewvlm0k.cloudfront.net/46-ulta/ulta-cover.png" 
+        ],
+        "readingTime": "6",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4273",
+        "slug": "Logitech",
+        "date": "22-09-26",
+        "tags": [
+            "3D-Rendering",
+            "Graphic Design"
+        ],
+        "title": "Logitech",
+        "subtitle": "Unleash your play",
+        "description": "Unleash Your Play: A Comic-Con Spectacle with Custom 360° Booth Brand Activation and High-Resolution 3D Graphic Masterpieces.",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/21-Logitech/01+Logitech.jpg" 
+        ],
+        "readingTime": "7",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4277",
+        "slug": "MZ-Stellar-Brass",
+        "date": "18-07-03",
+        "tags": [
+            "Design",
+            "Art Direction",
+            "3D-Rendering",
+            "Event",
+            "Production"
+        ],
+        "title": "MZ Stellar Brass",
+        "subtitle": "PD Events",
+        "description": "“MYLG x MZ Private Event Design: A Steampunk Fantasy at The Edison MZ, San Jose. With unparalleled surprises, bespoke artistry, and unexpected guest performances, this event is etched in our memory books …",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/25-MZ+Stellar+Brass/01+MZ+Stellar+Brass.jpg" 
+        ],
+        "readingTime": "6",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4298",
+        "slug": "brand-by-people",
+        "date": "18-07-03",
+        "tags": [
+            "Photography",
+            "Personal Branding"
+        ],
+        "title": "Brand by People",
+        "subtitle": "A gallery of professional portraits showcasing individuals through striking visuals and authentic storytelling.",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/42-Brand+by+People/00.jpg" 
+        ],
+        "readingTime": "3",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4288",
+        "slug": "TROIA",
+        "date": "19-02-26",
+        "tags": [
+            "Design",
+            "Art Direction",
+            "3D-Rendering",
+            "Production"
+        ],
+        "title": "TROIA",
+        "subtitle": "California Retail & Live Events",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/36-TROIA/01+TROIA.jpg" 
+        ],
+        "readingTime": "4",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4299",
+        "slug": "natasha-bedingfield",
+        "date": "19-02-26",
+        "tags": [
+            "Stagse Design",
+            "Art Direction"
+        ],
+        "title": "Natasha Bedingfield",
+        "subtitle": "Roller Skate",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/43-NB/00+NB.jpg" 
+        ],
+        "readingTime": "2",
+        "authorName": "J&J"
+    },
+    {
+        "id": "4298",
+        "slug": "1-sens-c",
+        "date": "18-07-03",
+        "tags": [
+            "Photography",
+            "Personal Branding"
+        ],
+        "title": "1 Sens C",
+        "subtitle": "Paris, France",
+        "images": [
+            "https://d2qb21tb4meex0.cloudfront.net/44-sensC/00+sensC.jpg" 
+        ],
+        "readingTime": "4",
+        "authorName": "J&J"
+    }
+]

@@ -1,0 +1,282 @@
+.svg-overlay {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#revealPath {
+  fill: #0c0c0c; /* Color to hide the content initially */
+}
+
+.content-limit {
+  max-width: 1920px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative; /* For the absolute positioned SVGs inside */
+  padding-left: 20px;  /* Optional padding */
+  padding-right: 20px; /* Optional padding */
+  
+}
+
+.studio-title {
+  
+  background: white;
+  padding-top: 75px;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+
+.studio-subtitle {
+  padding-top: 50px;
+  background: #FA3356;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#studio-title, #studio-subtitle {
+  width: 100%;  /* Fallback */
+ 
+
+}
+.tagline {
+  width:100%;
+  background: #0c0c0c;
+  padding-top: 75px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  
+}
+
+.services-description {
+  font-size: min(2rem, 3vw); /* Decrease the vw value to reduce font size on smaller screens */
+  max-width: min(1920px, 100vw); /* Set a dynamic max-width based on the viewport width */
+  width: 100%;
+  margin: 0px auto ;
+  padding: 0px 20px 100px;
+  
+}
+
+
+#tagline{
+  
+  
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  width: 100%;  /* Fallback */
+  z-index: 1;
+ 
+
+}
+.services-title {
+  color: #0c0c0c;
+  width: 90%;
+  text-align: center;  /* Horizontally centers the text */
+  font-size: min(6vw, 40px);  /* Adapts based on viewport width, but doesn't exceed 40px */
+  margin: 0 auto;  /* Centers the title when the width is less than the container */
+}
+.mylg-container {
+  background: linear-gradient(to bottom, #FA3356, #0c0c0c 100%);
+  justify-content: center;
+  z-index: 0;
+  height: 70vh;
+}
+
+
+#mylg-solo { 
+  z-index: 2;
+}
+.about-container {
+padding-top: 100px;
+  margin: 20px auto; /* Center the section horizontally */
+  width: 1920px;
+  max-width: 100%; /* Ensure it doesn't overflow on smaller screens */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.services {
+  border-radius: 40px;
+  border: 2px solid var(--text-color);
+  padding: 20px;
+  line-height: 0.9em;
+}
+#random-quote-container {
+  padding-bottom: 0px;
+}
+
+#about-section,
+#services-title-section {
+  padding-bottom: 25px;
+}
+
+.flex-row {
+  padding-top: 50px;
+  max-width: 1920px;
+  padding: 25px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 1.5rem auto;
+  overflow: hidden;
+}
+
+.flex-col {
+  flex: 1;
+  
+}
+
+
+
+.t_border {
+  width: 100%;
+  border-top: 2px solid #e0e0e0;
+}
+
+.subheading {
+  padding: 50px 10px;
+}
+
+
+.services-title {
+  padding: 20px;
+}
+.data-class.about-us {
+  padding: 20px;
+}
+
+.about {
+  max-width: 400px;
+  line-height: 0.8;
+  font-size: min(10rem, 8vw);
+  
+
+}
+
+.about-us{
+  line-height: 0.9;
+  font-size: min(2.5rem, 5vw);
+  max-width: 400px;
+}
+
+
+#random-quote {
+  
+  line-height: 0.8;
+  font-size: min(10rem, 8vw);
+  color: var(--text-color-3);
+}
+
+.about,
+.services-title {
+  border-radius: 40px;
+
+  margin: 20px;
+  padding: 20px;
+  line-height: 0.9em;
+  display: inline-block;
+}
+
+.cards-container {
+  max-width: 1920px;
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 20px 20px; /* or whatever value you'd like */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+
+
+.card-item {
+  background-color: #0d0d0d;
+  
+  
+  padding: min(10px, 2.5vw) min(10px, 2.5vw); 
+  
+  color: white;
+  border-radius: min(40px, 3vw);
+  background-color: transparent;
+  border: 2px solid white;
+  
+}
+
+
+
+.card:hover {
+  transform: translateY(-10px); 
+}
+.card-row {
+  display: flex;
+  align-items: center; /* Vertically center the content */
+}
+.circle {
+  font-family: "Oswald", sans-serif;
+  font-size: min(6rem, 3vw);
+  width: 100px; /* Define the width */
+  height: 0px; /* Define the height, equal to width for a perfect circle */
+  
+  background-color: transparent;
+  align-content: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  
+}
+ .card-title {
+  
+  font-size: min(8rem, 4vw);
+  line-height: 0.8;
+ }
+ .card-description {
+  font-size: min(5rem, 2.5vw);
+  line-height: 1.5;
+ }
+
+
+.dotted-hr {
+  border: none;
+  border-top: min(0.3rem, 0.5vw) dotted #e0e0e0;
+  margin: 16px 0;
+}
+
+.right-column {
+  margin-top: 150px; /* Adjust this value based on how much you want to move it down */
+}
+@media (max-width: 768px) {
+  .card {
+    flex: 0 0 100%; 
+     /* Make cards take full width on smaller screens */
+  }
+
+  .dotted-hr {
+    border: none;
+    border-top: 2px dotted #e0e0e0;
+    margin: 16px 0;
+  }
+
+  .card-description {
+    
+    font-size: min(2.5rem, 2vw);
+    line-height: 1.5;
+   }
+  
+}
+/* Media query for screens that are 768px wide or less */
+@media (max-width: 768px) {
+  .cards-container {
+    grid-template-columns: 1fr; /* switch to one column */
+  }
+}

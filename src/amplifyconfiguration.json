@@ -1,0 +1,26 @@
+﻿{
+  "Auth": {
+    "Cognito": {
+      "region": "us-west-1",
+      "userPoolId": "us-west-1_bsb5GcQCx",
+      "userPoolClientId": "3fi02evck0sfmtt2j55dmpu8ui",
+      "identityPoolId": "us-west-1:102e88a9-1862-413e-9fde-fd48e7741675",
+      "loginWith": { "email": true, "username": false, "phone": false }
+    }
+  },
+  "Storage": {
+    "S3": {
+      "region": "us-west-1",
+      "bucket": "mylguserdata194416-dev"
+    }
+  },
+
+  "aws_project_region": "us-west-1",
+  "aws_cognito_region": "us-west-1",
+  "aws_user_pools_id": "us-west-1_bsb5GcQCx",
+  "aws_user_pools_web_client_id": "3fi02evck0sfmtt2j55dmpu8ui",
+  "aws_cognito_identity_pool_id": "us-west-1:102e88a9-1862-413e-9fde-fd48e7741675",
+  "aws_user_files_s3_bucket": "mylguserdata194416-dev",
+  "aws_user_files_s3_bucket_region": "us-west-1",
+  "mandatorySignIn": false
+}

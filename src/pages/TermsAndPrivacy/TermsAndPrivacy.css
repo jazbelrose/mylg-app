@@ -1,0 +1,132 @@
+.terms-privacy-wrapper {
+    width: 100%;
+    min-height: 100dvh; /* Ensure it takes at least full screen height */
+    overflow-x: hidden;
+    overflow-y: auto; /* Enable scrolling */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align content at the top */
+    
+}
+
+.terms-privacy {
+
+    
+    padding: 5px;
+    padding-top: 100px;
+    max-width: 800px;
+    width: 90%;
+    margin: 0 auto;
+    line-height: 1.6;
+    color: #fff;
+    background-color: #0c0c0c;
+    border-radius: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+/* Title */
+.terms-privacy h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+    color: #FA3356;
+    margin-bottom: 2rem;
+}
+
+/* Section Styling */
+.terms-privacy section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #111;
+    border: 2px solid white;
+    border-radius: 20px;
+    position: relative;
+    box-shadow: 0 0 15px rgba(250, 51, 86, 0.15); /* Soft red glow */
+}
+
+/* Subtle Static Glow Effect */
+.terms-privacy section::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 110%;
+    height: 120%;
+    background: radial-gradient(rgba(250, 51, 86, 0.2), transparent 80%);
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    border-radius: 25px;
+    filter: blur(15px);
+}
+
+/* Section Header */
+.terms-privacy h2 {
+    font-size: 1.5rem;
+    color: #FA3356;
+    margin-bottom: 1rem;
+}
+
+/* Question Styling */
+.terms-privacy .question {
+    font-size: 1rem; /* Slightly bigger for emphasis */
+    font-weight: bold;
+    color: #FFF;
+    margin-top: 1rem;
+}
+
+/* Answer Styling */
+.terms-privacy .answer {
+    font-size: 1rem;
+    color: #fff;
+    opacity: 0.7; /* Slightly faded */
+    margin-top: 0.3rem;
+}
+
+/* Spacing for Q: and A: */
+.terms-privacy strong {
+    display: inline-block;
+    width: 28px;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .terms-privacy-container {
+        padding: 10px 0; /* Adjust padding for mobile */
+    }
+
+    .terms-privacy {
+        padding-top: 80px;
+        width: 100%;
+        max-width: 100%;
+        border-radius: 15px; /* Slightly smaller border-radius for a tighter fit */
+    }
+
+    .terms-privacy h1 {
+        font-size: 2rem; /* Reduce title size */
+        margin-bottom: 1.5rem;
+    }
+
+    .terms-privacy section {
+        padding: 1.2rem; /* Reduce padding for better spacing */
+    }
+
+    .terms-privacy h2 {
+        font-size: 1.3rem; /* Reduce section header size */
+    }
+
+    .terms-privacy .question {
+        font-size: 1rem; /* Ensure readability */
+    }
+
+    .terms-privacy .answer {
+        font-size: 1rem; /* Adjust answer font size */
+        opacity: 0.6;
+    }
+
+    /* Keep the glow effect but slightly reduce it on mobile */
+    .terms-privacy section::before {
+        width: 115%;
+        height: 115%;
+        filter: blur(10px);
+    }
+}

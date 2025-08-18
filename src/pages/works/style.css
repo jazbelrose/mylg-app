@@ -1,0 +1,106 @@
+* {
+    box-sizing: border-box;
+  }
+  
+.workspage-container {
+    background-color: var(--bg-color);
+    padding: min(75px, 10vw) min(20px, 2vw) 0;
+    margin-bottom: min(100px, 10vw);
+    overflow: hidden;
+    max-width: 1920px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+
+.works-heading {
+    
+    
+    padding-top: 20px;
+
+}
+
+
+.works-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-height: 175px;
+    
+}
+
+.works-header {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    padding: min(25px, 1.5vw) 10px 0;
+
+}
+
+.works-header h2 {
+    line-height: 0.8;
+    font-size: min(10rem, 16vw);
+    white-space: nowrap;
+
+}
+
+
+.arrow-down.works-arrow {
+    color: white;
+    margin-left: auto;
+    padding: min(50px, 3vw) 20px 0;
+    font-size: min(10rem, 16vw);
+
+
+}
+
+
+.works-subheader {
+    padding: 0 25px ;
+
+    color: #8D8787;
+    
+}
+
+
+.works-subheader h3 {
+    font-weight: 900;
+    
+    font-size: min(4rem, 6vw);
+}
+
+
+
+
+.works-item {
+    padding: min(1px, 0.1vw) min(20px, 2vw);
+}
+
+
+
+@media (max-width: 768px) {
+
+    .works-item {
+        padding-bottom: min(1px, 0.3vw);
+        /* Reduce the bottom padding */
+    }
+
+
+
+    .works-header h2 {
+        
+        padding: min(100px, 5vw) 0px 0px 0px;
+    }
+}
+
+
+    .works-heading {
+        max-width: 1920px;
+        margin: 0 auto;
+        padding-top: 0px;
+    
+    }
+   

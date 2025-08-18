@@ -1,0 +1,277 @@
+
+
+
+@font-face {
+  font-family: 'Helvetica Special';
+  src: url('./fonts/Helvetica-Display.woff2');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helvetica Black';
+  src: url('./fonts/Helvetica-Black.woff2');
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Helvetica Light';
+  src: url('./fonts/Helvetica-Light.woff2');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helvetica Neue';
+  src: url('./fonts/Helvetica-Neue.woff2');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Helvetica Medium';
+  src: url('./fonts/Helvetica-Medium.woff2');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'mylg-serif';
+  src: url('./fonts/mylg-serif.woff2');
+  font-weight: 500;
+  font-style: normal;
+}
+
+
+
+
+.opacity-high,
+.opacity-low {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.opacity-high {
+  opacity: 1;
+}
+
+.opacity-low {
+  opacity: 0;
+}
+
+/* Simple overlay used for page transitions */
+.page-fade {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-color);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+
+
+
+:root {
+  font-size: 16px;
+  /* Jensen & Juhl design system variables */
+  --brand: #FA3356;
+  --bg: #0c0c0c;
+  --bg2: #111111;
+
+  /* legacy variables */
+  --bg-color: var(--bg);
+  --primary-color: #0d0d0d;
+  --secondary-color: #fff;
+  --text-color: #fff;
+  --text-color-2: #fff;
+  --text-color-3: var(--brand);
+  --overlay-color: rgb(12 12 12 / 63%);
+}
+
+
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; 
+}
+
+body::-webkit-scrollbar {
+  width: 0 !important;
+  overscroll-behavior: none;
+}
+
+
+html {
+  height: 100vh; /* fallback for older browsers */
+  height: 100dvh;
+  overscroll-behavior: none;
+  scrollbar-width: none;
+  
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh; /* fallback */
+  min-height: 100dvh;
+
+  color: var(--text-color);
+  font-family: "Helvetica Special", sans-serif;
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  overflow: -moz-scrollbars-none;
+  -ms-overflow-style: none;
+  font-family: "Helvetica Special", sans-serif;
+  letter-spacing: -0.03em;
+}
+
+
+ul {
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Helvetica Special", sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+
+
+a,
+a:hover {
+  color: var(--text-color);
+}
+
+p {
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.ovhidden {
+  overflow: hidden;
+}
+
+.cursor__dot div {
+  z-index: 999999 !important;
+}
+
+.cursor__dot div:last-child {
+  background-color: var(--text-color-3) !important;
+}
+
+.cursor__dot div:first-child {
+  filter: invert(1);
+  background-color: var(--overlay-color) !important;
+}
+
+.overlay {
+  position: fixed;
+  width: 100%;
+  height: 100vh; /* fallback */
+  height: 100dvh;
+  z-index: 2;
+  display: flex;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.bar {
+  width: 10vw;
+  height: 105vh;
+  background: #0c0c0c;
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background-color: #00ff00;
+  border: 2px solid #0c0c0c;
+  border-radius: 50%;
+}
+
+/* ------------------------------------------------------------ */
+/* Global dark theme overrides for all date pickers and calendars */
+/* ------------------------------------------------------------ */
+
+/* Ant Design picker inputs */
+.ant-picker {
+  background-color: #181818 !important;
+  color: #fafafa !important;
+  border: 1px solid #333 !important;
+  border-radius: 8px !important;
+}
+
+.ant-picker-input > input {
+  color: #fafafa !important;
+}
+
+.ant-picker-suffix,
+.ant-picker-clear {
+  color: #fafafa !important;
+}
+
+/* Ant Design picker dropdown panels */
+.ant-picker-dropdown .ant-picker-panel-container {
+  background-color: #181818 !important;
+  color: #fafafa !important;
+  border-radius: 8px !important;
+  border: 1px solid #333 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.ant-picker-dropdown * {
+  color: #fafafa;
+}
+
+/* Native date inputs */
+input[type="date"] {
+  background-color: #181818;
+  color: #fafafa;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color-scheme: dark;
+  padding: 4px 8px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* React-Calendar baseline */
+.react-calendar {
+  background-color: #181818;
+  color: #fafafa;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+/* Neutralize AntD's base under .ant-app so it inherits your root styles */
+:where(.ant-app){
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  box-sizing: inherit;
+}
+
+/* Make sure your root establishes the app's base */
+html, body, #root {
+  font-family: "Helvetica Special", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  line-height: 1.5;
+  color: rgba(255,255,255,.9);
+}
+

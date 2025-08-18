@@ -1,0 +1,906 @@
+.dashboard-content {
+    display: flex;
+   
+    align-items: stretch;
+   
+    flex: 1;
+   
+    gap: 5px;
+    overflow: hidden;
+    
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;         /* Fills available vertical space */
+    overflow: hidden;/* Prevents the entire container from scrolling */
+    min-height: 0;   /* Allow children to shrink when viewport is short */
+    justify-content: center; /* center calendar vertically */
+    align-items: center;     /* center calendar horizontally */
+}
+
+/* When a full-width view like Notifications is shown, let content stretch */
+.dashboard-content.full-width .main-content {
+    justify-content: flex-start;
+    align-items: stretch;
+}
+  .row-layout {
+    display: flex;
+   
+    width: 100%;
+   
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .navigation-sidebar {
+  flex-shrink: 0;
+ 
+  overflow-y: auto; /* Scroll if sidebar is too tall */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #0c0c0c;
+  padding: 20px;
+  margin-right: 5px;
+  box-sizing: border-box;
+  border: 2px solid white;
+  border-radius: 20px;
+}
+
+.nav-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.nav-item {
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.nav-item:last-child {
+  margin-bottom: 0;
+}
+.welcome-screen-details {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden; /* Optional, to prevent content from overflowing horizontally */
+  }
+  .quickstats-sidebar {
+    flex-shrink: 0;
+    width: 300px;     /* Adjust as needed */
+    overflow: visible; 
+  }
+
+
+.quick-stats-container-row {
+    background-color: #0c0c0c;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 5px;
+}
+
+
+.quick-stats-container-column {
+    background-color: #0c0c0c;
+    color: #fff;
+
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.stats-grid {
+    display: flex;
+    /* ✅ Force row layout */
+    flex-direction: row;
+    /* ✅ Ensure horizontal stacking */
+    width: 100%;
+    /* ✅ Ensure full row spans */
+    gap: 5px;
+}
+
+.stats-count,
+.stats-title {
+    font-size: 16px;
+
+
+
+}
+
+/* Sidebar Grid Layout */
+.left-sidebar-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+    height: 100%;
+}
+
+
+
+
+/* Individual Stat Item */
+.stat-item {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 20px;
+    border: 2px solid white;
+    border-radius: min(20px, 4vw);
+    transition: background 0.25s ease-in-out, transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+}
+
+.row-items {
+    display: flex;
+    flex-direction: column;
+    /* Default: stack vertically */
+    gap: 5px;
+}
+
+
+
+
+
+/* Hover Effect */
+.stat-item:hover {
+    
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 3px 12px rgba(255, 255, 255, 0.15);
+}
+
+/* Stat Header */
+.stat-item-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+/* Icons */
+.stat-icon {
+    color: #FA3356;
+    width: 20px;
+    height: 20px;
+}
+
+/* === Progress Bar (For Projects Only) === */
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #d3d3d3;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Progress Color */
+.progress-completed {
+    height: 100%;
+    background-color: #00c853;
+    transition: width 0.3s ease-in-out;
+}
+
+
+/* Default (Desktop) */
+.progress-text {
+    font-size: 14px;
+    color: #888888;
+    text-align: center;
+    margin: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+
+/* 2) The .notifications container also expands and keeps its border visible */
+.notifications {
+    flex: 1;         /* Or give it a fixed height if you prefer */
+    display: flex;
+    flex-direction: column;
+    border: 2px solid white;
+    border-radius: 20px;
+    overflow: hidden;/* So only the feed can scroll, the border remains visible */
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box; /* include border in size to avoid overflow */
+  }
+  
+
+
+ 
+  .notifications-feed {
+    flex: 1;         /* Fills leftover space within .notifications */
+    overflow-y: auto;/* This is where the scrollbar happens */
+    padding: 0;
+    background-color: #111;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box; /* stretch without causing scroll */
+  }
+/* === 🔥 Title (Pinned to Top) === */
+.notifications-title {
+    padding: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    /* background: linear-gradient(30deg, #181818, #0c0c0c);
+ */
+
+
+    color: white;
+    border-radius: 0;
+    /* ✅ No rounded edges for a bold look */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    /* ✅ Stronger shadow */
+}
+
+.messages-container{
+
+    width: 100%;
+
+    height: 100%;
+
+    display: flex;
+    
+    border: 2px solid white;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+
+
+.projects-title {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: left;
+}
+
+
+.dashboard-footer {
+    width: 100%;
+   border: 2px solid white;
+   border-radius: 20px;
+    background-color: transparent;
+    color: #fff;
+    margin-top: 10px;
+    padding: 1rem 2rem;
+    box-sizing: border-box;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* ✅ Default: Everything inline on large screens */
+.footer-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.footer-links {
+    display: flex;
+    gap: 15px;
+}
+
+.footer-links a {
+    color: #ccc;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.9rem;
+    padding: 5px 10px;
+}
+
+.footer-links a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+.footer-icon {
+    margin-right: 5px;
+    font-size: 1em;
+}
+
+/* ✅ System Status */
+.system-status {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: #ccc;
+    gap: 6px;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+
+
+@media (min-width: 768px) {
+    .row-items {
+        height: 80%;
+    }
+
+    /* Optionally ensure the contained items fill that height */
+    .row-items .stat-item {
+        flex: 1;
+        min-height: 0;
+    }
+}
+
+
+
+/* Responsive: Stack QuickStats above content on smaller screens */
+@media (max-width: 768px) {
+
+    .progress-text {
+        font-size: 12px;
+    }
+
+   
+
+    .dashboard-content {
+        flex-direction: column;
+    }
+
+
+    .row-items {
+        flex-direction: row;
+    }
+
+    .row-items .stat-item {
+        flex: 1;
+        min-width: 0;
+
+    }
+
+
+    .left-stat-small {
+
+        flex: 0 0 auto !important;
+        height: 80px;
+        overflow: hidden;
+    }
+
+   
+    .quickstats-sidebar {
+        /* Hide quick stats to give content full width */
+        display: none;
+    }
+
+    .quick-stats-container-row {
+        width: 100%;
+    }
+
+    .stats-count,
+    .stats-title,
+    .notifications-title {
+        font-size: 14px;
+        padding: 10px 15px;
+    }
+
+    .projects-title {
+        font-size: 14px;
+    }
+
+
+    .footer-center {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .footer-links {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+     .navigation-sidebar {
+        padding: 10px 15px;
+        margin-right: 0;
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-evenly;
+        gap: 20px;
+    }
+
+    .row-layout {
+        flex-direction: column-reverse;
+        overflow-y: auto;
+    }
+
+    .main-content {
+        overflow-y: auto;
+    }
+
+     .nav-bottom {
+        display: contents;
+    }
+
+    .stat-item {
+        padding: 8px 12px;
+    }
+    .nav-item {
+        margin-bottom: 0;
+    }
+
+    .nav-item svg {
+        width: 15px;
+        height: 15px;
+    }
+
+
+    .system-status {
+        justify-content: center;
+    }
+}
+
+.message-stat .unread-dm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  max-height: 40vh;
+  overflow-y: auto;
+  scroll-snap-type: y proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.message-stat .unread-dm-list::-webkit-scrollbar {
+  display: none;
+}
+
+.unread-dm-item {
+  display: flex;
+  align-items: center;
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  padding: 6px 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  scroll-snap-align: start;
+  position: relative;
+}
+
+.unread-dm-item:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+.dm-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.dm-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dm-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.dm-text {
+  font-size: 12px;
+  color: #bbb;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.read-indicator.read {
+  margin-left: auto;
+  opacity: 0.6;
+}
+.read-indicator.unread {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--text-color-3);
+  margin-left: auto;
+}
+/* make sure the SVG itself is visible (not blue or hidden) */
+.read-indicator.read svg {
+  color: #888;     /* or whatever “read” color you like */
+  width: 12px;
+  height: 12px;
+}
+.last-messages-preview {
+  margin-top: 20px;
+}
+.last-messages-preview ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.last-messages-preview li {
+  display: flex;
+  align-items: center;
+  padding: 6px 0;
+  cursor: pointer;
+  border-bottom: 1px solid #333;
+}
+.last-messages-preview li:last-child {
+  border-bottom: none;
+}
+.last-messages-preview .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+.last-messages-preview .info {
+  flex: 1;
+  overflow: hidden;
+}
+.last-messages-preview .info p {
+  margin: 0;
+  color: #bbb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.last-messages-preview .meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 12px;
+  color: #888;
+}
+.unread-dot {
+  background: #FA3356;
+  color: #fff;
+  border-radius: 12px;
+  padding: 2px 6px;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.notification-icon-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-badge {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px black;
+  background: #FA3356;
+}
+
+.nav-icon-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.nav-sidebar-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 18px;
+  border-radius: 50%;
+  background: #E50017;
+  color: #fff;
+}
+
+@media (max-width: 760px) {
+  .nav-sidebar-badge {
+    width: 14px;
+    height: 14px;
+    font-size: 10px;
+    line-height: 14px;
+  }
+}
+
+.dm-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px; /* adjust to your sidebar width */
+}
+.dm-snippet-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dm-text {
+  font-size: 0.8rem;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.dm-time {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-left: 1rem;
+}
+
+/* === Notification Preview Styles === */
+.notification-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  max-height: 40vh;
+  overflow-y: auto;
+  scroll-snap-type: y proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.notification-preview-list::-webkit-scrollbar {
+  display: none;
+}
+
+.notification-preview-item {
+  display: flex;
+  align-items: center;
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  padding: 6px 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  scroll-snap-align: start;
+  position: relative;
+}
+
+.notification-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.notification-preview-item:hover {
+  background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.notification-preview-item.read {
+  opacity: 0.6;
+}
+
+.notification-snippet-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.notification-text {
+  font-size: 12px;
+  color: #bbb;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.notification-time {
+  font-size: 0.7rem;
+  color: #aaa;
+  margin-left: auto;
+}
+
+.notification-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-user {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.notification-arrow {
+  margin-left: 8px;
+  color: #888;
+}
+
+.notification-delete-btn {
+  background: none;
+  border: none;
+  color: #FA3356;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.new-notification-banner {
+  background: #333;
+  color: #fff;
+  text-align: center;
+  padding: 4px 8px;
+  margin: 4px 6px 0;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+
+.welcome-header-desktop {
+  display: flex;
+}
+@media (max-width: 768px) {
+  .welcome-header-desktop {
+    display: none;
+  }
+}
+
+.mobile-single-stat {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.single-stat-icon {
+  color: #FA3356;
+  width: 14px;
+  height: 14px;
+}
+
+.single-stat-divider {
+  margin: 0 4px;
+}
+
+.single-stat-text {
+  font-size: 12px;
+}
+
+.mobile-quick-add {
+    margin: 0 auto;
+    cursor: pointer;
+    color: black;
+}
+
+
+
+
+@media (max-width: 760px) {
+
+  .mobile-quick-add {
+
+    width: clamp(44px, 7vw, 56px);
+    height: clamp(44px, 7vw, 56px);
+     background-color: #0c0c0c;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+   transition: background-color 0.3s;
+  }
+
+  .mobile-quick-add:hover {
+    background-color: #1a1a1a;
+  }
+ 
+  .navigation-sidebar {
+    margin-top: 5px;
+  }
+}
+
+
+.recent-activity {
+    background-color: #0c0c0c;
+    color: #fff;
+    border: 2px solid white;
+    border-radius: 20px;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+.activity-title {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.activity-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    padding: 6px 0;
+}
+
+.activity-item a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+}
+
+.activity-icon {
+    flex-shrink: 0;
+}
+
+.activity-time {
+    margin-left: auto;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.activity-empty {
+    opacity: 0.6;
+    font-size: 14px;
+}
+

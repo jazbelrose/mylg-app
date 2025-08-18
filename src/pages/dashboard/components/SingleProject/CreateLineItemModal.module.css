@@ -1,0 +1,224 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.modalOverlayAfterOpen {
+  opacity: 1;
+}
+.modalOverlayBeforeClose {
+  opacity: 0;
+}
+.modalContent {
+  background: #0c0c0c;
+  color: white;
+  border: 2px solid #ffffff;
+  border-radius: 16px;
+  padding: 22px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  font-family: "Helvetica Neue", "Helvetica Display", sans-serif;
+}
+.modalContentAfterOpen {
+  opacity: 1;
+  transform: translateY(0);
+}
+.modalContentBeforeClose {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 1rem;
+  margin-bottom: 0.5rem;
+}
+.modalTitle {
+  font-size: 1.25rem;
+}
+.revisionLabel {
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+.iconButton {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+.iconButton:hover {
+  transform: scale(1.03);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.form {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  padding: 0 1rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+.field input {
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  padding: 4px 8px;
+  background: #1a1a1a;
+  color: white;
+}
+.field select {
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  padding: 4px 8px;
+  background: #1a1a1a;
+  color: white;
+}
+.field input:disabled,
+.field select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.modalFooter {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.fieldDivider {
+  margin: 25px 0 15px;      /* Adds vertical space */
+  border: none;         /* Removes default 3D styling */
+  border-top: 1px solid #ccc; /* Adds a subtle horizontal line */
+  width: 100%;          /* Stretches across the container */
+}
+.field textarea {
+  min-height: 80px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  padding: 4px 8px;
+  background: #1a1a1a;
+  color: white;
+}
+
+.descriptionInput {
+  min-height: 60px;
+}
+
+.tooltipLabel {
+  cursor: help;
+
+}
+
+.paymentStatusContainer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.paid {
+  background-color: #00b050;
+}
+
+.partial {
+  background-color: #ffd700;
+}
+
+.unpaid {
+  background-color: #ff4d4f;
+}
+
+.calendarFields {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.eventsWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.addEventButton {
+  display: block;
+  width: 100%;
+}
+
+.editEventButton {
+  margin-left: 10px;
+  background: none;
+  border: none;
+  color: #fa3356;
+  cursor: pointer;
+}
+
+.deleteEventBtn {
+  margin-left: 5px;
+  background: none;
+  border: none;
+  color: #fa3356;
+  cursor: pointer;
+}
+
+.eventRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eventRowActions {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+
+.eventError {
+  color: #fa3356;
+  font-size: 0.9rem;
+}
+
+.shortcutHint {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #ccc;
+  text-align: center;
+}

@@ -1,0 +1,313 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.modalOverlayAfterOpen {
+  opacity: 1;
+}
+.modalOverlayBeforeClose {
+  opacity: 0;
+}
+.modalContent {
+  background: #0c0c0c;
+  color: white;
+  border: 2px solid #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  width: min(96vw, 1200px);
+  height: min(96vh, 1250px);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  font-family: "Helvetica Neue", sans-serif;
+}
+.modalContentAfterOpen {
+  opacity: 1;
+  transform: translateY(0);
+}
+.modalContentBeforeClose {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.currentFileRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.5rem;
+}
+.modalTitle {
+  font-size: 1.25rem;
+}
+.iconButton {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+.modalBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.contentRow {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-width: calc(850px + 280px + 10px);
+}
+.sidebar {
+  width: 280px;
+  max-width: 280px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  background: #1a1a1a;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sidebar select {
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #555;
+  padding: 4px 8px;
+  background: #0c0c0c;
+  color: white;
+}
+.navControls {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  justify-items: center;
+  gap: 10px;
+}
+
+.navButton {
+  background: #1a1a1a;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.navButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.previewWrapper {
+  overflow: auto;
+  flex: 1 0 850px;
+  min-width: 850px;
+  background: #fff;
+  color: #000;
+  padding: 10px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: column;
+}
+
+.groupSelect,
+.pageSelect {
+  display: flex;
+  flex-direction: column;
+  max-height: 150px;
+  overflow: auto;
+  padding: 4px 8px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #1a1a1a;
+  color: white;
+}
+
+.groupItem {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.invoiceList {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.invoiceRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.linkButton {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #4ea1ff;
+  cursor: pointer;
+  text-decoration: underline;
+  font: inherit;
+}
+.fileName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listHeader {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.invoice-container {
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  width: 210mm;
+  box-sizing: border-box;
+}
+
+.invoice-page {
+  width: 210mm;
+  height: 297mm;
+  margin: 0 auto 20px;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.items-table-wrapper {
+  flex: 1 0 auto;
+}
+
+.bottom-block {
+  margin-top: auto;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-bottom: 40px;
+}
+
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-sizing: border-box;
+}
+
+.items-table th,
+.items-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.items-table th {
+  background: #f5f5f5;
+  text-align: left;
+}
+
+.group-header {
+  background: #fafafa;
+  font-weight: bold;
+}
+
+.totals {
+  margin-top: 20px;
+  float: right;
+}
+
+.notes {
+  margin-top: 20px;
+}
+
+.footer {
+  margin-top: 40px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.pageNumber {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: 'Roboto', Arial, sans-serif;
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.emptyPlaceholder {
+  padding: 20px;
+  text-align: center;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.saveButton {
+  margin-top: 10px;
+  background: #fa3356;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.savedMsg {
+  margin-top: 6px;
+  color: #4caf50;
+}
+
+@media (max-width: 768px) {
+  .contentRow {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    max-width: none;
+  }
+}

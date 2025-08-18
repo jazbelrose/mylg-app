@@ -1,0 +1,401 @@
+:global(.ant-table) {
+  background-color: #111111 !important;
+  color: white;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+:global(.ant-table-thead > tr > th) {
+  background-color: #1a1a1a !important; /* dark grey header */
+  color: #ffffff !important;           /* white header text */
+  font-weight: 600;
+  white-space: normal !important;
+  word-break: break-word;
+  padding: 12px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+:global(.ant-table-tbody > tr > td) {
+  background-color: #111111 !important;
+  color: #eaeaea !important;           /* lighter body text */
+  white-space: normal !important;
+  word-break: break-word;
+  padding: 12px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+/* Remove bottom border for the placeholder row when no data is present */
+:global(.ant-table-tbody > tr.ant-table-placeholder > td) {
+  border-bottom: none;
+}
+
+:global(.ant-table-container) {
+  overflow-x: hidden !important;
+}
+
+:global(.ant-table-cell) {
+  vertical-align: middle;
+  line-height: 1;
+}
+
+:global(.ant-pagination),
+:global(.ant-table-pagination) {
+  background-color: transparent !important;
+  color: #ffffff;
+ margin: 20px 0 0 !important;
+  flex-wrap: wrap;
+}
+
+:global(.ant-pagination-item-active) {
+  border-color: #FA3356;
+}
+
+:global(.ant-pagination-item-active a) {
+  color: #FA3356 !important;
+}
+
+:global(.ant-pagination-item) {
+  border: none !important;
+  background: transparent !important;
+  margin: 0 2px;
+  min-width: 24px;
+  height: 24px;
+  line-height: 22px;
+}
+
+:global(.ant-pagination-prev .ant-pagination-item-link),
+:global(.ant-pagination-next .ant-pagination-item-link) {
+  border: none !important;
+  background: transparent !important;
+}
+
+:global(.ant-pagination-options) {
+  margin-left: auto;
+}
+
+:global(.ant-pagination-options-size-changer .ant-select-selector) {
+  background: transparent !important;
+  border-color: #FA3356 !important;
+  color: #ffffff !important;
+  height: 24px !important;
+  padding: 0 4px !important;
+}
+
+/* Style column sort icons */
+:global(.ant-table-column-sorter) {
+  color: #fff !important;
+}
+:global(.ant-table-column-sorter-up.active),
+:global(.ant-table-column-sorter-down.active) {
+  color: #FA3356 !important;
+}
+
+/* Make expand icon button blend into dark theme */
+:global(.ant-table-row-expand-icon) {
+  background-color: #222 !important;  /* dark circle background */
+  
+
+ 
+  
+}
+
+.paymentStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 10px;
+}
+
+.statusDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.elementKeyCell {
+  display: inline-flex;
+  align-items: center;
+}
+
+.paid {
+  background-color: #00b050;
+}
+
+.partial {
+  background-color: #ffd700;
+}
+
+.unpaid {
+  background-color: #ff4d4f;
+}
+
+/* Add a vertical rule to grouping columns */
+.groupColumn {
+  border-right: 1px solid #2a2a2a;
+}
+
+.tableMinHeight {
+  min-height: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.clickableRow {
+  transition: background-color 0.2s ease;
+}
+.tableMinHeight :global(.ant-spin-nested-loading),
+.tableMinHeight :global(.ant-spin-container),
+.tableMinHeight :global(.ant-table),
+.tableMinHeight :global(.ant-table-container) {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.tableMinHeight :global(.ant-table-body) {
+  flex: 1 1 auto;
+}
+
+.tableMinHeight :global(.ant-empty) {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tableMinHeight .emptyPlaceholder {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 750px;
+}
+
+.clickableRow:hover {
+  background-color: #222 !important;
+  box-shadow: inset 0 0 0 1px #333;
+  cursor: pointer;
+}
+
+
+
+/* Brand color for active Ant switches */
+:global(.ant-switch-checked) {
+  background-color: #FA3356 !important;
+  border-color: #FA3356 !important;
+}
+
+:global(.ant-switch-checked:hover) {
+  background-color: #FA3356 !important;
+  border-color: #FA3356 !important;
+}
+
+
+
+/* Custom styles for group by segmented control */
+:global(.ant-segmented) {
+  background: #1a1a1a;
+  border-radius: 9999px;
+  border: none;
+  box-shadow: none;
+}
+:global(.ant-segmented-item) {
+  position: relative;
+  z-index: 2;
+  color: #ccc;
+  padding: 4px 12px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+:global(.ant-segmented-item-selected) {
+  color: #fff;
+}
+:global(.ant-segmented-thumb) {
+  z-index: 1;
+  background: #222;
+  border-radius: 9999px;
+  box-shadow: none;
+}
+:global(.ant-segmented-item:not(.ant-segmented-item-selected):hover) {
+  color: #fff;
+  box-shadow: none;
+}
+/* Pagination Arrows */
+:global(.ant-pagination-next svg),
+:global(.ant-pagination-prev svg),
+:global(.ant-pagination-next .anticon),
+:global(.ant-pagination-prev .anticon),
+:global(.ant-pagination-next button),
+:global(.ant-pagination-prev button) {
+  color: #fff !important;
+  fill: #fff !important;
+}
+
+/* Select Arrow (page size dropdown) */
+:global(.ant-select-arrow),
+:global(.ant-select-arrow svg) {
+  color: #fff !important;
+  fill: #fff !important;
+}
+:global(.ant-pagination .anticon svg[fill]) {
+  fill: #fff !important;
+}
+
+:global(.ant-table-cell-scrollbar) {
+  border: none !important;         /* Remove all borders */
+  border-bottom: 1px solid white !important; /* Add or customize just the bottom border */
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.deleteButton {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.deleteButton:hover,
+.deleteButton:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+.duplicateButton {
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.duplicateButton:hover,
+.duplicateButton:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+.calendarButton {
+  position: relative;
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.calendarButton:hover,
+.calendarButton:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+.eventBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  background: #FA3356;
+  color: #fff;
+  border-radius: 50%;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.dimmed {
+  color: #777;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modalOverlayAfterOpen {
+  opacity: 1;
+}
+
+.modalOverlayBeforeClose {
+  opacity: 0;
+}
+
+.modalContent {
+  background: #0c0c0c;
+  color: white;
+  border: 2px solid #ffffff;
+  border-radius: 16px;
+  padding: 22px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  font-family: "Helvetica Neue", "Helvetica Display", sans-serif;
+}
+
+.modalContentAfterOpen {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.modalContentBeforeClose {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.dimmedCost {
+  opacity: 0.5;
+}
+
+.lockedRow {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.eventDots {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.eventDot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 6px;
+}

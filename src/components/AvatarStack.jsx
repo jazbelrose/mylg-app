@@ -1,0 +1,59 @@
+import React, { useEffect, useState } from 'react';
+import styles from './AvatarStack.module.css';
+
+const getMaxVisible = () => {
+  if (window.innerWidth < 480) return 2;
+  if (window.innerWidth < 768) return 3;
+  return 4;
+};
+
+const AvatarStack = ({ members = [], onClick }) => {
+  const [maxVisible, setMaxVisible] = useState(getMaxVisible());
+
+  useEffect(() => {
+    const handleResize = () => setMaxVisible(getMaxVisible());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const visibleMembers = members.slice(0, maxVisible);
+  const remaining = members.length - visibleMembers.length;
+
+  return (
+    <div
+      className={styles.stack}
+      aria-label="Project team members"
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      style={onClick ? { cursor: 'pointer' } : undefined}
+    >
+      {visibleMembers.map((m, idx) => {
+        const label = `${m.firstName || ''} ${m.lastName || ''}`.trim() || 'User';
+        const initials = ((m.firstName?.[0] || '') + (m.lastName?.[0] || '')).toUpperCase() || 'U';
+        return (
+          <div
+            key={m.userId}
+            className={styles.avatar}
+            style={{ zIndex: visibleMembers.length - idx }}
+            title={label}
+            aria-label={label}
+          >
+            {m.thumbnail ? (
+              <img src={m.thumbnail} alt={label} />
+            ) : (
+              <span className={styles.initials}>{initials}</span>
+            )}
+          </div>
+        );
+      })}
+      {remaining > 0 && (
+        <div className={styles.avatar} style={{ zIndex: 0 }} title={`${remaining} more`} aria-label={`${remaining} more users`}>
+          <span className={styles.more}>+{remaining}</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default AvatarStack;

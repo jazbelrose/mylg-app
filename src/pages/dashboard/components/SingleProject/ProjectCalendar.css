@@ -1,0 +1,392 @@
+.project-calendar-wrapper .timeline-bars {
+  position: absolute;
+  bottom: 1px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.project-calendar-wrapper .timeline-bar {
+  height: 10px;
+  border-radius: 0;
+}
+/* Wrapper mimicking the dashboard item style */
+.project-calendar-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #0c0c0c;
+  color: white;
+  border: 2px solid white;
+  border-radius: 20px;
+  flex: 1 1 auto;
+  height: 100%;
+  max-height: 100%;
+  min-height: clamp(300px, 40vh, 600px);
+  overflow: hidden;
+}
+/* Override dashboard-item hover highlighting for calendar */
+.dashboard-item.project-calendar-wrapper {
+  background-color: #0c0c0c;
+  cursor: pointer;
+}
+
+.dashboard-item.project-calendar-wrapper:hover {
+  background-color: #0c0c0c;
+  cursor: default;
+}
+
+/* React Calendar overrides */
+.project-calendar-wrapper .calendar-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+.project-calendar-wrapper .react-calendar {
+  flex: 1;
+  width: 100%;
+  background-color: #0c0c0c;
+  border: none;
+}
+
+.project-calendar-wrapper .project-range {
+  text-align: center;
+  color: #FA3356;
+  font-size: clamp(0.75rem, 1.2vh, 0.85rem);
+  margin-bottom: clamp(2px, 0.5vh, 4px);
+}
+.project-calendar-wrapper .range-separator {
+  margin: 0 8px;
+}
+/* Navigation buttons styled with brand color */
+.project-calendar-wrapper .react-calendar__navigation {
+  position: sticky;
+  top: 0;
+  background-color: #0c0c0c;
+  z-index: 1;
+}
+.project-calendar-wrapper .react-calendar__navigation button {
+  color: #FA3356;
+  font-size: clamp(1rem, 2vh, 1.125rem);
+  font-weight: bold;
+  background: none;
+  border: none;
+  padding: clamp(4px, 0.8vh, 8px);
+  fill: currentColor; /* ensure SVG arrows inherit the brand color */
+}
+
+.project-calendar-wrapper .react-calendar__navigation button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+}
+
+/* Prevent default white flash on click */
+.project-calendar-wrapper .react-calendar__navigation button:focus,
+.project-calendar-wrapper .react-calendar__navigation button:active {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  color: #FA3356;
+  outline: none;
+}
+
+.project-calendar-wrapper
+  .react-calendar__navigation
+  button:disabled {
+  color: #FA3356; /* maintain brand color when disabled */
+  opacity: 0.5;
+  cursor: default;
+}
+
+
+/* Hide default date label */
+.project-calendar-wrapper .react-calendar__tile abbr {
+  display: none;
+}
+
+
+.project-calendar-wrapper .react-calendar__tile {
+  min-width: clamp(40px, 8vh, 50px);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  padding: clamp(1px, 0.4vh, 3px) 0;
+  margin: 0;
+}
+
+.project-calendar-wrapper .react-calendar__month-view__days {
+  gap: 0;
+}
+
+.project-calendar-wrapper .calendar-day {
+  position: relative;
+  width: 100%;
+  min-height: clamp(40px, 9vh, 60px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: clamp(3px, 0.6vh, 6px);
+  font-size: clamp(0.6rem, 1.5vh, 0.8rem);
+}
+
+.project-calendar-wrapper .tile-date-number {
+  font-size: inherit;
+  color: white;
+  text-align: center;
+  margin-top: 1px;
+}
+.project-calendar-wrapper .tile-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  justify-content: center;
+  margin-bottom: 1px;
+}
+
+.project-calendar-wrapper .event-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 6px;
+}
+
+.project-calendar-wrapper .events-nav {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 clamp(8px, 3vw, 20px);
+  margin-top: 0;
+}
+
+.project-calendar-wrapper .events-nav button {
+  background: none;
+  border: none;
+  color: #FA3356;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.project-calendar-wrapper .events-nav button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+
+.project-calendar-wrapper .events-log {
+  padding: clamp(4px, 0.8vh, 8px);
+  color: white;
+  font-size: clamp(0.75rem, 1.5vh, 0.85rem);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-height: 25vh;
+  overflow-y: auto;
+}
+.project-calendar-wrapper .events-log ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.project-calendar-wrapper .event-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+}
+.project-calendar-wrapper .list-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 7px;
+  margin-right: 4px;
+}
+.project-calendar-wrapper .events-log-date {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #FA3356;
+  cursor: pointer;
+}
+
+.add-event-button {
+  display: block;
+  width: 100%;
+  margin-top: auto;
+}
+
+.edit-event-btn {
+  margin-left: 6px;
+  background: none;
+  border: none;
+  color: #fa3356;
+  cursor: pointer;
+}
+
+.delete-event-btn {
+  margin-left: 4px;
+  background: none;
+  border: none;
+  color: #fa3356;
+  cursor: pointer;
+}
+
+.events-log-totals {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+}
+
+
+.add-event-title {
+  font-size: 16px;
+}
+
+
+/* Weekday labels */
+.project-calendar-wrapper .react-calendar__month-view__weekdays {
+  display: flex;
+  text-transform: uppercase;
+  font-size: clamp(0.7rem, 1.4vh, 0.8rem);
+  font-weight: bold;
+  color: white;
+}
+
+/* Match calendar tile styling with AllProjectsCalendar */
+.project-calendar-wrapper .react-calendar__month-view,
+.project-calendar-wrapper .react-calendar__month-view__days,
+.project-calendar-wrapper .react-calendar__month-view__days__day {
+  overflow: visible !important;
+}
+
+/* Match calendar tile styling with AllProjectsCalendar */
+.project-calendar-wrapper .react-calendar__month-view__days__day {
+  color: white;
+  border-radius: 5px;
+  transition: 0.3s;
+  
+}
+
+.project-calendar-wrapper .react-calendar__month-view__days__day:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.project-calendar-wrapper .react-calendar__tile--active {
+  background-color: rgba(250, 51, 86, 0.15) !important;
+  color: white !important;
+  border-radius: 5px;
+  border: 2px solid #FA3356;
+  box-shadow: 0 0 6px rgba(250, 51, 86, 0.6);
+  animation: calendar-flash 0.3s ease-out;
+}
+
+.project-calendar-wrapper .react-calendar__tile--now {
+  background-color: rgba(250, 51, 86, 0.2);
+  border: 1px solid #FA3356;
+  color: #FA3356;
+  font-weight: bold;
+}
+/* Prevent clicking on weekday names and center them */
+.project-calendar-wrapper .react-calendar__month-view__weekdays__weekday {
+  flex: 0 0 14.2857%;
+  box-sizing: border-box;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding-left: 0;
+  padding-bottom: clamp(6px, 1vh, 10px);
+}
+
+
+.project-calendar-wrapper .tile-tooltip {
+  position: absolute;
+  bottom: 100%;
+  margin-bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(30, 30, 30, 0.9);
+  padding: 4px 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+  width: max-content;
+  max-width: 160px;
+}
+
+.project-calendar-wrapper .tile-tooltip.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+.project-calendar-wrapper .tooltip-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  margin-bottom: 2px;
+}
+
+.project-calendar-wrapper .tooltip-dot {
+  font-size: 7.5px;
+}
+
+
+.project-calendar-wrapper .tooltip-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.project-calendar-wrapper .tooltip-info {
+  font-size: 0.6rem;
+  color: #ccc;
+}
+
+/* Keep tooltip event text grey when an active tile forces white */
+.project-calendar-wrapper .react-calendar__tile--active .tooltip-info {
+  color: #ccc !important;
+}
+
+@media (max-height: 750px) {
+  .project-calendar-wrapper .calendar-day {
+    min-height: clamp(30px, 7vh, 50px);
+    padding-bottom: clamp(2px, 0.5vh, 3px);
+  }
+  .project-calendar-wrapper .tile-date-number {
+    font-size: clamp(0.5rem, 1vh, 0.7rem);
+  }
+  .project-calendar-wrapper .events-log {
+    font-size: 0.75rem;
+    padding: clamp(2px, 0.5vh, 4px);
+  }
+}
+
+.tile-highlight {
+  animation: calendar-flash 0.8s ease-out;
+  border: 2px solid #fa3356;
+  border-radius: 5px;
+}
+
+@keyframes calendar-flash {
+  from {
+    box-shadow: 0 0 0 2px #fa3356;
+  }
+  to {
+    box-shadow: 0 0 0 0 rgba(250, 51, 86, 0);
+  }
+}

@@ -1,0 +1,45 @@
+{
+    "services": [
+      {
+        "id": "01",
+        "serviceName": "Tailored Pre-Production Immersive Experiences",
+        "description": "The Ultimate Project Joyride! Get up-close with your design before it’s even made! Our interactive 2D/3D prototypes are like stepping into your project. It’s your vision, your world - no surprises, just perfection."
+      },
+      {
+        "id": "02",
+        "serviceName": "Experiential Design & Live Show Production",
+        "description": "Vision to Reality We're the architects of awe, taking your vision from ethereal concept to tangible wonder. Our art direction and production mastery breathe life into ideas."
+      },
+      {
+        "id": "03",
+        "serviceName": "Ultra-Realistic 3D Renderings",
+        "description": "Get Real... Like, REALLY Real! We dish out 3D renders so lifelike, you’ll want to touch ‘em. Peek into your project’s future; it’s looking pretty snazzy!"
+      },
+      {
+        "id": "04",
+        "serviceName": "Graphic Design",
+        "description": "Painting Dreams with Pixels Your story + our design chops = Mind-blowing graphics. Let’s make magic."
+      },
+      {
+        "id": "05",
+        "serviceName": "Brand Strategy",
+        "description": "Unforgettable. That’s What You Are. We craft brand identities that stick like glue and sing like nightingales. Be iconic."
+      },
+      {
+        "id": "06",
+        "serviceName": "Intuitive UI/UX Design",
+        "description": "Smooth Surfin’ on Digital Waves Your digital space, tailor-cut to perfection. Engaging, intuitive, and oh-so-slick."
+      },
+      {
+        "id": "07",
+        "serviceName": "Picture-Perfect Photography",
+        "description": "Capture More Than a Moment Pictures that speak, laugh, and take your breath away. Freeze time - the awesome way."
+      },
+      {
+        "id": "08",
+        "serviceName": "+The Creative Cosmos is the Limit!",
+        "description": "Plus, we've got everything from Sound design to NFT & Web3 Services, Mobile App Development, and more! The creative cosmos is the limit!"
+      }
+    ]
+  }
+  

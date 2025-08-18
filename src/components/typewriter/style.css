@@ -1,0 +1,37 @@
+#typewriter {
+  font-weight: 300;
+}
+/* The CSS file (style.css) */
+
+#typewriter {
+  margin-top: 100px;
+  font-weight: 300;
+  font-size: 0.9rem;
+}
+
+
+
+
+@media (min-width: 575.9px) {
+  #typewriter {
+  margin-top: 120px;
+  font-size: 1.25rem;
+  }
+}
+
+
+/* Desktops */
+@media (min-width: 1201px) {
+  #typewriter {font-size: 2rem;
+}
+}
+
+/* Large Desktops */
+@media (min-width: 1601px)  {
+  /* styles for larger desktops */
+}
+
+/* Very Large Desktops */
+@media (min-width: 2001px) {
+  /* styles for very large desktops */
+}

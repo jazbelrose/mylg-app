@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300">
+  <path id="squiggle" fill="none" stroke="white" d="M0,50 Q100,10 200,50 T400,50 T600,50 T800,50 T1000,50">
+    <animate attributeName="d" dur="5s" repeatCount="indefinite" 
+      values="
+        M0,50 Q100,10 200,50 T400,50 T600,50 T800,50 T1000,50; 
+        M0,50 Q100,90 200,50 T400,50 T600,50 T800,50 T1000,50;
+        M0,50 Q100,10 200,50 T400,50 T600,50 T800,50 T1000,50
+      "
+    />
+  </path>
+</svg>

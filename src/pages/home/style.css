@@ -1,0 +1,440 @@
+
+.svg-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Ensures the animation doesn't spill outside */
+  pointer-events: none; /* Prevents interaction issues */
+  z-index: -1; /* Moves it behind other content */
+}
+
+.home-info-container {
+  padding: 150px 0px 35px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+
+  max-width: 1920px; /* Set the width of the container */
+  margin: auto; /* Center the container on the page */
+}
+
+.home-info-container.discover {
+  padding: 100px 0 100px;
+  background: linear-gradient(to bottom, #0c0c0c, #000);
+
+
+}
+
+.home-info-container.discover-1 {
+padding: 100px 25px 75px;
+}
+
+.home-info-container.materializing {
+
+  padding: 75px 0; 
+  background-color: #000000;
+
+
+}
+
+
+h2.heading {
+  font-family: 'mylg-serif';
+  font-weight: 500;
+  font-size: 6rem;
+  line-height: 0.9em;
+  margin-bottom: 20px; /* Add some spacing between the heading and sub-heading */
+  padding: 0 20px;
+}
+
+.drop-cap {
+  float: left;
+  font-size: 5em;
+  line-height: 0.8;
+  
+  padding-right: 0.05em;
+  
+}
+
+.home-info-column {
+  justify-content: left;
+  align-items: flex-start;
+  font-size: 2rem;
+  flex: 1;
+  padding: 25px;
+  
+}
+
+.button-container button {
+  padding: 10px 25px;
+  font-size: 1.5rem;
+  color: #fff;
+  border-radius: 50px;
+  background-color: transparent;
+  border: 2px solid white;
+  white-space: nowrap;
+}
+
+
+.button-container.platform {
+  justify-content: flex-end; 
+  margin-right: 15px;
+  padding: 0; /* Remove padding */
+}
+
+.button-container.platform2 {
+  justify-content: flex-start; 
+  margin-right: 15px;
+  padding: 0; /* Remove padding */
+}
+
+
+.responsive-image {
+  width: 100%; /* Ensure it's responsive */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 20px; /* As per your style */
+}
+
+
+.blog-header, .work-header, .info-header {
+  display: flex;
+  justify-content: space-between; /* pushes children to extreme ends */
+  align-items: center;
+  padding: 30px 20px 0px 20px; /* This gives space on the sides. Adjust if needed. */
+  max-width: 1920px; /* Set max-width */
+  margin: 0 auto; /* Center the container */
+}
+.work-header {
+
+  padding-top:50px ;
+}
+
+ .blog-header {
+  padding-bottom: 30px;
+ }
+ .info-header {
+  padding-top: 0px;
+ }
+
+
+.work-header h2 {
+  
+  line-height: 0.8;
+  font-size: 10rem; 
+  padding-bottom: 30px;
+}
+.home-info-column h2 {
+  font-weight: 500;
+  font-family: 'mylg-serif';
+  line-height: 1;
+  font-size: 6rem; 
+  
+}
+
+.info-header h2 {
+  
+  font-size: 10rem; 
+  padding-bottom: 30px;
+}
+
+
+
+.video-container {
+
+  height: 60vh; 
+  overflow: hidden; /* To hide any part of the video that exceeds the container's boundaries */
+  position: relative;
+}
+
+.video-container video {
+  
+  max-width: 1920px;  
+  height: auto; 
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the video */
+}
+
+.video-responsive {
+  max-width: 100%; /* Default max width */
+  height: auto;
+  display: block;
+  margin: auto;
+  border-radius: 20px;
+}
+
+
+.portfolio-section {
+  margin: 20px auto; /* Center the section horizontally */
+  width: 1920px;
+  max-width: 100%; /* Ensure it doesn't overflow on smaller screens */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.portfolio-row {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.single-card-row {
+  justify-content: center;
+}
+
+.single-card.tcs .title,
+.single-card.nocco .title {
+    color: black;
+}
+
+.single-card.tcs .subtitle,
+.single-card.nocco .subtitle {
+    color: grey;
+}
+
+.single-card.tcs .description,
+.single-card.nocco .description {
+    color: black;
+    
+    border: 2px solid black;
+    border-radius: 50px;
+    margin: 0;
+   
+    
+}
+.home-info-column h3 {
+  font-family: 'mylg-serif';
+  font-weight: 400;
+  font-size: 4rem; /* Default font size */
+  margin-bottom: 10px;
+}
+
+
+
+
+.arrow-down{
+  font-size: 12rem;
+}
+
+
+
+.world-svg {
+  width: 100%; /* Scale SVG to container's width */
+  max-width: 500px; /* Allow SVG to scale within its container */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.sign-up-image {
+  flex: 1;
+  margin-top: 20px; /* Add space between columns */
+}
+
+
+
+
+
+@media (max-width: 991px) {
+  .home-info-container {
+    padding: 50px 0 50px;
+    flex-direction: column;
+    align-items: center; 
+    text-align: center; 
+    /* padding: 30px;  */
+  }
+
+  .home-info-container.discover {
+    padding: 25px 0 25px;
+  }
+
+  .home-info-container.materializing {
+
+    padding: 20px 0; 
+  
+  }
+
+  .home-info-container.discover-1 {
+    padding: 20px 25px 75px;
+    }
+
+  .home-info-column {
+    /* We don't need to set width: 100% as it's default for block elements */
+    max-width: 100%; /* Ensures the content is not wider than the screen */
+    
+    flex-direction: column;
+    
+    
+  }
+
+  .home-info-column h2,
+  .home-info-column p,
+  .button-container {
+    padding: 0; /* Removes padding */
+    padding-bottom: 10px;
+  }
+
+
+  .button-container {
+    width: auto; /* Allows the container to shrink to fit the button */
+    justify-content: center; /* Aligns button to the left */
+  }
+  .button-container.platform button {
+    font-size: 1.2rem; /* Set the font size of the button */
+  }
+
+  .button-container.platform {
+    justify-content: center; /* Center button within its container */
+    padding: 0; /* Remove padding */
+  }
+
+  .button-container.platform2 button {
+    font-size: 1.2rem; /* Set the font size of the button */
+  }
+
+  .button-container.platform2 {
+    justify-content: center; /* Center button within its container */
+    padding: 0; /* Remove padding */
+  }
+  
+  
+  .button-container button {
+    margin-right: 0px;
+    font-size: 1.5rem; /* Adjust font size for smaller screens */
+    padding: 10px 20px; /* Adjust padding for smaller screens */
+    
+  }
+  
+  .home-info-column h2 {
+    font-size: 3rem; /* Adjust heading font size for smaller screens */
+  }
+
+  .home-info-column h3 {
+    font-size: 3rem; /* Adjust heading font size for smaller screens */
+  }
+  
+  .home-info-column p {
+    font-size: 1.1rem; /* Adjust paragraph font size for smaller screens */
+  }
+
+  .sign-up-image img {
+    max-width: 100%; /* Limit the image width to the container size */
+    height: auto; /* Maintain aspect ratio */
+    margin-top: 20px; /* Add space between columns */
+  }
+}
+
+
+
+
+@media (max-width: 767px) {
+  .info-header h2 {
+  
+    font-size: 5rem; 
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+  
+  .work-header h2 {
+    font-size: 6rem;
+    padding-bottom: 0px;
+}
+
+.arrow-down {
+  font-size: 4rem;
+}
+
+  .portfolio-row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .single-card {
+    width: calc(100vw - 20px);
+    /* Reduce width by twice the margin */
+    height: calc(100vw - 20px);
+    /* Keeping 1:1 aspect ratio */
+    margin: 0 20px;
+    /* Left and right margins */
+    overflow: hidden;
+  }
+
+  .single-card .card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .gca .card-image {
+    object-position: 75% center;
+  }
+
+
+  .elf .card-image {
+
+    object-position: 20% center;
+    /* 10% from the left edge */
+  }
+
+  .single-card.tcs img,
+    .single-card.nocco img {
+        display: none !important;
+    }
+    .single-card.tcs {
+      background-image: url('https://d2qb21tb4meex0.cloudfront.net/images/chain+copy-01.png');
+      background-size: cover;
+      background-position: center;
+    }
+    
+    .single-card.nocco {
+      background-image: url('https://d2qb21tb4meex0.cloudfront.net/images/Nocco+vertical-01.png');
+      background-size: cover;
+      background-position: center;
+    }
+    
+
+    
+.video-container video {
+    height: 100%;
+    width: auto;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%) ; /* Center the video horizontally */
+  }
+
+  .image-container {
+    position: absolute;
+    top: 0; /* Adjust based on your design */
+    left: 20px;
+    width: 300%; /* Fill the screen width */
+    z-index: 2; /* Ensure it's above other content, adjust as necessary */
+  }
+
+  .responsive-image {
+    width: 100%; 
+    height: auto; 
+  }
+
+  .video-responsive {
+    width: 95vw; /* Full viewport width */
+    height: auto;
+    max-width: none; /* Override any max-width */
+    position: relative; /* Adjust positioning as needed */
+    left: 50%;
+    right: 50%;
+    transform: translate(-50%, 0); /* Center the video */
+   
+  }
+}
+
+
+
+  
+
+.single-ticker-section{
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  
+}
