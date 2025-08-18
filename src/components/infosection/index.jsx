@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./style.css";
 import { Introtext } from "../introtext";
 import { ScrambleButton } from "../scramblebutton";
-import { ReactComponent as Snap } from "../../assets/svg/snap.svg";
+import Snap from "../../assets/svg/snap.svg?react";
 import { NEWSLETTER_SUBSCRIBE_URL, apiFetch } from "../../utils/api";
 
 export const InfoSection = ({ style }) => {

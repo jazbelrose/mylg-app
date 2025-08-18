@@ -2,9 +2,9 @@ import React, { useEffect, useRef } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { dataabout, meta, } from "../../content_option";
 import dataAbout from "./dataAbout.json";
-import { ReactComponent as Studiosubtitle } from "../../assets/svg/subtitles.svg";
-import { ReactComponent as Tagline } from "../../assets/svg/notjust.svg";
-import { ReactComponent as Brandingcard } from "../../assets/svg/brandingcard.svg";
+import Studiosubtitle from "../../assets/svg/subtitles.svg?react";
+import Tagline from "../../assets/svg/notjust.svg?react";
+import Brandingcard from "../../assets/svg/brandingcard.svg?react";
 import InlineSvg from "../../components/inlinesvg/index.jsx";
 
 

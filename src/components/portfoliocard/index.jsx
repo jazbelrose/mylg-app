@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './style.css';
-import { ReactComponent as CustomIcon } from "../../assets/svg/angled-arrow.svg";
+import CustomIcon from "../../assets/svg/angled-arrow.svg?react";
 
 function PortfolioCard(props) {
   return (

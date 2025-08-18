@@ -11,7 +11,7 @@ import {
   dedupeById,
   mergeAndDedupeMessages,
 } from "../../../utils/messageUtils";
-import { ReactComponent as User } from "../../../assets/svg/user.svg";
+import User from "../../../assets/svg/user.svg?react";
 import { normalizeMessage } from "../../../utils/websocketUtils";
 import { getWithTTL, setWithTTL } from "../../../utils/storageWithTTL";
 import SpinnerOverlay from "../../../components/SpinnerOverlay";

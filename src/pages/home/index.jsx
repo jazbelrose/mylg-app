@@ -10,7 +10,7 @@ import { InfoSection } from "../../components/infosection";
 import { HeroSection } from "../../components/herosection";
 import { BlogEntry } from '../../components/blogentry';
 import allBlogPosts from '../blog/allblogposts/allBlogPosts.json';
-import { ReactComponent as World } from "../../assets/svg/branding-new.svg";
+import World from "../../assets/svg/branding-new.svg?react";
 import PortfolioCard from "../../components/portfoliocard";
 import Ticker from "../../components/ticker";
 import SingleTicker from "../../components/singleticker";

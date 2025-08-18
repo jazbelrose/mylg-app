@@ -4,7 +4,7 @@ import { useData } from '../../app/contexts/DataProvider';
 import { uploadData } from 'aws-amplify/storage';
 import { useAuth } from '../../app/contexts/AuthContext';
 import { updatePassword } from 'aws-amplify/auth';
-import { ReactComponent as User } from "../../assets/svg/user.svg";
+import User from "../../assets/svg/user.svg?react";
 import { toast } from 'react-toastify';
 import { updateUserProfile, S3_PUBLIC_BASE } from '../../utils/api';
 import PaymentsSection from './components/PaymentsSection';

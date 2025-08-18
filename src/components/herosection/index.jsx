@@ -3,7 +3,7 @@ import { gsap } from "gsap";
 import { ScrambleButton } from "../scramblebutton";
 
 
-import { ReactComponent as HomeHeader } from "../../assets/svg/homeheader.svg";
+import HomeHeader from "../../assets/svg/homeheader.svg?react";
 import "./style.css";
 
 export const HeroSection = () => {

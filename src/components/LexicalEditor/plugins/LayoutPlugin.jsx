@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { ReactComponent as LayoutIcon } from '../images/icons/columns.svg';
+import LayoutIcon from "../images/icons/columns.svg?react";
 
 import {
   $findMatchingParent,

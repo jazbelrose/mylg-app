@@ -1,5 +1,5 @@
 import React from 'react';
-import { ReactComponent as User } from '../assets/svg/user.svg';
+import User from "../assets/svg/user.svg?react";
 
 const UserProfilePicture = ({ thumbnail, localPreview, onChange }) => (
   <div className="form-group thumbnail-group">

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
-import { ReactComponent as User } from "../../../../assets/svg/user.svg";
+import User from "../../../../assets/svg/user.svg?react";
 import { useOnlineStatus } from "../../../../app/contexts/OnlineStatusContext";
 import { Trash2, Pencil, Smile } from "lucide-react";
 import ReactPlayer from "react-player";
