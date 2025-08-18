@@ -30,7 +30,7 @@ const awsConfig = {
   // API: {
   //   REST: {
   //     endpoints: [
-  //       { name: "default", endpoint: process.env.REACT_APP_API_BASE_URL, region: cfg.aws_project_region }
+  //       { name: "default", endpoint: import.meta.env.VITE_API_BASE_URL, region: cfg.aws_project_region }
   //     ],
   //   },
   // },

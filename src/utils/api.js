@@ -4,7 +4,7 @@ import { csrfProtection, rateLimiter, logSecurityEvent } from './securityUtils';
 const userProfilesCache = new Map();
 // Consolidated list of endpoints. Values can be overridden via environment variables
 
-const ENV = process.env.REACT_APP_ENV || 'development';
+const ENV = import.meta.env.VITE_APP_ENV || 'development';
 
 const BASE_ENDPOINTS = {
   development: {
@@ -56,8 +56,8 @@ const defaults = BASE_ENDPOINTS[ENV] || BASE_ENDPOINTS.development;
 
 export const API_ENDPOINTS = Object.keys(BASE_ENDPOINTS.development).reduce(
   (acc, key) => {
-    const envKey = `REACT_APP_${key}`;
-    acc[key] = process.env[envKey] || defaults[key];
+    const envKey = `VITE_${key}`;
+    acc[key] = import.meta.env[envKey] || defaults[key];
     return acc;
   },
   {}

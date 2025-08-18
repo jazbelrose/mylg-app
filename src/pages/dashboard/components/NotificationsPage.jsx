@@ -51,7 +51,7 @@ const Notifications = ({ searchQuery = '', showHeader = true, showFilters = true
     }, [highlightId]);
 
     useEffect(() => {
-        if (process.env.NODE_ENV !== 'production') {
+        if (import.meta.env.DEV) {
             console.log("⏰ Notifications render:", notifications);
         }
     }, [notifications]);
