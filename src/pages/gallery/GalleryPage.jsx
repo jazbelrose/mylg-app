@@ -23,7 +23,7 @@ const GalleryPage = ({ projectId: propProjectId }) => {
   const projectId = propProjectId || projectObj?.projectId;
   const navigate = useNavigate();
 
-  if (process.env.NODE_ENV !== "production") {
+  if (import.meta.env.DEV) {
     console.log("Loaded projects in GalleryPage:", projects);
     console.log("Slug from URL (gallerySlug):", gallerySlug);
     console.log("Project slug:", projectSlug);
@@ -58,7 +58,7 @@ const gallery = useMemo(() => {
   return null;
 }, [apiGalleries, projects, gallerySlug, projectId]);
 
-if (process.env.NODE_ENV !== "production") {
+if (import.meta.env.DEV) {
   console.log("Resolved gallery for slug:", gallery);
 }
 

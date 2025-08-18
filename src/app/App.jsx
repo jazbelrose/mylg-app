@@ -75,7 +75,7 @@ export default function App() {
                   <OnlineStatusProvider>
                     <ScrollProvider>
                       <NavigationDirectionProvider>
-                        <Router basename={process.env.PUBLIC_URL}>
+                        <Router basename={import.meta.env.BASE_URL}>
                           <AuthEventHandler />
 
                           <MainContent isLoading={isLoading} />
