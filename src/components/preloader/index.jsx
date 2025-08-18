@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import styles from './style.css';
+import './style.css';
 
 
 const Preloader = () => {
