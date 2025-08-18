@@ -114,7 +114,7 @@ useEffect(() => {
         const projectLatLng = [location.lat, location.lng];
         const projectIcon = L.icon({
           iconUrl:
-            projectThumbnail || `${process.env.PUBLIC_URL}/images/project-marker.svg`,
+            projectThumbnail || `${import.meta.env.BASE_URL}images/project-marker.svg`,
           iconSize: [32, 32],
           iconAnchor: [16, 32],
           popupAnchor: [0, -32],

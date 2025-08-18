@@ -73,7 +73,7 @@ const validateAndSetUserSession = useCallback(async (label = 'default') => {
     let decodedIdToken = null;
     try {
       decodedIdToken = jwtDecode(idToken.toString());
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         console.log('[validateAndSetUserSession] Decoded ID token:', decodedIdToken);
       }
     } catch (decodeError) {
