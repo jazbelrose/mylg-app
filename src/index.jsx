@@ -9,6 +9,8 @@ import App from './app/App';
 import 'antd/dist/reset.css';
 import './index.css';
 
+import './components/preloader/style.css';
+
 // Configure Amplify with your AWS configurations
 Amplify.configure(awsConfig);
 
