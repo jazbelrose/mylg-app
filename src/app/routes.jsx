@@ -78,4 +78,241 @@ const pageVariants = {
   out: { opacity: 0, y: "100vh" }, // changed from -100vw to -100vh
 };
 
-// ...existing code...
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 1,
+};
+
+function AppRoutes() {
+  const location = useLocation();
+
+  return (
+    <NavigationDirectionProvider>
+      <ScrollToTop />
+      <ActualRoutes location={location} />
+    </NavigationDirectionProvider>
+  );
+}
+
+const ActualRoutes = ({ location }) => {
+  const { direction } = React.useContext(NavigationDirectionContext);
+  const chosenDirection = direction === "left" ? "left" : "right";
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route
+          path="/"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <Home />
+            </motion.div>
+          }
+        />
+
+        <Route
+          path="/about"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <About />
+            </motion.div>
+          }
+        />
+
+        <Route
+          path="/works"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <Works />
+            </motion.div>
+          }
+        />
+
+        <Route
+          path="/works/:workSlug"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <WorkPost />
+            </motion.div>
+          }
+        />
+
+        <Route
+          path="/gallery/:projectSlug/:gallerySlug"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <GalleryPage />
+            </motion.div>
+          }
+        />
+
+        <Route
+          path="/dashboard/*"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        >
+          <Route
+            path="projects/:projectSlug"
+            element={<DashboardSingleProject />}
+          />
+          <Route
+            path="projects/:projectSlug/budget"
+            element={<DashboardBudgetPage />}
+          />
+          <Route
+            path="projects/:projectSlug/calendar"
+            element={<DashboardCalendarPage />}
+          />
+
+          <Route
+            path="projects/:projectSlug/designer"
+            element={<DashboardDesignerPage />}
+          />
+          <Route path="new" element={<DashboardNewProject />} />
+          <Route path="welcome/*" element={<Navigate to=".." replace />} />
+          <Route path="*" element={<DashboardWelcome />} />
+        </Route>
+
+        <Route
+          path="/login"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <Login />
+            </motion.div>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <Register />
+            </motion.div>
+          }
+        />
+
+        <Route
+          path="/email-verification"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <EmailVerification />
+            </motion.div>
+          }
+        />
+
+        <Route
+          path="/email-change-verification"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <EmailChangeVerification />
+            </motion.div>
+          }
+        />
+
+        <Route
+          path="/forgot-password"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <Forgotpassword />
+            </motion.div>
+          }
+        />
+
+        <Route
+          path="/terms-and-privacy"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <TermsAndPrivacy />
+            </motion.div>
+          }
+        />
+
+        <Route
+          path="*"
+          element={
+            <motion.div
+              initial="initial"
+              animate="in"
+              exit="out"
+              variants={pageVariants}
+              transition={pageTransition}
+            >
+              <NotFound />
+            </motion.div>
+          }
+        />
+      </Routes>
+    </AnimatePresence>
+  );
+};
+
+export default AppRoutes;
