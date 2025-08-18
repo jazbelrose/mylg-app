@@ -25,7 +25,11 @@
     "react-modal": "^3.16.3",
     "react-router-dom": "^7.8.1",
     "react-toastify": "^11.0.5",
-    "scramble-text": "^0.0.9"
+    "scramble-text": "^0.0.9",
+    "framer-motion": "^11.0.0",
+    "jwt-decode": "^4.0.0",
+    "js-sha256": "^0.11.0",
+    "pdfjs-dist": "^4.3.136"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
