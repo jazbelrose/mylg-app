@@ -17,7 +17,7 @@ import ScrollToTopButton from "../components/scrolltotopbutton";
 import { SocketProvider } from "./contexts/SocketContext";
 import NotificationSocketBridge from "./NotificationSocketBridge";
 import { OnlineStatusProvider } from "./contexts/OnlineStatusContext";
-import AppRoutes from "./routes";
+import { AppRoutes } from "./routes";
 import Headermain from "../components/header/";
 import Preloader from "../components/preloader";
 import { NotificationContainer } from "../components/ToastNotifications";
