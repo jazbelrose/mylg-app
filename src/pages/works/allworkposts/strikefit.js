@@ -7,7 +7,7 @@ import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import InlineSvg from "../../../components/inlinesvg/index.jsx";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index";
 import { useData } from "../../../app/contexts/DataProvider";
 const StrikeFit = () => {
     const pageTitle = "StrikeFit - Elevating Performance & Design with Premium Photography";

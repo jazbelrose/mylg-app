@@ -8,7 +8,7 @@ import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index";
 import { useData } from "../../../app/contexts/DataProvider";
 import InlineSvg from "../../../components/inlinesvg/index.jsx";
 const J22Interiors = () => {

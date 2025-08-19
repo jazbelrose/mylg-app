@@ -10,7 +10,7 @@ import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js
 import InlineSvg from "../../../components/inlinesvg/index.jsx";
 import { useData } from "../../../app/contexts/DataProvider";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index";
 const KmTour = () => {
     const images = [
         "https://d1cazymewvlm0k.cloudfront.net/39-KM+Tour/01.jpg",

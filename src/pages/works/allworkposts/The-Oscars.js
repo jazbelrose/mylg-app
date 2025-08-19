@@ -6,7 +6,7 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index";
 import { useData } from "../../../app/contexts/DataProvider";
 import InlineSvg from "../../../components/inlinesvg/index.jsx";
 const TheOscars = () => {

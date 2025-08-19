@@ -8,7 +8,8 @@ const WorkPost = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [loadError, setLoadError] = useState(false); // New error state
     useEffect(() => {
-        import(`../allworkposts/${workSlug}.jsx`)
+        import(`../allworkposts/${workSlug}.js`)
+
             .then((module) => {
             setWorkComponent(() => module.default);
             setIsLoading(false);

@@ -2,25 +2,29 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 
+// dev
 const devCsp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.amazonaws.com *.amplify.aws",
   "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
   "font-src 'self' data: fonts.gstatic.com",
-  "img-src 'self' data: blob: *.amazonaws.com *.cloudfront.net https://tiles.stadiamaps.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org", // ← ✅ comma added here
+  "img-src 'self' data: blob: *.amazonaws.com *.cloudfront.net https://tiles.stadiamaps.com",
   "media-src 'self' https: blob:",
-  "connect-src 'self' http://localhost:* ws://localhost:* https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://nominatim.openstreetmap.org",
+  // ⬇️ add CloudFront here
+  "connect-src 'self' http://localhost:* ws://localhost:* https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://*.cloudfront.net https://nominatim.openstreetmap.org",
   "frame-ancestors 'none'",
 ].join('; ');
 
+// prod
 const prodCsp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' *.amazonaws.com *.amplify.aws",
   "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
   "font-src 'self' data: fonts.gstatic.com",
-  "img-src 'self' data: https://d1cazymewvlm0k.cloudfront.net https://d2qb21tb4meex0.cloudfront.net *.amazonaws.com https://tiles.stadiamaps.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org ",
+  "img-src 'self' data: https://d1cazymewvlm0k.cloudfront.net https://d2qb21tb4meex0.cloudfront.net *.amazonaws.com https://tiles.stadiamaps.com",
   "media-src 'self' https://d1cazymewvlm0k.cloudfront.net https://d2qb21tb4meex0.cloudfront.net *.amazonaws.com",
-  "connect-src 'self' https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://nominatim.openstreetmap.org",
+  // ⬇️ add CloudFront here too (or list the exact hosts)
+  "connect-src 'self' https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://*.cloudfront.net https://nominatim.openstreetmap.org",
   "frame-ancestors 'none'",
 ].join('; ');
 

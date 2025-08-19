@@ -7,7 +7,7 @@ import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
 import Ticker from "../../../components/ticker/index.jsx";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index";
 import InlineSvg from "../../../components/inlinesvg/index.jsx";
 const Logitech = () => {
     const pageTitle = "Logitech Event Booth & Chair Renders | Digital Art by *MYLG!*";

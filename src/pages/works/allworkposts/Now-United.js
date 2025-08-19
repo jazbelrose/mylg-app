@@ -10,7 +10,7 @@ import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js
 import { useData } from "../../../app/contexts/DataProvider";
 import Ticker from "../../../components/ticker/index.jsx";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import InlineSvg from "../../../components/inlinesvg/index.jsx";
 const Barebells = () => {

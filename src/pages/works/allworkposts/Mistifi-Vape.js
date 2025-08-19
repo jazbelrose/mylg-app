@@ -9,7 +9,7 @@ import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
 import { useData } from "../../../app/contexts/DataProvider";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index";
 import InlineSvg from "../../../components/inlinesvg/index.jsx";
 const MistifiVape = () => {
     const pageTitle = "Mistifi Vape Product Renders, Branding & Store Display Design | MYLG!";

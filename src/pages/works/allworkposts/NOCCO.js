@@ -8,7 +8,7 @@ import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import { useData } from "../../../app/contexts/DataProvider";
 import Ticker from "../../../components/ticker/index.jsx";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index";
 import InlineSvg from "../../../components/inlinesvg/index.jsx";
 const Nocco = () => {
     const pageTitle = "NOCCO Influencer Studio in Venice Beach, CA";

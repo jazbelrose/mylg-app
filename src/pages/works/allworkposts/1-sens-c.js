@@ -5,7 +5,7 @@ import { gsap } from "gsap";
 import "./style.css";
 import senscData from './1-sens-c.json';
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index";
 import { useData } from "../../../app/contexts/DataProvider";
 import ReactModal from "react-modal"; // Import ReactModal
 import { useScrollContext } from "../../../app/contexts/ScrollContext";

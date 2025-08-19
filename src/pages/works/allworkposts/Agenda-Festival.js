@@ -7,7 +7,7 @@ import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import Ticker from "../../../components/ticker/index.jsx";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index";
 import { useData } from "../../../app/contexts/DataProvider";
 import InlineSvg from "../../../components/inlinesvg/index.jsx";
 const AgendaFestival = () => {
