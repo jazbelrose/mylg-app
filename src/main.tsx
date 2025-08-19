@@ -11,6 +11,10 @@ import App from './app/App';
 import 'antd/dist/reset.css';
 import './index.css';
 
+if (import.meta.env.DEV) {
+  import('./app/bootstrapDevErrorHooks');
+}
+
 // ✅ Amplify config
 Amplify.configure(awsConfig);
 

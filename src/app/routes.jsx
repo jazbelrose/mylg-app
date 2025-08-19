@@ -14,6 +14,7 @@ import {
   NavigationDirectionProvider,
 } from "./contexts/NavigationDirectionProvider";
 import ProtectedRoute from "./contexts/ProtectedRoute";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useData } from "../app/contexts/DataProvider";
 import NotFound from "../components/notfound";
 import TermsAndPrivacy from "../pages/TermsAndPrivacy/TermsAndPrivacy";
@@ -88,10 +89,14 @@ function AppRoutes() {
   const location = useLocation();
 
   return (
-    <NavigationDirectionProvider>
-      <ScrollToTop />
-      <ActualRoutes location={location} />
-    </NavigationDirectionProvider>
+    <ErrorBoundary>
+      <Suspense fallback={<div style={{ padding: 24 }}>Loading…</div>}>
+        <NavigationDirectionProvider>
+          <ScrollToTop />
+          <ActualRoutes location={location} />
+        </NavigationDirectionProvider>
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
