@@ -17,12 +17,6 @@ const BudgetComponent = ({ activeProject }) => {
   const { budgetHeader, budgetItems, refresh, loading } = useBudgetData(
     activeProject?.projectId
   );
-  // Refresh data when component mounts or activeProject changes
-  useEffect(() => {
-    if (activeProject?.projectId) {
-      refresh();
-    }
-  }, [activeProject?.projectId, refresh]);
   const { ws } = useSocket();
   const navigate = useNavigate();
   const { user, isAdmin, isBuilder, isDesigner } = useData(); // keep for potential future use

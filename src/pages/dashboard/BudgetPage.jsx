@@ -39,6 +39,7 @@ import BudgetFileModal from "./components/SingleProject/BudgetFileModal";
 import CreateLineItemModal from "./components/SingleProject/CreateLineItemModal";
 import EventEditModal from "./components/SingleProject/EventEditModal";
 import RevisionModal from "./components/SingleProject/RevisionModal";
+import useBudgetData from "./components/SingleProject/useBudgetData";
 import { useData } from "../../app/contexts/DataProvider";
 import { useAuth } from "../../app/contexts/AuthContext";
 import { useSocket } from "../../app/contexts/SocketContext";
@@ -46,7 +47,6 @@ import { normalizeMessage } from "../../utils/websocketUtils";
 import { findProjectBySlug, slugify } from "../../utils/slug";
 import { formatUSD } from "../../utils/budgetUtils";
 import {
-  fetchBudgetHeader,
   fetchBudgetHeaders,
   createBudgetItem,
   updateBudgetItem,
@@ -164,6 +164,10 @@ const BudgetPage = () => {
   }, [initialActiveProject]);
 
   useEffect(() => {
+    setBudgetHeader(hookBudgetHeader);
+  }, [hookBudgetHeader]);
+
+  useEffect(() => {
     if (!initialActiveProject) return;
     if (slugify(initialActiveProject.title) !== projectSlug) {
       const proj = findProjectBySlug(projects, projectSlug);
@@ -270,9 +274,14 @@ const BudgetPage = () => {
     return Array.from(set);
   }, [activeProject]);
 
-  const [budgetHeader, setBudgetHeader] = useState(null);
+  const {
+    budgetHeader: hookBudgetHeader,
+    budgetItems,
+    setBudgetItems,
+    refresh: refreshBudgetData,
+  } = useBudgetData(activeProject?.projectId);
+  const [budgetHeader, setBudgetHeader] = useState(hookBudgetHeader);
   const [budgetData, setBudgetData] = useState([]);
-  const [budgetItems, setBudgetItems] = useState([]);
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
   const [error, setError] = useState(null);
@@ -409,6 +418,10 @@ const BudgetPage = () => {
     },
     []
   );
+
+  useEffect(() => {
+    computeGroupsAndClients(budgetItems, budgetHeader);
+  }, [budgetItems, budgetHeader, computeGroupsAndClients]);
 
   const handleUndo = async () => {
     if (undoStack.length === 0) return;
@@ -1331,43 +1344,16 @@ const BudgetPage = () => {
   );
 
   useEffect(() => {
-    const loadHeader = async () => {
+    const loadRevisions = async () => {
       if (!activeProject || !activeProject.projectId) return;
       try {
-        const header = await fetchBudgetHeader(activeProject.projectId);
         const revs = await fetchBudgetHeaders(activeProject.projectId);
         setRevisions(revs);
-        if (header) {
-          setBudgetHeader(header);
- if (header.budgetId) {
-            const items = await fetchBudgetItems(
-              header.budgetId,
-              header.revision
-            );
-            setBudgetItems(items);
-            const aSet = new Set();
-            const iSet = new Set();
-            const cSet = new Set(Array.isArray(header.clients) ? header.clients : []);
-            items.forEach((it) => {
-              if (it.areaGroup)
-                aSet.add(String(it.areaGroup).trim().toUpperCase());
-              if (it.invoiceGroup)
-                iSet.add(String(it.invoiceGroup).trim().toUpperCase());
-              if (it.client) cSet.add(it.client);
-            });
-            setAreaGroups(Array.from(aSet));
-            setInvoiceGroups(Array.from(iSet));
-            setClients(Array.from(cSet));
-          }
-        } else {
-          setBudgetHeader(null);
-          setClients([]);
-        }
       } catch (err) {
-        console.error("Error fetching budget header", err);
+        console.error("Error fetching budget revisions", err);
       }
     };
-    loadHeader();
+    loadRevisions();
   }, [activeProject]);
 
   useEffect(() => {
@@ -1385,24 +1371,12 @@ const BudgetPage = () => {
         } else if (data.action === 'projectUpdated' && data.fields && data.fields.lastBudgetUpdate) {
           if (data.senderId === userId) return;
           if (activeProject?.projectId) {
-            const header = await fetchBudgetHeader(activeProject.projectId);
-            if (header) {
-              setBudgetHeader(header);
-              const items = await fetchBudgetItems(header.budgetId, header.revision);
-              setBudgetItems(items);
-              computeGroupsAndClients(items, header);
-            }
+            await refreshBudgetData();
           }
         } else if (data.action === 'budgetUpdated') {
           if (data.senderId === userId) return;
           if (activeProject?.projectId) {
-            const header = await fetchBudgetHeader(activeProject.projectId);
-            if (header) {
-              setBudgetHeader(header);
-              const items = await fetchBudgetItems(header.budgetId, header.revision);
-              setBudgetItems(items);
-              computeGroupsAndClients(items, header);
-            }
+            await refreshBudgetData();
           }
         }
       } catch {
