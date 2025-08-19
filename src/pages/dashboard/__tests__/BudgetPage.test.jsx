@@ -39,7 +39,6 @@ jest.mock('../components/SingleProject/useBudgetData', () => ({
 }));
 
 jest.mock('../../../utils/api', () => ({
-  fetchBudgetHeader: jest.fn(),
   fetchBudgetHeaders: jest.fn(),
   fetchBudgetItems: jest.fn(),
   createBudgetItem: jest.fn(),
@@ -127,6 +126,7 @@ beforeEach(() => {
 
   mockUseBudgetData.mockReturnValue({
     budgetHeader,
+    setBudgetHeader: jest.fn(),
     budgetItems,
     setBudgetItems: jest.fn(),
     refresh: jest.fn(),

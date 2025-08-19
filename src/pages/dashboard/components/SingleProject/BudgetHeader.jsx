@@ -8,7 +8,7 @@ import {
   faCalculator,
 } from "@fortawesome/free-solid-svg-icons";
 import EditBallparkModal from "./EditBallparkModal";
-import { updateBudgetItem, fetchBudgetHeader } from "../../../../utils/api";
+import { updateBudgetItem } from "../../../../utils/api";
 import { faPen } from "@fortawesome/free-solid-svg-icons";
 import { Segmented, Switch } from "antd";
 import summaryStyles from "./BudgetHeaderSummary.module.css";
@@ -88,18 +88,11 @@ const BudgetHeader = ({
     }
   }, [showReconciled, markupBasis]);
 
-  const openInvoicePreview = useCallback(async () => {
-    if (!activeProject?.projectId) return;
-    try {
-      const header = await fetchBudgetHeader(activeProject.projectId);
-      if (header) {
-        setInvoiceRevision(header);
-        setIsInvoicePreviewOpen(true);
-      }
-    } catch (err) {
-      console.error("Failed to load invoice", err);
-    }
-  }, [activeProject?.projectId]);
+  const openInvoicePreview = useCallback(() => {
+    if (!budgetHeader) return;
+    setInvoiceRevision(budgetHeader);
+    setIsInvoicePreviewOpen(true);
+  }, [budgetHeader]);
 
   const closeInvoicePreview = useCallback(() => {
     setIsInvoicePreviewOpen(false);

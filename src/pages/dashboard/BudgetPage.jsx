@@ -164,10 +164,6 @@ const BudgetPage = () => {
   }, [initialActiveProject]);
 
   useEffect(() => {
-    setBudgetHeader(hookBudgetHeader);
-  }, [hookBudgetHeader]);
-
-  useEffect(() => {
     if (!initialActiveProject) return;
     if (slugify(initialActiveProject.title) !== projectSlug) {
       const proj = findProjectBySlug(projects, projectSlug);
@@ -275,12 +271,12 @@ const BudgetPage = () => {
   }, [activeProject]);
 
   const {
-    budgetHeader: hookBudgetHeader,
+    budgetHeader,
+    setBudgetHeader,
     budgetItems,
     setBudgetItems,
     refresh: refreshBudgetData,
   } = useBudgetData(activeProject?.projectId);
-  const [budgetHeader, setBudgetHeader] = useState(hookBudgetHeader);
   const [budgetData, setBudgetData] = useState([]);
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);

@@ -68,15 +68,19 @@ export async function prefetchBudgetData(projectId) {
 
 export default function useBudgetData(projectId) {
   const cached = projectId ? budgetCache.get(projectId) : null;
-  const [budgetHeader, setBudgetHeader] = useState(cached ? cached.header : null);
-  const [budgetItems, setBudgetItemsState] = useState(cached ? cached.items : []);
+  const [budgetHeaderState, setBudgetHeaderState] = useState(
+    cached ? cached.header : null
+  );
+  const [budgetItems, setBudgetItemsState] = useState(
+    cached ? cached.items : []
+  );
   const [loading, setLoading] = useState(!cached);
 
   useEffect(() => {
     let ignore = false;
     const load = async () => {
       if (!projectId) {
-        setBudgetHeader(null);
+        setBudgetHeaderState(null);
         setBudgetItemsState([]);
         setLoading(false);
         return;
@@ -86,13 +90,13 @@ export default function useBudgetData(projectId) {
       try {
         const { header, items } = await fetchData(projectId);
         if (!ignore) {
-          setBudgetHeader(header);
+          setBudgetHeaderState(header);
           setBudgetItemsState(items);
         }
       } catch (err) {
         console.error("Error fetching budget data", err);
         if (!ignore) {
-          setBudgetHeader(null);
+          setBudgetHeaderState(null);
           setBudgetItemsState([]);
         }
       } finally {
@@ -110,7 +114,7 @@ export default function useBudgetData(projectId) {
     setLoading(true);
     try {
       const data = await fetchData(projectId, true);
-      setBudgetHeader(data.header);
+      setBudgetHeaderState(data.header);
       setBudgetItemsState(data.items);
       return data;
     } catch (err) {
@@ -125,11 +129,43 @@ export default function useBudgetData(projectId) {
     (items) => {
       if (!projectId) return;
       setBudgetItemsState(items);
-      const cached = budgetCache.get(projectId) || { header: budgetHeader, items: [] };
-      budgetCache.set(projectId, { header: cached.header || budgetHeader, items });
+      const cached = budgetCache.get(projectId) || {
+        header: budgetHeaderState,
+        items: []
+      };
+      budgetCache.set(projectId, {
+        header: cached.header || budgetHeaderState,
+        items
+      });
     },
-    [projectId, budgetHeader]
+    [projectId, budgetHeaderState]
   );
 
-  return { budgetHeader, budgetItems, setBudgetItems, refresh, loading };
+  const setBudgetHeader = useCallback(
+    (headerOrUpdater) => {
+      if (!projectId) return;
+      setBudgetHeaderState((prev) => {
+        const next =
+          typeof headerOrUpdater === "function"
+            ? headerOrUpdater(prev)
+            : headerOrUpdater;
+        const cached = budgetCache.get(projectId) || {
+          header: null,
+          items: budgetItems
+        };
+        budgetCache.set(projectId, { header: next, items: cached.items });
+        return next;
+      });
+    },
+    [projectId, budgetItems]
+  );
+
+  return {
+    budgetHeader: budgetHeaderState,
+    budgetItems,
+    setBudgetHeader,
+    setBudgetItems,
+    refresh,
+    loading
+  };
 }
