@@ -1,6 +1,14 @@
 
 
 
+.herosection-container {
+  background: #0c0c0c;
+  padding-block: 48px 24px;
+  overflow: auto;
+}
+.herosection-container > :first-child { margin-top: 0; }
+.herosection-container > :last-child { margin-bottom: 0; }
+
 .header-section {
 
 padding: 70px 25px 35px;
