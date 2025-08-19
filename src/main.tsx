@@ -25,9 +25,9 @@ Modal.setAppElement(rootElement);
 const root = ReactDOM.createRoot(rootElement);
 
 root.render(
-  
+  <React.StrictMode>
     <ConfigProvider>
       <App />
     </ConfigProvider>
-  
+  </React.StrictMode>
 );
