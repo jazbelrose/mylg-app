@@ -33,8 +33,12 @@ jest.mock('../components/SingleProject/TeamModal', () => ({
   default: () => null,
 }));
 
+jest.mock('../components/SingleProject/useBudgetData', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
 jest.mock('../../../utils/api', () => ({
-  fetchBudgetHeader: jest.fn(),
   fetchBudgetHeaders: jest.fn(),
   fetchBudgetItems: jest.fn(),
   createBudgetItem: jest.fn(),
@@ -51,6 +55,7 @@ const { useData } = require('../../../app/contexts/DataProvider');
 const { useSocket } = require('../../../app/contexts/SocketContext');
 const api = require('../../../utils/api');
 const { useParams, useNavigate, useLocation } = require('react-router-dom');
+const mockUseBudgetData = require('../components/SingleProject/useBudgetData').default;
 
 let BudgetPage;
 
@@ -83,11 +88,8 @@ beforeEach(() => {
     isAdmin: true,
   });
   useSocket.mockReturnValue({ ws: {} });
-  api.fetchBudgetHeader.mockResolvedValue({ budgetId: 'b1', headerFinalTotalCost: 0, endDate: '', revision: 1 });
-  api.fetchBudgetHeaders.mockResolvedValue([
-    { budgetId: 'b1', headerFinalTotalCost: 0, endDate: '', revision: 1 }
-  ]);
-  api.fetchBudgetItems.mockResolvedValue([
+  const budgetHeader = { budgetId: 'b1', headerFinalTotalCost: 0, endDate: '', revision: 1 };
+  const budgetItems = [
     {
       budgetItemId: 'LINE-1',
       elementKey: 'E1',
@@ -120,6 +122,19 @@ beforeEach(() => {
       category: 'Cat B',
       notes: 'Note 2',
     },
+  ];
+
+  mockUseBudgetData.mockReturnValue({
+    budgetHeader,
+    setBudgetHeader: jest.fn(),
+    budgetItems,
+    setBudgetItems: jest.fn(),
+    refresh: jest.fn(),
+    loading: false,
+  });
+
+  api.fetchBudgetHeaders.mockResolvedValue([
+    { budgetId: 'b1', headerFinalTotalCost: 0, endDate: '', revision: 1 }
   ]);
 
   BudgetPage = require('../BudgetPage.jsx').default;
@@ -132,10 +147,6 @@ afterEach(() => {
 
 test('expanding row keeps column count', async () => {
   const { container } = render(<BudgetPage />);
-
-  await waitFor(() =>
-    expect(api.fetchBudgetItems).toHaveBeenCalledWith('b1', 1)
-  );
 
   const areaOption = (await screen.findAllByText('Area Group'))[0];
   await userEvent.click(areaOption);
@@ -152,10 +163,6 @@ test('expanding row keeps column count', async () => {
 
 test('create modal shows next element key disabled and element id auto populates', async () => {
   render(<BudgetPage />);
-
-  await waitFor(() =>
-    expect(api.fetchBudgetItems).toHaveBeenCalledWith('b1', 1)
-  );
 
   const createBtn = screen.getByRole('button', { name: /create line item/i });
   await userEvent.click(createBtn);
@@ -175,10 +182,6 @@ test('create modal shows next element key disabled and element id auto populates
 test('clicking row opens edit modal with existing data', async () => {
   render(<BudgetPage />);
 
-  await waitFor(() =>
-    expect(api.fetchBudgetItems).toHaveBeenCalledWith('b1', 1)
-  );
-
   const firstRow = screen.getByText('Item 1').closest('tr');
   await userEvent.click(firstRow);
 
@@ -191,10 +194,6 @@ test('clicking row opens edit modal with existing data', async () => {
 
   test('quantity multiplies cost in create modal', async () => {
     render(<BudgetPage />);
-
-  await waitFor(() =>
-    expect(api.fetchBudgetItems).toHaveBeenCalledWith('b1', 1)
-  );
 
   const createBtn = screen.getByRole('button', { name: /create line item/i });
   await userEvent.click(createBtn);
@@ -213,10 +212,6 @@ test('clicking row opens edit modal with existing data', async () => {
   test('cmd/ctrl+enter submits the create modal', async () => {
     render(<BudgetPage />);
 
-    await waitFor(() =>
-      expect(api.fetchBudgetItems).toHaveBeenCalledWith('b1', 1)
-    );
-
     const createBtn = screen.getByRole('button', { name: /create line item/i });
     await userEvent.click(createBtn);
 
@@ -232,10 +227,6 @@ test('clicking row opens edit modal with existing data', async () => {
 
 test('revision buttons trigger createBudgetItem', async () => {
   render(<BudgetPage />);
-
-  await waitFor(() =>
-    expect(api.fetchBudgetItems).toHaveBeenCalledWith('b1', 1)
-  );
 
   api.createBudgetItem.mockResolvedValueOnce({
     budgetItemId: 'HEADER-2',
