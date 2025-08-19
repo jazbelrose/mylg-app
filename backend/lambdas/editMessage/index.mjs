@@ -1,30 +1,91 @@
 import AWS from 'aws-sdk';
 
-// Configure DynamoDB client with retry settings
+// DynamoDB v2 DocumentClient with retry settings
 const dynamo = new AWS.DynamoDB.DocumentClient({
   maxRetries: 5,
-  retryDelayOptions: { base: 200 }
+  retryDelayOptions: { base: 200 },
 });
 
 const DM_TABLE = process.env.DM_TABLE_NAME || process.env.DM_MESSAGES_TABLE;
 const PROJECT_TABLE = process.env.PROJECT_MESSAGES_TABLE;
 
-const HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-  'Access-Control-Allow-Methods': 'OPTIONS,PATCH'
+/** ---- CORS CONFIG ---- **/
+const EXPLICIT_ALLOW = new Set([
+  'http://localhost:3000',
+  'http://192.168.1.200:3000', // ← change if your LAN IP differs
+  'https://mylg.studio',
+  'https://www.mylg.studio',
+]);
+
+const hostAllowed = (h) => h === 'mylg.studio' || h.endsWith('.mylg.studio');
+
+const pickAllowOrigin = (reqOrigin) => {
+  if (!reqOrigin) return 'http://localhost:3000';
+  const normalized = String(reqOrigin).replace(/\/$/, '');
+  if (EXPLICIT_ALLOW.has(normalized)) return normalized;
+  try {
+    const u = new URL(reqOrigin);
+    if (hostAllowed(u.hostname)) return `${u.protocol}//${u.host}`;
+  } catch {}
+  return 'http://localhost:3000';
 };
+
+const ALLOW_CREDENTIALS = false; // set true only if you actually use cookies
+
+const buildCORS = (event) => {
+  const hdrs = event?.headers || {};
+  const reqOrigin = hdrs.origin || hdrs.Origin || hdrs.ORIGIN || '';
+  const allowOrigin = pickAllowOrigin(reqOrigin);
+
+  const base = {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Vary': 'Origin',
+    'Access-Control-Allow-Headers':
+      'Content-Type, Authorization, X-Requested-With, X-CSRF-Token, X-Amz-Date, X-Amz-Security-Token, X-Amz-User-Agent',
+    'Access-Control-Allow-Methods': 'OPTIONS,PATCH',
+    'Access-Control-Expose-Headers': 'Authorization,x-amzn-RequestId,x-amz-apigw-id',
+    'Access-Control-Max-Age': '600',
+  };
+  if (ALLOW_CREDENTIALS) base['Access-Control-Allow-Credentials'] = 'true';
+  return base;
+};
+
+const json = (statusCode, headers, body) => ({
+  statusCode,
+  headers: { ...headers, 'Content-Type': 'application/json' },
+  body: body != null ? JSON.stringify(body) : '',
+});
 
 // Exponential backoff helper
 async function withBackoff(operation, retries = 5, delay = 100) {
   try {
     return await operation();
   } catch (err) {
-    if (err.code === 'ProvisionedThroughputExceededException' && retries > 0) {
+    if (
+      retries > 0 &&
+      (err.code === 'ProvisionedThroughputExceededException' || err.code === 'ThrottlingException')
+    ) {
       await new Promise((res) => setTimeout(res, delay));
       return withBackoff(operation, retries - 1, delay * 2);
     }
     throw err;
+  }
+}
+
+// Minimal JWT parser fallback if no authorizer is attached
+function getJwtClaimsFromHeader(event) {
+  try {
+    const h = event?.headers || {};
+    const auth = h.authorization || h.Authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+    if (!token) return {};
+    const [, payload] = token.split('.');
+    if (!payload) return {};
+    const b64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = b64.padEnd(b64.length + (4 - (b64.length % 4 || 4)) % 4, '=');
+    return JSON.parse(Buffer.from(pad, 'base64').toString('utf8')) || {};
+  } catch {
+    return {};
   }
 }
 
@@ -39,36 +100,51 @@ async function updateMessage(table, key, content, editedBy, timestamp = new Date
       ':c': content,
       ':e': true,
       ':ts': timestamp,
-      ':eb': editedBy
+      ':eb': editedBy,
     },
-    ReturnValues: 'ALL_NEW'
+    ReturnValues: 'ALL_NEW',
   };
   return withBackoff(() => dynamo.update(params).promise());
 }
 
 export const handler = async (event) => {
+  const method =
+    event?.requestContext?.http?.method?.toUpperCase?.() ||
+    event?.httpMethod?.toUpperCase?.() ||
+    '';
+
+  const CORS = buildCORS(event);
+
+  // Preflight
+  if (method === 'OPTIONS') {
+    return { statusCode: 204, headers: CORS, body: '' };
+  }
+
+  if (method !== 'PATCH') {
+    return json(405, CORS, { error: 'Method Not Allowed' });
+  }
+
   try {
     console.log('EVENT:', JSON.stringify(event, null, 2));
 
-    const method = event.httpMethod || event.requestContext?.http?.method;
-    if (method === 'OPTIONS') return { statusCode: 204, headers: HEADERS, body: '' };
-    if (method !== 'PATCH') return { statusCode: 405, headers: HEADERS, body: JSON.stringify({ error: 'Method Not Allowed' }) };
-
     const { type, messageId } = event.pathParameters || {};
-    if (!['direct','project'].includes(type) || !messageId) {
-      return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid path parameters' }) };
+    if (!['direct', 'project'].includes(type) || !messageId) {
+      return json(400, CORS, { error: 'Invalid path parameters' });
     }
 
     let body;
-    try { body = JSON.parse(event.body || '{}'); } catch {
-      return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'Invalid JSON body' }) };
-    }
-    const { content, editedBy } = body;
-    if (!content || !editedBy) {
-      return { statusCode: 400, headers: HEADERS, body: JSON.stringify({ error: 'content and editedBy required' }) };
+    try {
+      body = JSON.parse(event.body || '{}');
+    } catch {
+      return json(400, CORS, { error: 'Invalid JSON body' });
     }
 
-    // Require partition key from request body
+    const { content, editedBy } = body || {};
+    if (!content || !editedBy) {
+      return json(400, CORS, { error: 'content and editedBy required' });
+    }
+
+    // Partition key requirements
     let partitionKeyName, partitionKeyValue;
     if (type === 'direct') {
       partitionKeyName = 'conversationId';
@@ -77,38 +153,33 @@ export const handler = async (event) => {
       partitionKeyName = 'projectId';
       partitionKeyValue = body.projectId;
     }
-
     if (!partitionKeyValue) {
-      return {
-        statusCode: 400,
-        headers: HEADERS,
-        body: JSON.stringify({ error: `${partitionKeyName} required in body` }),
-      };
+      return json(400, CORS, { error: `${partitionKeyName} required in body` });
     }
 
+    // Requester identity via APIGW authorizer or JWT fallback
     const auth = event.requestContext?.authorizer || {};
-    const claims = auth.jwt?.claims || auth.claims || {};
+    const claimsFromAuth = auth.jwt?.claims || auth.claims || {};
+    const claimsFromHeader = getJwtClaimsFromHeader(event);
+    const claims = { ...claimsFromHeader, ...claimsFromAuth }; // authorizer takes precedence if present
+
     const requester = auth.userId || claims.userId || claims.sub;
     const role = auth.role || claims.role || '';
-    const isAdmin = (role || '').toLowerCase() === 'admin';
+    const isAdmin = String(role || '').toLowerCase() === 'admin';
 
     if (!requester) {
-      return {
-        statusCode: 401,
-        headers: HEADERS,
-        body: JSON.stringify({ error: 'Unauthorized' }),
-      };
+      return json(401, CORS, { error: 'Unauthorized' });
     }
 
     const table = type === 'direct' ? DM_TABLE : PROJECT_TABLE;
 
-    // Get message by partition key and sort key
+    // Load message
     const getParams = {
       TableName: table,
       Key: {
         [partitionKeyName]: partitionKeyValue,
-        messageId: messageId
-      }
+        messageId: messageId,
+      },
     };
 
     let item;
@@ -116,26 +187,27 @@ export const handler = async (event) => {
       const res = await withBackoff(() => dynamo.get(getParams).promise());
       item = res.Item;
       console.log('Found item:', item);
-      if (!item) return { statusCode: 404, headers: HEADERS, body: JSON.stringify({ error: 'Message not found' }) };
+      if (!item) return json(404, CORS, { error: 'Message not found' });
     } catch (err) {
       console.error('Error fetching message:', err);
-      return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Error fetching message', details: err.message }) };
+      return json(500, CORS, { error: 'Error fetching message', details: err.message });
     }
 
+    // Only the original sender or an admin may edit
     if (item.senderId !== requester && !isAdmin) {
-      return { statusCode: 403, headers: HEADERS, body: JSON.stringify({ error: 'Forbidden' }) };
+      return json(403, CORS, { error: 'Forbidden' });
     }
 
     try {
       const result = await updateMessage(table, getParams.Key, content, editedBy);
-      return { statusCode: 200, headers: HEADERS, body: JSON.stringify(result.Attributes) };
+      return json(200, CORS, result.Attributes);
     } catch (err) {
       console.error('Error updating message:', err);
-      return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Error updating message', details: err.message }) };
+      return json(500, CORS, { error: 'Error updating message', details: err.message });
     }
   } catch (err) {
     console.error('Unhandled error in handler:', err);
-    return { statusCode: 500, headers: HEADERS, body: JSON.stringify({ error: 'Internal Server Error', details: err.message }) };
+    return json(500, CORS, { error: 'Internal Server Error', details: err.message });
   }
 };
 
