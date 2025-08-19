@@ -1,15 +1,10 @@
-import React, { useState, useEffect, useRef, forwardRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { gsap } from "gsap";
 import { ScrambleButton } from "../scramblebutton";
 
 
+import HomeHeader from "../../assets/svg/homeheader.svg?react";
 import "./style.css";
-
-const HomeHeader = forwardRef((props, ref) => (
-  <svg ref={ref} {...props}>
-    {/* SVG content */}
-  </svg>
-));
 
 export const HeroSection = () => {
   const svgRef = useRef(null);

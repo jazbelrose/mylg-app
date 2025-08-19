@@ -40,6 +40,7 @@ import CreateLineItemModal from "./components/SingleProject/CreateLineItemModal"
 import EventEditModal from "./components/SingleProject/EventEditModal";
 import RevisionModal from "./components/SingleProject/RevisionModal";
 import { useData } from "../../app/contexts/DataProvider";
+import { useAuth } from "../../app/contexts/AuthContext";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { normalizeMessage } from "../../utils/websocketUtils";
 import { findProjectBySlug, slugify } from "../../utils/slug";
@@ -65,16 +66,16 @@ const BudgetPage = () => {
     activeProject: initialActiveProject,
     projects,
     fetchProjectDetails,
-    user,
-    userId,
     setProjects,
     setSelectedProjects,
     updateTimelineEvents,
-    isAdmin: isAdminCtx,
-    isBuilder,
-    isDesigner,
   } = useData();
-  const isAdmin = !!isAdminCtx;
+  const { user } = useAuth();
+  const role = (user?.role || "").toLowerCase();
+  const userId = user?.userId;
+  const isAdmin = role === "admin";
+  const isBuilder = role === "builder";
+  const isDesigner = role === "designer";
   const canEdit = isAdmin || isBuilder || isDesigner;
   const { ws } = useSocket();
   const [activeProject, setActiveProject] = useState(initialActiveProject);
@@ -1602,7 +1603,7 @@ const BudgetPage = () => {
     }
   };
 
-  if (!isAdmin) {
+  if (!canEdit) {
     return <div>Access Denied</div>;
   }
 
