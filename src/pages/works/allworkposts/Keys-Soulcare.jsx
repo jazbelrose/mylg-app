@@ -446,7 +446,7 @@ const KeysSoulcare = () => {
                     </div>
 
                     <div className="img-container" style={{ flex: '1' }}>
-                        <img src="https://d1cazymewvlm0k.cloudfront.net/19-Keys+Soulcare/12.jpg" loading="lazy" loading="lazy" alt="Keys Soulcare Image" width="100%" height="100%" onClick={() => openModal(10)} style={{ cursor: "pointer" }} />
+                        <img src="https://d1cazymewvlm0k.cloudfront.net/19-Keys+Soulcare/12.jpg" loading="lazy" alt="Keys Soulcare Image" width="100%" height="100%" onClick={() => openModal(10)} style={{ cursor: "pointer" }} />
                     </div>
 
                 </div>
