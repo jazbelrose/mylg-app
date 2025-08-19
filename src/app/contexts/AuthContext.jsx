@@ -4,7 +4,6 @@ import { fetchAuthSession, getCurrentUser, updateUserAttributes, signOut } from 
 import { fetchUserProfile as fetchUserProfileApi } from '../../utils/api';
 import { secureWebSocketAuth } from '../../utils/secureWebSocketAuth';
 import { csrfProtection, logSecurityEvent } from '../../utils/securityUtils';
-import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext({ isAuthenticated: false, user: null, authStatus: 'signedOut' });
 export const useAuth = () => useContext(AuthContext);
@@ -69,31 +68,17 @@ const validateAndSetUserSession = useCallback(async (label = 'default') => {
       return;
     }
 
-    // Decode the ID token to access custom claims like role
-    let decodedIdToken = null;
-    try {
-      decodedIdToken = jwtDecode(idToken.toString());
-      if (import.meta.env.DEV) {
-        console.log('[validateAndSetUserSession] Decoded ID token:', decodedIdToken);
-      }
-    } catch (decodeError) {
-      console.error('[validateAndSetUserSession] Failed to decode ID token:', decodeError);
-    }
-
     const cognitoUser = await getCurrentUser();
 
     // ✅ Get these early and reuse everywhere
-    const role = decodedIdToken?.role ?? idToken.payload?.role ?? null;
-    const userId = decodedIdToken?.sub || idToken.payload?.sub || cognitoUser?.username || null;
+    const role = idToken.payload?.role ?? null;
+    const userId = idToken.payload?.sub ?? cognitoUser?.username ?? null;
 
     // Try to fetch profile (unwrap .Item if present)
     let userProfile = null;
     try {
-      const { USER_PROFILES_API_URL, apiFetch } = require('../../utils/api');
-      const endpoint = `${USER_PROFILES_API_URL}?userId=${encodeURIComponent(userId)}`;
-      const rawRes = await apiFetch(endpoint);
-      const parsedRes = await rawRes.json();
-      userProfile = parsedRes?.Item ?? null;
+      const res = await fetchUserProfileApi(userId);
+      userProfile = res?.Item ?? res ?? null;
     } catch (rawErr) {
       console.error(`[validateAndSetUserSession:${label}] profile fetch error:`, rawErr);
     }
