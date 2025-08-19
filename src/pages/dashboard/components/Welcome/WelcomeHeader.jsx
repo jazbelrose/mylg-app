@@ -13,7 +13,8 @@ const WelcomeHeader = () => {
   const { notifications } = useNotifications();
   const navigate = useNavigate();
 
-  const userName = user?.firstName || user?.email || 'User';
+  const userName = userData?.firstName || user?.firstName || user?.email || 'User';
+  const userThumbnail = userData?.thumbnail || user?.thumbnail;
 
   const unreadMessages = (userData?.messages || []).filter(isMessageUnread).length || 0;
 
@@ -76,10 +77,10 @@ const WelcomeHeader = () => {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {user?.thumbnail ? (
+          {userThumbnail ? (
             <img
-              src={user.thumbnail}
-              alt={`${user.firstName}'s Thumbnail`}
+              src={userThumbnail}
+              alt={`${userName}'s Thumbnail`}
               style={{
                 width: '40px',
                 height: '40px',
