@@ -21,6 +21,7 @@ import TermsAndPrivacy from "../pages/TermsAndPrivacy/TermsAndPrivacy";
 import { Home } from "../pages/home";
 import { Works } from "../pages/works";
 import { About } from "../pages/about";
+import Spinner from "../components/preloader-light";
 const Dashboard = React.lazy(() => import("../pages/dashboard"));
 const DashboardWelcome = React.lazy(() => import("../pages/dashboard/Welcome"));
 const DashboardNewProject = React.lazy(() => import("../pages/dashboard/NewProject"));
@@ -90,7 +91,7 @@ function AppRoutes() {
 
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div style={{ padding: 24 }}>Loading…</div>}>
+      <Suspense fallback={<Spinner />}>
         <NavigationDirectionProvider>
           <ScrollToTop />
           <ActualRoutes location={location} />
