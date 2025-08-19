@@ -68,7 +68,7 @@ export async function prefetchBudgetData(projectId) {
 
 export default function useBudgetData(projectId) {
   const cached = projectId ? budgetCache.get(projectId) : null;
-  const [budgetHeaderState, setBudgetHeaderState] = useState(
+  const [budgetHeader, setBudgetHeader] = useState(
     cached ? cached.header : null
   );
   const [budgetItems, setBudgetItemsState] = useState(
@@ -80,7 +80,7 @@ export default function useBudgetData(projectId) {
     let ignore = false;
     const load = async () => {
       if (!projectId) {
-        setBudgetHeaderState(null);
+        setBudgetHeader(null);
         setBudgetItemsState([]);
         setLoading(false);
         return;
@@ -90,13 +90,13 @@ export default function useBudgetData(projectId) {
       try {
         const { header, items } = await fetchData(projectId);
         if (!ignore) {
-          setBudgetHeaderState(header);
+          setBudgetHeader(header);
           setBudgetItemsState(items);
         }
       } catch (err) {
         console.error("Error fetching budget data", err);
         if (!ignore) {
-          setBudgetHeaderState(null);
+          setBudgetHeader(null);
           setBudgetItemsState([]);
         }
       } finally {
@@ -114,7 +114,7 @@ export default function useBudgetData(projectId) {
     setLoading(true);
     try {
       const data = await fetchData(projectId, true);
-      setBudgetHeaderState(data.header);
+      setBudgetHeader(data.header);
       setBudgetItemsState(data.items);
       return data;
     } catch (err) {
@@ -130,40 +130,37 @@ export default function useBudgetData(projectId) {
       if (!projectId) return;
       setBudgetItemsState(items);
       const cached = budgetCache.get(projectId) || {
-        header: budgetHeaderState,
+        header: null,
         items: []
       };
-      budgetCache.set(projectId, {
-        header: cached.header || budgetHeaderState,
-        items
-      });
+      budgetCache.set(projectId, { header: cached.header, items });
     },
-    [projectId, budgetHeaderState]
+    [projectId]
   );
 
-  const setBudgetHeader = useCallback(
+  const updateBudgetHeader = useCallback(
     (headerOrUpdater) => {
       if (!projectId) return;
-      setBudgetHeaderState((prev) => {
+      setBudgetHeader((prev) => {
         const next =
           typeof headerOrUpdater === "function"
             ? headerOrUpdater(prev)
             : headerOrUpdater;
         const cached = budgetCache.get(projectId) || {
           header: null,
-          items: budgetItems
+          items: []
         };
         budgetCache.set(projectId, { header: next, items: cached.items });
         return next;
       });
     },
-    [projectId, budgetItems]
+    [projectId]
   );
 
   return {
-    budgetHeader: budgetHeaderState,
+    budgetHeader,
     budgetItems,
-    setBudgetHeader,
+    setBudgetHeader: updateBudgetHeader,
     setBudgetItems,
     refresh,
     loading
