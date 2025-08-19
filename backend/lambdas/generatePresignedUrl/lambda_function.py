@@ -1,3 +1,12 @@
+"""
+Lambda: generatePresignedUrl
+Route: POST /upload/presigned-url
+Auth: Cognito JWT
+Input: { fileName: string, fileType: string, projectId?: string }
+Output: { uploadUrl: string, downloadUrl: string, key: string }
+Side effects: generates S3 presigned URL for secure file uploads
+"""
+
 import json
 import os
 import uuid

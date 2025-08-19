@@ -1,3 +1,12 @@
+/**
+ * Lambda: getProjectMessages
+ * Route: GET /projects/{projectId}/messages
+ * Auth: Cognito JWT (role: MEMBER+)
+ * Input: query { cursor?: string, limit?: number }
+ * Output: { items: Message[], nextCursor?: string }
+ * Side effects: reads DynamoDB PROJECT_MESSAGES by projectId
+ */
+
 // index.mjs
 import AWS from 'aws-sdk';
 

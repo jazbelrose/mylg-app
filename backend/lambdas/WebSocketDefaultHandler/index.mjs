@@ -1,3 +1,12 @@
+/**
+ * Lambda: WebSocketDefaultHandler
+ * Route: WS $default
+ * Auth: API Gateway WebSocket (connection-based)
+ * Input: { action: string, ...payload }
+ * Output: { ack: true } or error via WebSocket
+ * Side effects: manages real-time messaging, notifications, connection state
+ */
+
 import AWS from "aws-sdk";
 import { randomUUID } from "crypto";
 import { v4 as uuid } from 'uuid';

@@ -1,3 +1,12 @@
+/**
+ * Lambda: postProjectToUserId
+ * Route: POST /users/{userId}/projects
+ * Auth: Cognito JWT (role: ADMIN or self)
+ * Input: { projectId: string, role?: string }
+ * Output: { ok: true }
+ * Side effects: updates UserProfiles.projects[] and Projects.team[]
+ */
+
 import { DynamoDB } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb';
 

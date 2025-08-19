@@ -1,0 +1,235 @@
+openapi: 3.1.0
+info:
+  title: MyLG API
+  description: Collaborative design platform API
+  version: 1.0.0
+  contact:
+    name: MyLG Team
+    url: https://mylg.studio
+
+servers:
+  - url: https://api.mylg.studio/v1
+    description: Production API
+  - url: http://localhost:3000/api
+    description: Local development
+
+security:
+  - CognitoJWT: []
+
+components:
+  securitySchemes:
+    CognitoJWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Cognito JWT token
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+        data:
+          type: object
+
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: object
+        statusCode:
+          type: integer
+
+    PaginatedResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+        nextCursor:
+          type: string
+        totalCount:
+          type: integer
+
+    Message:
+      type: object
+      properties:
+        messageId:
+          type: string
+        projectId:
+          type: string
+        senderId:
+          type: string
+        content:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Project:
+      type: object
+      properties:
+        projectId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        ownerId:
+          type: string
+        status:
+          type: string
+          enum: [active, archived, deleted]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+paths:
+  /projects/{projectId}/messages:
+    get:
+      summary: Get project messages
+      description: Retrieve paginated messages for a project
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/PaginatedResponse'
+        '403':
+          description: Not a project member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /users/{userId}/projects:
+    post:
+      summary: Add user to project
+      description: Add a user to a project team
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                projectId:
+                  type: string
+                role:
+                  type: string
+                  enum: [member, admin, viewer]
+                  default: member
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /upload/presigned-url:
+    post:
+      summary: Generate presigned upload URL
+      description: Generate secure S3 upload URL for files
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fileName:
+                  type: string
+                fileType:
+                  type: string
+                projectId:
+                  type: string
+              required:
+                - fileName
+                - fileType
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          uploadUrl:
+                            type: string
+                          downloadUrl:
+                            type: string
+                          key:
+                            type: string
+
+  # WebSocket API (documented separately)
+  /websocket:
+    description: |
+      WebSocket API for real-time messaging and notifications.
+      
+      Connection: wss://ws.mylg.studio
+      
+      Message format:
+      ```json
+      {
+        "action": "sendMessage",
+        "data": {
+          "projectId": "string",
+          "content": "string"
+        }
+      }
+      ```
+      
+      Actions:
+      - sendMessage: Send project message
+      - joinProject: Subscribe to project updates
+      - leaveProject: Unsubscribe from project
+      - typing: Send typing indicator
