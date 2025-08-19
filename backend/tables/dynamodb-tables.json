@@ -1,0 +1,15 @@
+
+{
+  "TableNames": [
+    "Connections",
+    "DM_THREADS",
+    "DMs",
+    "Notifications",
+    "ProjectMessages",
+    "ProjectRevisionHistory",
+    "Projects",
+    "UserProfiles",
+    "ProjectInvitations",
+    "Tasks"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "threads",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.mjs",
+  "dependencies": {
+    "aws-sdk": "^2.1692.0"
+  }
+}

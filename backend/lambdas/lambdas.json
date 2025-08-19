@@ -1,0 +1,894 @@
+{
+    "Functions": [
+        {
+            "FunctionName": "getDmInbox",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:getDmInbox",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/getDmInbox-role-u1tzkq3t",
+            "Handler": "index.handler",
+            "CodeSize": 14218358,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-06-20T06:48:57.000+0000",
+            "CodeSha256": "Qg5lDW5Pbpd60UcIXMWWDPXsgU1EkJdzkWuvO58VxZg=",
+            "Version": "$LATEST",
+            "Environment": {
+                "Variables": {
+                    "THREADS_TABLE_NAME": "DM_THREADS",
+                    "DM_TABLE_NAME": "DMs"
+                }
+            },
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "4c9a5193-94e0-47e1-8fe2-63cfac62ca67",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/getDmInbox"
+            }
+        },
+        {
+            "FunctionName": "Projects",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:Projects",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/Projects",
+            "Handler": "index.handler",
+            "CodeSize": 763,
+            "Description": "A simple backend (read/write to DynamoDB) with a RESTful API endpoint using Amazon API Gateway.",
+            "Timeout": 900,
+            "MemorySize": 512,
+            "LastModified": "2024-03-13T01:58:44.000+0000",
+            "CodeSha256": "8p6f2UjfND/T9Mh5Wx4nCL71W5FM3PbsVmslHQ8AaoU=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "4277b90a-18d4-4d4c-90b3-0fb91687933c",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/Projects"
+            }
+        },
+        {
+            "FunctionName": "zipFiles",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:zipFiles",
+            "Runtime": "nodejs20.x",
+            "Role": "arn:aws:iam::221025630675:role/Zipper",
+            "Handler": "index.handler",
+            "CodeSize": 15187391,
+            "Description": "",
+            "Timeout": 60,
+            "MemorySize": 128,
+            "LastModified": "2024-01-30T10:26:25.000+0000",
+            "CodeSha256": "rhZdkKwsUp7o/OZ23G83997uWDX6TUkuhCHHmBkRC0U=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "1f3663e8-066d-4b60-99d3-a464aba2757e",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/zipFiles"
+            }
+        },
+        {
+            "FunctionName": "floorplansFunction",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:floorplansFunction",
+            "Runtime": "nodejs20.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/floorplansFunction-role-0wes9trr",
+            "Handler": "index.handler",
+            "CodeSize": 1185,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2024-03-05T01:25:52.000+0000",
+            "CodeSha256": "oJoTr0ZaKzJvZhr8PjTsoQ/mBJnsy7dzqK5SCqD25WU=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "d949bdb5-38e8-4998-bffb-bbee82758965",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/floorplansFunction"
+            }
+        },
+        {
+            "FunctionName": "getDirectMessages",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:getDirectMessages",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/getDirectMessages-role-hu1i139b",
+            "Handler": "index.handler",
+            "CodeSize": 14218333,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-06-20T06:11:18.000+0000",
+            "CodeSha256": "dtrHG0OtbBvH8YN7xmMVJUfi8Xa85fB6FsjFal4XzvM=",
+            "Version": "$LATEST",
+            "Environment": {
+                "Variables": {
+                    "DM_MESSAGES_TABLE": "DMs"
+                }
+            },
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "c0218659-1fe3-4bc6-85a7-616ea485301f",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/getDirectMessages"
+            }
+        },
+        {
+            "FunctionName": "amplify-website-dev-15484-UpdateRolesWithIDPFuncti-Cv636FNM5ZkV",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:amplify-website-dev-15484-UpdateRolesWithIDPFuncti-Cv636FNM5ZkV",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/amplify-website-dev-154847-authRole-idp",
+            "Handler": "index.handler",
+            "CodeSize": 3062,
+            "Description": "",
+            "Timeout": 300,
+            "MemorySize": 128,
+            "LastModified": "2024-03-29T22:52:54.698+0000",
+            "CodeSha256": "utFd6BEJm2c8mxmQJjliVF3IgQLyIl3TV0FFHfPROXM=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "3d22054a-bf2e-419d-a27e-700df943bd08",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/amplify-website-dev-15484-UpdateRolesWithIDPFuncti-Cv636FNM5ZkV"
+            }
+        },
+        {
+            "FunctionName": "RegisteredUserTeamNotification",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:RegisteredUserTeamNotification",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/RegisteredUserTeamNotification-role-fvlyxs32",
+            "Handler": "index.handler",
+            "CodeSize": 1164,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2024-12-15T02:40:39.000+0000",
+            "CodeSha256": "Tq3uwIYy5XqwxwxzMaOMpavxmYB5B/+lsNozCo0I7SE=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "fb9ac597-7df6-4c93-91b1-1731255c489f",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/RegisteredUserTeamNotification"
+            }
+        },
+        {
+            "FunctionName": "deleteProjectMessage",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:deleteProjectMessage",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/deleteProjectMessage-role-q0yxiq84",
+            "Handler": "index.handler",
+            "CodeSize": 14223679,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-06-20T07:43:20.000+0000",
+            "CodeSha256": "W/ieLvHhslQe+NGAeEXRbv3fZ0PupkUwnzORPx2emeI=",
+            "Version": "$LATEST",
+            "Environment": {
+                "Variables": {
+                    "PROJECT_MESSAGES_TABLE": "ProjectMessages"
+                }
+            },
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "77706890-dd34-47d8-8dfd-bc63fd322e9d",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/deleteProjectMessage"
+            }
+        },
+        {
+            "FunctionName": "PostProjects",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:PostProjects",
+            "Runtime": "nodejs20.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/PostProjects-role-ewbxr61p",
+            "Handler": "index.handler",
+            "CodeSize": 1289,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2024-01-23T04:19:23.000+0000",
+            "CodeSha256": "3LCIwum7P5WkYtW5cDk82rrP0OdDQoX/3UF552oNvQE=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "dd036262-ae2d-43f4-8497-49e334218156",
+            "Layers": [
+                {
+                    "Arn": "arn:aws:lambda:us-west-1:221025630675:layer:nodejs:1",
+                    "CodeSize": 64804
+                }
+            ],
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/PostProjects"
+            }
+        },
+        {
+            "FunctionName": "All",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:All",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/All-role-v4awutkr",
+            "Handler": "index.handler",
+            "CodeSize": 811,
+            "Description": "A simple backend (read/write to DynamoDB) with a RESTful API endpoint using Amazon API Gateway.",
+            "Timeout": 10,
+            "MemorySize": 512,
+            "LastModified": "2024-01-13T01:41:04.000+0000",
+            "CodeSha256": "j0JluW/NKtaQYIeQ8eDDEH4rkvFmoNN79UV3zSsaL3o=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "801da4ed-e8fa-46bb-9802-44e31ac32c7d",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/All"
+            }
+        },
+        {
+            "FunctionName": "DownloadsFunction",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:DownloadsFunction",
+            "Runtime": "nodejs20.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/DownloadsFunction-role-ixq85jf7",
+            "Handler": "index.handler",
+            "CodeSize": 1190,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2024-11-28T23:14:03.000+0000",
+            "CodeSha256": "pDmoQeisP0U9PmqszhOyIAbdkQL1/S2Rd3+Bpr19Cn4=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "0391eb5f-ebfa-4f30-8181-f0fa359343f1",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/DownloadsFunction"
+            }
+        },
+        {
+            "FunctionName": "editProject",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:editProject",
+            "Runtime": "nodejs20.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/editProject-role-qiik0v44",
+            "Handler": "index.handler",
+            "CodeSize": 1296,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-03-17T03:03:06.000+0000",
+            "CodeSha256": "XybZn1w61ccrIGwiLxqy216W5BIiIIhk1RsJsJbkENw=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "842f4412-0a73-4d78-8dfe-a7ae1cd258b2",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/editProject"
+            }
+        },
+        {
+            "FunctionName": "WebSocketDefaultHandler",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:WebSocketDefaultHandler",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/WebSocketDefaultHandler-role-k8u7a80c",
+            "Handler": "index.handler",
+            "CodeSize": 14226595,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-06-25T20:56:43.000+0000",
+            "CodeSha256": "48QmO8uKAEj91Z6waVObwnC//qt8idEbpfkMa54C7II=",
+            "Version": "$LATEST",
+            "Environment": {
+                "Variables": {
+                    "PROJECTS_TABLE_NAME": "Projects",
+                    "PROJECT_MESSAGES_TABLE_NAME": "ProjectMessages",
+                    "THREADS_TABLE_NAME": " DM_THREADS",
+                    "DM_TABLE_NAME": "DMs",
+                    "NOTIFICATIONS_TABLE": "Notifications",
+                    "CONNECTIONS_TABLE": "Connections",
+                    "WEBSOCKET_ENDPOINT": "hly9zz2zci.execute-api.us-west-1.amazonaws.com/production"
+                }
+            },
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "b30ec506-e6c4-4e49-be47-eb224c3cd34b",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/WebSocketDefaultHandler"
+            }
+        },
+        {
+            "FunctionName": "onDisconnect",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:onDisconnect",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/onDisconnect-role-d6oy8evm",
+            "Handler": "index.handler",
+            "CodeSize": 14216208,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-02-24T09:54:43.000+0000",
+            "CodeSha256": "jmQ6AxAYz1Mjo+sEC8IHtivifhFj2lZe7C8clXK+yv8=",
+            "Version": "$LATEST",
+            "Environment": {
+                "Variables": {
+                    "CONNECTIONS_TABLE": "Connections"
+                }
+            },
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "8a8bc03b-3b8c-4362-94f2-eb2944bc194b",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/onDisconnect"
+            }
+        },
+        {
+            "FunctionName": "userProfiles",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:userProfiles",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/UserProfiles",
+            "Handler": "index.handler",
+            "CodeSize": 679,
+            "Description": "A simple backend (read/write to DynamoDB) with a RESTful API endpoint using Amazon API Gateway.",
+            "Timeout": 900,
+            "MemorySize": 512,
+            "LastModified": "2025-06-23T22:58:47.000+0000",
+            "CodeSha256": "gXmawbXvD8z3ID+XdVogmiL2i1I92nUmIAU1eStZi/g=",
+            "Version": "$LATEST",
+            "Environment": {
+                "Variables": {
+                    "USER_PROFILES_TABLE": "UserProfiles"
+                }
+            },
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "0d39e632-96ae-4c3d-a2aa-e79283dd25b1",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/userProfiles"
+            }
+        },
+        {
+            "FunctionName": "notifyNewSubscriber",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:notifyNewSubscriber",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/notifyNewSubscriber-role-cfjanm7r",
+            "Handler": "index.handler",
+            "CodeSize": 987,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-01-03T03:04:48.000+0000",
+            "CodeSha256": "SVKNolHOrvQ1xRo1Ag/HM2ERfL1sqQxB7Gi7xT1c0Mo=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "9080c792-1fdf-4117-97c0-67bff53e4e0c",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/notifyNewSubscriber"
+            }
+        },
+        {
+            "FunctionName": "DeleteFilesFromS3",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:DeleteFilesFromS3",
+            "Runtime": "nodejs20.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/DeleteFilesFromS3-role-v7d097y8",
+            "Handler": "index.handler",
+            "CodeSize": 1267,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-06-21T22:52:18.000+0000",
+            "CodeSha256": "4+YGJroPvsCweNHQUKGZ/YHqAqEsXnnvCy9QaXz2ObA=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "bc0f7b40-cc59-40f9-b600-e0f79a643491",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/DeleteFilesFromS3"
+            }
+        },
+        {
+            "FunctionName": "getProjectMessages",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:getProjectMessages",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/getProjectMessages-role-5qhn1htt",
+            "Handler": "index.handler",
+            "CodeSize": 14223679,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-06-23T20:48:58.000+0000",
+            "CodeSha256": "LVZgremZen/PMl4gTLIcOiDmX7s8IkwIAOJbc2WZldg=",
+            "Version": "$LATEST",
+            "Environment": {
+                "Variables": {
+                    "PROJECT_MESSAGES_TABLE": "ProjectMessages"
+                }
+            },
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "be277521-296f-45e0-be65-bdd16facb02b",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/getProjectMessages"
+            }
+        },
+        {
+            "FunctionName": "threads",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:threads",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/threads-role-a2uk4kft",
+            "Handler": "index.handler",
+            "CodeSize": 14218690,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-06-24T23:02:14.000+0000",
+            "CodeSha256": "48iBkR08Za8W3DYhggWW4WSQ9QEE2b91ZpwxlyBC/OM=",
+            "Version": "$LATEST",
+            "Environment": {
+                "Variables": {
+                    "DM_THREADS_TABLE": "DM_THREADS"
+                }
+            },
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "36b7e875-7f42-4f8b-b374-d902d59b072b",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/threads"
+            }
+        },
+        {
+            "FunctionName": "JensenAndJuhlContact",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:JensenAndJuhlContact",
+            "Runtime": "python3.9",
+            "Role": "arn:aws:iam::221025630675:role/service-role/JensenAndJuhlContact-role-76dxj1w2",
+            "Handler": "lambda_function.lambda_handler",
+            "CodeSize": 886,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2024-12-07T23:21:00.000+0000",
+            "CodeSha256": "kHGEjX9D4xbAQWbf0Mhvr0RfP/SxvOXGCNz1ft8gnq0=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "fe6c0617-f2c5-4c7d-8a7f-0836c1a0e327",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/JensenAndJuhlContact"
+            }
+        },
+        {
+            "FunctionName": "SendProjectNotification",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:SendProjectNotification",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/SendProjectNotification-role-1oi6o8di",
+            "Handler": "index.handler",
+            "CodeSize": 1289,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2024-12-30T00:38:06.000+0000",
+            "CodeSha256": "Z3MFXRdrcRWDBLBGsaIhrgSai46AHEuOKL4SLgBlIZQ=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "45d145d2-9ac6-4aa2-b0c2-8680b52bc0b3",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/SendProjectNotification"
+            }
+        },
+        {
+            "FunctionName": "Newsletter-Subscribe-Function",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:Newsletter-Subscribe-Function",
+            "Runtime": "python3.9",
+            "Role": "arn:aws:iam::221025630675:role/service-role/Newsletter-Subscribe-Function-role-rxe9bryf",
+            "Handler": "lambda_function.lambda_handler",
+            "CodeSize": 832,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2024-12-12T00:25:23.000+0000",
+            "CodeSha256": "m+jWjtGiSK+TQ71Yl9fJ9xmhjnQDkTqvie4LtoKwsi8=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "d3331d5d-c6cc-4b30-8d4d-9ecb02936055",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/Newsletter-Subscribe-Function"
+            }
+        },
+        {
+            "FunctionName": "postProjectToUserId",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:postProjectToUserId",
+            "Runtime": "nodejs20.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/postProjectToUserId-role-2mmoath9",
+            "Handler": "index.handler",
+            "CodeSize": 1308,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2024-01-27T03:06:21.000+0000",
+            "CodeSha256": "qu+retZzA8D/k2mW3M0vdY+A6aFIC8ytGavwV0l7z0w=",
+            "Version": "$LATEST",
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "edd740cf-9e83-466f-ae07-dbedb08b3d3e",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/postProjectToUserId"
+            }
+        },
+        {
+            "FunctionName": "onConnect",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:onConnect",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/onConnect-role-zvq7smgj",
+            "Handler": "index.handler",
+            "CodeSize": 14223637,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-06-25T20:47:16.000+0000",
+            "CodeSha256": "Xfg78l/MulPg5Z5s0Ox49OuF0fdPpZdFZsCL2izUGjo=",
+            "Version": "$LATEST",
+            "Environment": {
+                "Variables": {
+                    "CONNECTIONS_TABLE": "Connections",
+                    "WEBSOCKET_ENDPOINT": "https://hly9zz2zci.execute-api.us-west-1.amazonaws.com/production"
+                }
+            },
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "c836cf21-a075-49a7-89e7-3c95206e49a0",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/onConnect"
+            }
+        },
+        {
+            "FunctionName": "CognitoAuthorizer",
+            "FunctionArn": "arn:aws:lambda:us-west-1:221025630675:function:CognitoAuthorizer",
+            "Runtime": "nodejs18.x",
+            "Role": "arn:aws:iam::221025630675:role/service-role/CognitoAuthorizer-role-m1lp9b4k",
+            "Handler": "index.handler",
+            "CodeSize": 974002,
+            "Description": "",
+            "Timeout": 3,
+            "MemorySize": 128,
+            "LastModified": "2025-02-25T05:15:38.000+0000",
+            "CodeSha256": "ktLV9I29UUCRotuQjBXIORd9isvhnhlvn8L9QYsc3Ps=",
+            "Version": "$LATEST",
+            "Environment": {
+                "Variables": {
+                    "COGNITO_POOL_ID": "us-west-1_bsb5GcQCx",
+                    "REGION": "us-west-1"
+                }
+            },
+            "TracingConfig": {
+                "Mode": "PassThrough"
+            },
+            "RevisionId": "275ee028-88e3-491d-a5b0-c37184f50ae8",
+            "PackageType": "Zip",
+            "Architectures": [
+                "x86_64"
+            ],
+            "EphemeralStorage": {
+                "Size": 512
+            },
+            "SnapStart": {
+                "ApplyOn": "None",
+                "OptimizationStatus": "Off"
+            },
+            "LoggingConfig": {
+                "LogFormat": "Text",
+                "LogGroup": "/aws/lambda/CognitoAuthorizer"
+            }
+        }
+    ]
+}

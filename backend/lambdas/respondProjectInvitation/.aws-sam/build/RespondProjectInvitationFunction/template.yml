@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+
+  RespondProjectInvitationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          INVITES_TABLE: "ProjectInvitations"
+          WEBSOCKET_ENDPOINT: "hly9zz2zci.execute-api.us-west-1.amazonaws.com/production"  # <-- just use the real value as a string!
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:DeleteItem
+                - dynamodb:UpdateItem
+                - dynamodb:PutItem
+                - dynamodb:GetItem
+              Resource: "*"
+      Events:
+        RespondProjectInvitationApi:
+          Type: Api
+          Properties:
+            Path: /respondProjectInvitation
+            Method: POST
+            RestApiId: !Ref MyApi
+
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'OPTIONS,GET,PATCH,POST,DELETE'"
+        AllowHeaders: "'authorization,content-type'"
+        AllowOrigin: "'*'"

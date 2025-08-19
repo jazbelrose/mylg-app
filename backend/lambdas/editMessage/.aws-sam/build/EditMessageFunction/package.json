@@ -1,0 +1,9 @@
+
+{
+  "name": "editmessage",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "dependencies": {
+    "aws-sdk": "^2.1692.0"
+  }
+}

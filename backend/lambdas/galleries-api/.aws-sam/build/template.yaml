@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Simple Galleries API - Lambda + HTTP API Gateway (NO DynamoDB table
+  creation).
+
+  '
+Globals:
+  Function:
+    Timeout: 20
+    Runtime: nodejs18.x
+    MemorySize: 1024
+    Environment:
+      Variables:
+        TABLE_NAME: Galleries
+Resources:
+  GalleriesApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      CodeUri: GalleriesApiFunction
+      Events:
+        GalleriesApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /galleries
+            Method: ANY
+            ApiId:
+              Ref: GalleriesHttpApi
+    Metadata:
+      SamResourceId: GalleriesApiFunction
+  GalleriesHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: dev
+      CorsConfiguration:
+        AllowMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+        AllowHeaders:
+        - Content-Type
+        - Authorization
+        AllowOrigins:
+        - '*'
+Outputs:
+  ApiEndpoint:
+    Description: HTTP API endpoint URL
+    Value:
+      Fn::Sub: https://${GalleriesHttpApi}.execute-api.${AWS::Region}.amazonaws.com

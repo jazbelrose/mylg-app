@@ -1,0 +1,43 @@
+{
+    "Table": {
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "projectId",
+                "AttributeType": "S"
+            },
+            {
+                "AttributeName": "canvasJson",
+                "AttributeType": "S"
+            }
+        ],
+        "TableName": "Projects",
+        "KeySchema": [
+            {
+                "AttributeName": "projectId",
+                "KeyType": "HASH"
+            }
+        ],
+        "TableStatus": "ACTIVE",
+        "CreationDateTime": "2024-01-11T23:25:13.215000-08:00",
+        "ProvisionedThroughput": {
+            "LastIncreaseDateTime": "2024-03-12T17:25:25.465000-07:00",
+            "LastDecreaseDateTime": "2024-03-12T17:40:37.926000-07:00",
+            "NumberOfDecreasesToday": 0,
+            "ReadCapacityUnits": 1,
+            "WriteCapacityUnits": 1
+        },
+        "TableSizeBytes": 170925,
+        "ItemCount": 19,
+        "TableArn": "arn:aws:dynamodb:us-west-1:221025630675:table/Projects",
+        "TableId": "4e41bcfe-be83-4ec5-ad8f-10c09bec0c43",
+        "TableClassSummary": {
+            "TableClass": "STANDARD"
+        },
+        "DeletionProtectionEnabled": false,
+        "WarmThroughput": {
+            "ReadUnitsPerSecond": 10,
+            "WriteUnitsPerSecond": 5,
+            "Status": "ACTIVE"
+        }
+    }
+}

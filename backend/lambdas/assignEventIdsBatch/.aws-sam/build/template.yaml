@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Simple Projects Timeline Events UUID Updater API - Lambda + HTTP API
+  Gateway (NO DynamoDB table creation).
+
+  '
+Globals:
+  Function:
+    Timeout: 20
+    Runtime: nodejs18.x
+    MemorySize: 1024
+    Environment:
+      Variables:
+        PROJECTS_TABLE: Projects
+Resources:
+  UpdateTimelineEventsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      CodeUri: UpdateTimelineEventsFunction
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /update-timeline-events
+            Method: POST
+            ApiId:
+              Ref: TimelineEventsHttpApi
+    Metadata:
+      SamResourceId: UpdateTimelineEventsFunction
+  TimelineEventsHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: dev
+      CorsConfiguration:
+        AllowMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+        AllowHeaders:
+        - Content-Type
+        - Authorization
+        AllowOrigins:
+        - '*'
+Outputs:
+  ApiEndpoint:
+    Description: HTTP API endpoint URL
+    Value:
+      Fn::Sub: https://${TimelineEventsHttpApi}.execute-api.${AWS::Region}.amazonaws.com

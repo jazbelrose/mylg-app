@@ -1,0 +1,151 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: CollabInvites stack with HTTP API, Cognito JWT Auth, DynamoDB
+Globals:
+  Function:
+    Timeout: 15
+    Runtime: nodejs18.x
+Resources:
+  CollabInvitesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: CollabInvites
+      AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      - AttributeName: fromUserId
+        AttributeType: S
+      - AttributeName: status
+        AttributeType: S
+      - AttributeName: toUserId
+        AttributeType: S
+      KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      GlobalSecondaryIndexes:
+      - IndexName: fromUserId-status-index
+        KeySchema:
+        - AttributeName: fromUserId
+          KeyType: HASH
+        - AttributeName: status
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+      - IndexName: toUserId-status-index
+        KeySchema:
+        - AttributeName: toUserId
+          KeyType: HASH
+        - AttributeName: status
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+  CollabInvitesApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: CollabInvitesApi
+      CorsConfiguration:
+        AllowOrigins:
+        - '*'
+        AllowHeaders:
+        - '*'
+        AllowMethods:
+        - OPTIONS
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        MaxAge: 86400
+  CollabJwtAuth:
+    Type: AWS::ApiGatewayV2::Authorizer
+    Properties:
+      ApiId:
+        Ref: CollabInvitesApi
+      AuthorizerType: JWT
+      IdentitySource:
+      - $request.header.Authorization
+      JwtConfiguration:
+        Issuer: https://cognito-idp.us-west-1.amazonaws.com/us-west-1_bsb5GcQCx
+        Audience:
+        - 3fi02evck0sfmtf2j55dmpu8ui
+      Name: CollabJwtAuth
+  CollabInvitesLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CollabInvitesLambda
+      Handler: index.handler
+      Runtime: nodejs18.x
+      MemorySize: 256
+      Timeout: 15
+      Environment:
+        Variables:
+          COLLAB_INVITES_TABLE:
+            Ref: CollabInvitesTable
+          USER_PROFILES_TABLE: UserProfiles
+          CONNECTIONS_TABLE: Connections
+          WEBSOCKET_ENDPOINT: hly9zz2zci.execute-api.us-west-1.amazonaws.com/production
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: CollabInvitesTable
+      - Statement:
+        - Effect: Allow
+          Action:
+          - execute-api:ManageConnections
+          Resource: '*'
+      CodeUri: CollabInvitesLambda
+    Metadata:
+      SamResourceId: CollabInvitesLambda
+  CollabInvitesIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId:
+        Ref: CollabInvitesApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri:
+        Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CollabInvitesLambda.Arn}/invocations
+      PayloadFormatVersion: '2.0'
+  CollabInvitesOptionsRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: CollabInvitesApi
+      RouteKey: OPTIONS /invites/{proxy+}
+      Target:
+        Fn::Sub: integrations/${CollabInvitesIntegration}
+  CollabInvitesPostRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: CollabInvitesApi
+      RouteKey: POST /invites/{proxy+}
+      Target:
+        Fn::Sub: integrations/${CollabInvitesIntegration}
+      AuthorizerId:
+        Ref: CollabJwtAuth
+  CollabInvitesGetRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId:
+        Ref: CollabInvitesApi
+      RouteKey: GET /invites/{proxy+}
+      Target:
+        Fn::Sub: integrations/${CollabInvitesIntegration}
+      AuthorizerId:
+        Ref: CollabJwtAuth
+  CollabInvitesLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Fn::GetAtt:
+        - CollabInvitesLambda
+        - Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${CollabInvitesApi}/*/*/invites/*
+Outputs:
+  ApiEndpoint:
+    Description: CollabInvites HTTP API endpoint
+    Value:
+      Fn::Sub: https://${CollabInvitesApi}.execute-api.${AWS::Region}.amazonaws.com

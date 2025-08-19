@@ -1,0 +1,41 @@
+﻿{
+    "Table": {
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "connectionId",
+                "AttributeType": "S"
+            }
+        ],
+        "TableName": "Connections",
+        "KeySchema": [
+            {
+                "AttributeName": "connectionId",
+                "KeyType": "HASH"
+            }
+        ],
+        "TableStatus": "ACTIVE",
+        "CreationDateTime": "2025-02-23T21:48:50.292000-08:00",
+        "ProvisionedThroughput": {
+            "NumberOfDecreasesToday": 0,
+            "ReadCapacityUnits": 0,
+            "WriteCapacityUnits": 0
+        },
+        "TableSizeBytes": 668,
+        "ItemCount": 4,
+        "TableArn": "arn:aws:dynamodb:us-west-1:221025630675:table/Connections",
+        "TableId": "8387fea5-e8bd-4837-8742-df398ff5a9dd",
+        "BillingModeSummary": {
+            "BillingMode": "PAY_PER_REQUEST",
+            "LastUpdateToPayPerRequestDateTime": "2025-02-23T21:48:50.292000-08:00"
+        },
+        "TableClassSummary": {
+            "TableClass": "STANDARD"
+        },
+        "DeletionProtectionEnabled": false,
+        "WarmThroughput": {
+            "ReadUnitsPerSecond": 12000,
+            "WriteUnitsPerSecond": 4000,
+            "Status": "ACTIVE"
+        }
+    }
+}

@@ -1,0 +1,89 @@
+﻿{
+    "Table": {
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "GSI1PK",
+                "AttributeType": "S"
+            },
+            {
+                "AttributeName": "GSI1SK",
+                "AttributeType": "S"
+            },
+            {
+                "AttributeName": "conversationId",
+                "AttributeType": "S"
+            },
+            {
+                "AttributeName": "messageId",
+                "AttributeType": "S"
+            }
+        ],
+        "TableName": "DMs",
+        "KeySchema": [
+            {
+                "AttributeName": "conversationId",
+                "KeyType": "HASH"
+            },
+            {
+                "AttributeName": "messageId",
+                "KeyType": "RANGE"
+            }
+        ],
+        "TableStatus": "ACTIVE",
+        "CreationDateTime": "2025-02-23T21:18:06.911000-08:00",
+        "ProvisionedThroughput": {
+            "NumberOfDecreasesToday": 0,
+            "ReadCapacityUnits": 0,
+            "WriteCapacityUnits": 0
+        },
+        "TableSizeBytes": 20543,
+        "ItemCount": 77,
+        "TableArn": "arn:aws:dynamodb:us-west-1:221025630675:table/DMs",
+        "TableId": "c5471b1c-386f-4d61-9ff5-261fc4d914e4",
+        "BillingModeSummary": {
+            "BillingMode": "PAY_PER_REQUEST",
+            "LastUpdateToPayPerRequestDateTime": "2025-02-23T21:18:06.911000-08:00"
+        },
+        "GlobalSecondaryIndexes": [
+            {
+                "IndexName": "InboxIndex",
+                "KeySchema": [
+                    {
+                        "AttributeName": "GSI1PK",
+                        "KeyType": "HASH"
+                    },
+                    {
+                        "AttributeName": "GSI1SK",
+                        "KeyType": "RANGE"
+                    }
+                ],
+                "Projection": {
+                    "ProjectionType": "ALL"
+                },
+                "IndexStatus": "ACTIVE",
+                "ProvisionedThroughput": {
+                    "NumberOfDecreasesToday": 0,
+                    "ReadCapacityUnits": 0,
+                    "WriteCapacityUnits": 0
+                },
+                "IndexSizeBytes": 11517,
+                "ItemCount": 38,
+                "IndexArn": "arn:aws:dynamodb:us-west-1:221025630675:table/DMs/index/InboxIndex",
+                "WarmThroughput": {
+                    "ReadUnitsPerSecond": 12000,
+                    "WriteUnitsPerSecond": 4000,
+                    "Status": "ACTIVE"
+                }
+            }
+        ],
+        "TableClassSummary": {
+            "TableClass": "STANDARD"
+        },
+        "DeletionProtectionEnabled": false,
+        "WarmThroughput": {
+            "ReadUnitsPerSecond": 12000,
+            "WriteUnitsPerSecond": 4000,
+            "Status": "ACTIVE"
+        }
+    }
+}

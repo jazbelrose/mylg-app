@@ -1,0 +1,26 @@
+{
+    "Table": {
+        "AttributeDefinitions": [
+            { "AttributeName": "taskId", "AttributeType": "S" },
+            { "AttributeName": "projectId", "AttributeType": "S" },
+            { "AttributeName": "status", "AttributeType": "S" }
+        ],
+        "TableName": "Tasks",
+        "KeySchema": [
+            { "AttributeName": "taskId", "KeyType": "HASH" }
+        ],
+        "GlobalSecondaryIndexes": [
+            {
+                "IndexName": "ProjectIdIndex",
+                "KeySchema": [
+                    { "AttributeName": "projectId", "KeyType": "HASH" },
+                    { "AttributeName": "status", "KeyType": "RANGE" }
+                ],
+                "Projection": { "ProjectionType": "ALL" },
+                "ProvisionedThroughput": { "ReadCapacityUnits": 1, "WriteCapacityUnits": 1 }
+            }
+        ],
+        "ProvisionedThroughput": { "ReadCapacityUnits": 1, "WriteCapacityUnits": 1 }
+    }
+}
+

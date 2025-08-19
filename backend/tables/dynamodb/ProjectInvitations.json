@@ -1,0 +1,22 @@
+{
+  "Table": {
+    "AttributeDefinitions": [
+      { "AttributeName": "inviteId", "AttributeType": "S" },
+      { "AttributeName": "recipientId", "AttributeType": "S" }
+    ],
+    "TableName": "ProjectInvitations",
+    "KeySchema": [
+      { "AttributeName": "inviteId", "KeyType": "HASH" }
+    ],
+    "GlobalSecondaryIndexes": [
+      {
+        "IndexName": "recipientId-index",
+        "KeySchema": [
+          { "AttributeName": "recipientId", "KeyType": "HASH" }
+        ],
+        "Projection": { "ProjectionType": "ALL" }
+      }
+    ],
+    "BillingModeSummary": { "BillingMode": "PAY_PER_REQUEST" }
+  }
+}

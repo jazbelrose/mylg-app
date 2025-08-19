@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Simple Budgets API - Lambda + HTTP API Gateway (NO DynamoDB table creation).
+
+  '
+Globals:
+  Function:
+    Timeout: 20
+    Runtime: nodejs18.x
+    MemorySize: 1024
+    Environment:
+      Variables:
+        TABLE_NAME: Budgets
+Resources:
+  BudgetsApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      CodeUri: .
+      Policies:
+      - AmazonDynamoDBFullAccess
+      Events:
+        BudgetsApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /budgets
+            Method: ANY
+            ApiId:
+              Ref: BudgetsHttpApi
+    Metadata:
+      SamResourceId: BudgetsApiFunction
+  BudgetsHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: dev
+      CorsConfiguration:
+        AllowMethods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+        AllowHeaders:
+        - Content-Type
+        - Authorization
+        AllowOrigins:
+        - '*'
+    Metadata:
+      SamResourceId: BudgetsHttpApi
+Outputs:
+  ApiEndpoint:
+    Description: HTTP API endpoint URL
+    Value:
+      Fn::Sub: https://${BudgetsHttpApi}.execute-api.${AWS::Region}.amazonaws.com

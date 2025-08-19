@@ -1,0 +1,86 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Simple Tasks API - Lambda + HTTP API Gateway (NO DynamoDB table creation).
+
+  '
+Globals:
+  Function:
+    Timeout: 20
+    Runtime: nodejs18.x
+    MemorySize: 1024
+    Environment:
+      Variables:
+        TABLE_NAME: Tasks
+Resources:
+  TasksApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      CodeUri: TasksApiFunction
+      Events:
+        GetTasks:
+          Type: HttpApi
+          Properties:
+            Path: /tasks
+            Method: GET
+            ApiId:
+              Ref: TasksHttpApi
+        PostTasks:
+          Type: HttpApi
+          Properties:
+            Path: /tasks
+            Method: POST
+            ApiId:
+              Ref: TasksHttpApi
+        PutTasks:
+          Type: HttpApi
+          Properties:
+            Path: /tasks
+            Method: PUT
+            ApiId:
+              Ref: TasksHttpApi
+        PatchTasks:
+          Type: HttpApi
+          Properties:
+            Path: /tasks
+            Method: PATCH
+            ApiId:
+              Ref: TasksHttpApi
+        DeleteTasks:
+          Type: HttpApi
+          Properties:
+            Path: /tasks
+            Method: DELETE
+            ApiId:
+              Ref: TasksHttpApi
+        OptionsTasks:
+          Type: HttpApi
+          Properties:
+            Path: /tasks
+            Method: OPTIONS
+            ApiId:
+              Ref: TasksHttpApi
+    Metadata:
+      SamResourceId: TasksApiFunction
+  TasksHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: dev
+      CorsConfiguration:
+        AllowMethods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+        AllowHeaders:
+        - Content-Type
+        - Authorization
+        AllowOrigins:
+        - '*'
+Outputs:
+  ApiEndpoint:
+    Description: HTTP API endpoint URL
+    Value:
+      Fn::Sub: https://${TasksHttpApi}.execute-api.${AWS::Region}.amazonaws.com

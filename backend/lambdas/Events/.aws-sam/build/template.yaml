@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Simple Events API - Lambda + HTTP API Gateway (NO DynamoDB table creation).
+
+  '
+Globals:
+  Function:
+    Timeout: 20
+    Runtime: nodejs18.x
+    MemorySize: 1024
+    Environment:
+      Variables:
+        TABLE_NAME: Events
+Resources:
+  EventsApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      CodeUri: EventsApiFunction
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName: Events
+      Events:
+        EventsApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /events
+            Method: ANY
+            ApiId:
+              Ref: EventsHttpApi
+    Metadata:
+      SamResourceId: EventsApiFunction
+  EventsHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: dev
+      CorsConfiguration:
+        AllowMethods:
+        - GET
+        - PUT
+        - OPTIONS
+        AllowHeaders:
+        - Content-Type
+        - Authorization
+        AllowOrigins:
+        - '*'
+Outputs:
+  ApiEndpoint:
+    Description: HTTP API endpoint URL
+    Value:
+      Fn::Sub: https://${EventsHttpApi}.execute-api.${AWS::Region}.amazonaws.com/dev

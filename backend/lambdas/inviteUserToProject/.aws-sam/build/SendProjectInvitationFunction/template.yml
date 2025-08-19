@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+
+  SendProjectInvitationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Environment:
+        Variables:
+          INVITES_TABLE: !Ref ProjectInvitationsTable
+          WEBSOCKET_ENDPOINT: !Ref WebsocketApiEndpoint
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+                - dynamodb:GetItem
+                - dynamodb:Query
+                - dynamodb:Scan
+              Resource: "*"
+            - Effect: Allow
+              Action:
+                - execute-api:ManageConnections
+              Resource: "*"
+      Events:
+        SendProjectInvitationApi:
+          Type: Api
+          Properties:
+            Path: /sendProjectInvitation
+            # Allow both GET and POST so the same function can list and create invites
+            Method: ANY
+            RestApiId: !Ref MyApi
+
+  ProjectInvitationsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ProjectInvitations
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: inviteId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: inviteId
+          KeyType: HASH
+
+
+  WebsocketApiEndpoint:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /mylg/websocket-endpoint
+      Type: String
+      Value: "hly9zz2zci.execute-api.us-west-1.amazonaws.com/production"
+
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'OPTIONS,GET,PATCH,POST,DELETE'"
+        AllowHeaders: "'authorization,content-type'"
+        AllowOrigin: "'*'"

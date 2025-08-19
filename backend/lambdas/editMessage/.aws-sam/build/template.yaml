@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    Runtime: nodejs18.x
+    Timeout: 15
+Resources:
+  EditMessageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: EditMessageFunction
+      Handler: index.handler
+      Environment:
+        Variables:
+          DM_TABLE_NAME: dm-messages
+          PROJECT_MESSAGES_TABLE: project-messages
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - dynamodb:Scan
+          - dynamodb:UpdateItem
+          Resource: '*'
+      Events:
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            ApiId:
+              Ref: MyHttpApi
+            Path: /editMessage/{type}/{messageId}
+            Method: PATCH
+    Metadata:
+      SamResourceId: EditMessageFunction
+  MyHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: prod
+      Auth:
+        Authorizers:
+          MyCognitoAuthorizer:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              issuer: https://cognito-idp.us-west-1.amazonaws.com/us-west-1_bsb5GcQCx
+              audience:
+              - <COGNITO_APP_CLIENT_ID>
+      CorsConfiguration:
+        AllowMethods:
+        - OPTIONS
+        - PATCH
+        AllowOrigins:
+        - '*'
+        AllowHeaders:
+        - Authorization
+        - Content-Type

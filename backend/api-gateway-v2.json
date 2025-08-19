@@ -1,0 +1,767 @@
+{
+  "Items": [
+    {
+      "ApiEndpoint": "https://05qfvhnpjl.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "05qfvhnpjl",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {},
+      "CreatedDate": "2024-01-13T00:43:27+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "All-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://2d8jy3mook.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "2d8jy3mook",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "content-type"
+        ],
+        "AllowMethods": [
+          "GET",
+          "OPTIONS",
+          "PUT"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2025-06-17T21:19:22+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "IpAddressType": "ipv4",
+      "Name": "readStatus-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://2h8m2hyu0e.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "2h8m2hyu0e",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "content-type",
+          "authorization"
+        ],
+        "AllowMethods": [
+          "GET",
+          "OPTIONS",
+          "PUT",
+          "DELETE",
+          "POST"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2025-06-17T22:09:21+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "IpAddressType": "ipv4",
+      "Name": "threads-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://40e8amqkq2.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "40e8amqkq2",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*",
+          "http://localhost:3000/"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-03-05T00:45:52+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "floorplansFunction-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://4ea1etgz3f.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "4ea1etgz3f",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-01-12T09:07:05+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "projects",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://4hdwrz1ecb.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "4hdwrz1ecb",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "POST",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-12-30T00:38:21+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "SendProjectNotification-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://4iokdw2tb0.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "4iokdw2tb0",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "content-type",
+          "authorization"
+        ],
+        "AllowMethods": [
+          "GET",
+          "POST",
+          "DELETE",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2025-06-11T23:12:05+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "IpAddressType": "ipv4",
+      "Name": "deleteProjectMessage-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://9aatm4ib0k.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "9aatm4ib0k",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "POST",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-12-15T01:20:03+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "RegisteredUserTeamNotification-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://any6qedkud.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "any6qedkud",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "POST",
+          "PUT"
+        ],
+        "AllowOrigins": [
+          "*",
+          "http://localhost:3000"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-01-21T04:25:24+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "PostProjects-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://bfedz5f0ji.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "bfedz5f0ji",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "POST",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-12-07T22:49:05+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "JensenAndJuhlContact-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://didaoiqxl5.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "didaoiqxl5",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "PUT"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-01-25T06:24:04+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "editProject-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://drgq4taueb.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "drgq4taueb",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "PUT",
+          "DELETE"
+        ],
+        "AllowOrigins": [
+          "*",
+          "http://localhost:3000"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-01-25T01:34:31+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "postProjectToUserId-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://fj9zxq5wq1.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "fj9zxq5wq1",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "content-type",
+          "*"
+        ],
+        "AllowMethods": [
+          "POST",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-12-11T23:27:32+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "Newsletter-Subscribe-Function-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://gui4kdsekj.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "gui4kdsekj",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-01-12T09:34:02+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "Projects-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://gzpf6ukzqi.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "gzpf6ukzqi",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "content-type",
+          "authorization"
+        ],
+        "AllowMethods": [
+          "GET",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2025-06-18T18:32:50+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "IpAddressType": "ipv4",
+      "Name": "getDmInbox-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://hg30w5fe9b.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "hg30w5fe9b",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "POST",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-12-11T23:13:34+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "SubscribeFunction-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "wss://hly9zz2zci.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "hly9zz2zci",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CreatedDate": "2025-02-24T05:42:01+00:00",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "MessagingAPI",
+      "ProtocolType": "WEBSOCKET",
+      "RouteSelectionExpression": "$request.body.action",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://jmmn5p5yhe.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "jmmn5p5yhe",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "POST",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2025-01-03T03:01:11+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "notifyNewSubscriber-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://k6utve4soj.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "k6utve4soj",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "OPTIONS",
+          "DELETE",
+          "POST"
+        ],
+        "AllowOrigins": [
+          "*",
+          "http://localhost:3000"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-02-01T01:32:25+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "DeleteFilesFromS3-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://ln25fkraxf.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "ln25fkraxf",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*",
+          "http://localhost:3000/"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-02-12T09:25:35+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "DownloadsFunction-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://njt9junfh8.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "njt9junfh8",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "OPTIONS",
+          "DELETE"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2025-02-24T10:23:21+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "getProjectMessages-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://ntxlk21vea.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "ntxlk21vea",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "DELETE"
+        ],
+        "AllowOrigins": [
+          "*",
+          "http://localhost:3000"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-01-27T02:51:11+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "deleteProject-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://o01t8q8mjk.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "o01t8q8mjk",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "*"
+        ],
+        "AllowMethods": [
+          "GET",
+          "POST"
+        ],
+        "AllowOrigins": [
+          "*",
+          "http://localhost:3000"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-01-30T07:22:15+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "zipFiles-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://rvnpu2j92m.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "rvnpu2j92m",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "content-type",
+          "authorization"
+        ],
+        "AllowMethods": [
+          "GET",
+          "POST",
+          "OPTIONS",
+          "PUT",
+          "DELETE"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2024-01-13T01:02:37+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "userProfiles-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://tf8ei6sxuc.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "tf8ei6sxuc",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowCredentials": false,
+        "AllowHeaders": [
+          "authorization",
+          "content-type"
+        ],
+        "AllowMethods": [
+          "GET",
+          "POST",
+          "DELETE",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "*"
+        ],
+        "MaxAge": 0
+      },
+      "CreatedDate": "2025-03-10T02:50:59+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "getDirectMessages-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://zl8meb9i21.execute-api.us-west-1.amazonaws.com",
+      "ApiId": "zl8meb9i21",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {},
+      "CreatedDate": "2024-01-12T08:47:04+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "myFunctionName-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://example.com/invite",
+      "ApiId": "invite123",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowMethods": [
+          "POST",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "AllowHeaders": [
+          "*"
+        ]
+      },
+      "CreatedDate": "2025-07-01T00:00:00+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "inviteUserToProject-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    },
+    {
+      "ApiEndpoint": "https://example.com/respond",
+      "ApiId": "respond123",
+      "ApiKeySelectionExpression": "$request.header.x-api-key",
+      "CorsConfiguration": {
+        "AllowMethods": [
+          "POST",
+          "OPTIONS"
+        ],
+        "AllowOrigins": [
+          "*"
+        ],
+        "AllowHeaders": [
+          "*"
+        ]
+      },
+      "CreatedDate": "2025-07-01T00:00:00+00:00",
+      "Description": "Created by AWS Lambda",
+      "DisableExecuteApiEndpoint": false,
+      "Name": "respondProjectInvitation-API",
+      "ProtocolType": "HTTP",
+      "RouteSelectionExpression": "$request.method $request.path",
+      "Tags": {}
+    }
+  ]
+}

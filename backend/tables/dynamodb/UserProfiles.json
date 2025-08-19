@@ -1,0 +1,42 @@
+{
+    "Table": {
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "userId",
+                "AttributeType": "S"
+            },
+            {
+                "AttributeName": "pending",
+                "AttributeType": "BOOL"
+            }
+        ],
+        "TableName": "UserProfiles",
+        "KeySchema": [
+            {
+                "AttributeName": "userId",
+                "KeyType": "HASH"
+            }
+        ],
+        "TableStatus": "ACTIVE",
+        "CreationDateTime": "2024-01-11T22:42:55.396000-08:00",
+        "ProvisionedThroughput": {
+            "LastDecreaseDateTime": "2024-01-11T22:52:38.996000-08:00",
+            "NumberOfDecreasesToday": 0,
+            "ReadCapacityUnits": 1,
+            "WriteCapacityUnits": 1
+        },
+        "TableSizeBytes": 9620,
+        "ItemCount": 5,
+        "TableArn": "arn:aws:dynamodb:us-west-1:221025630675:table/UserProfiles",
+        "TableId": "7c937ee2-0abc-486d-9179-5b0e61cd60f1",
+        "TableClassSummary": {
+            "TableClass": "STANDARD"
+        },
+        "DeletionProtectionEnabled": false,
+        "WarmThroughput": {
+            "ReadUnitsPerSecond": 5,
+            "WriteUnitsPerSecond": 5,
+            "Status": "ACTIVE"
+        }
+    }
+}

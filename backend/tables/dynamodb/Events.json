@@ -1,0 +1,26 @@
+{
+  "Table": {
+    "AttributeDefinitions": [
+      { "AttributeName": "projectId", "AttributeType": "S" },
+      { "AttributeName": "eventId", "AttributeType": "S" },
+      { "AttributeName": "budgetItemId", "AttributeType": "S" }
+    ],
+    "TableName": "Events",
+    "KeySchema": [
+      { "AttributeName": "projectId", "KeyType": "HASH" },
+      { "AttributeName": "eventId", "KeyType": "RANGE" }
+    ],
+    "GlobalSecondaryIndexes": [
+      {
+        "IndexName": "budgetItemId-index",
+        "KeySchema": [
+          { "AttributeName": "budgetItemId", "KeyType": "HASH" },
+          { "AttributeName": "eventId", "KeyType": "RANGE" }
+        ],
+        "Projection": { "ProjectionType": "ALL" },
+        "ProvisionedThroughput": { "ReadCapacityUnits": 1, "WriteCapacityUnits": 1 }
+      }
+    ],
+    "ProvisionedThroughput": { "ReadCapacityUnits": 1, "WriteCapacityUnits": 1 }
+  }
+}
