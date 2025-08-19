@@ -8,10 +8,10 @@ import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const BeSweet16 = () => {
     const images = [
         "https://d1cazymewvlm0k.cloudfront.net/13-Be+Sweet+16/02+(2).jpg",

@@ -5,9 +5,9 @@ import { gsap } from "gsap";
 import "./style.css";
 import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
 const StrikeFit = () => {
     const pageTitle = "StrikeFit - Elevating Performance & Design with Premium Photography";

@@ -5,10 +5,10 @@ import { gsap } from "gsap";
 import "./style.css";
 import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const Logitech = () => {
     const pageTitle = "Logitech Event Booth & Chair Renders | Digital Art by *MYLG!*";
     const pageDescription = "Explore our 3D renders of Logitech event booths and chairs, showcasing innovative designs and stunning visuals for a brand activation project.";

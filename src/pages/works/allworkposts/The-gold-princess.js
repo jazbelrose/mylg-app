@@ -5,11 +5,11 @@ import { gsap } from "gsap";
 import "./style.css";
 import goldPrincessData from './the-gold-princess.json';
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
 import ReactModal from "react-modal"; // Import ReactModal
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const TheGoldPrincess = () => {
     const pageTitle = "The Gold Princess - Royal Allure Photography & Styling";
     const pageDescription = "Explore 'The Gold Princess,' a royal allure-inspired photography shoot for a perfume brand. Styled for elegance and grace, captured in pristine gold tones.";

@@ -7,7 +7,7 @@ jest.mock('lucide-react', () => ({ Trash2: () => null, Pencil: () => null, Smile
 jest.mock('../../../../app/contexts/OnlineStatusContext', () => ({
     useOnlineStatus: () => ({ onlineUsers: [] })
 }));
-const MessageItem = require('./MessageItem.jsx').default;
+const MessageItem = require('./MessageItem.js').default;
 describe('MessageItem edit', () => {
     it('shows author controls and triggers edit callback', async () => {
         const onEditRequest = jest.fn();

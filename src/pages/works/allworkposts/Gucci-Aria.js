@@ -7,11 +7,11 @@ import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const Gucci = () => {
     const pageTitle = "Gucci Store Miami - Cake Design Prop | Creative Direction by Mokibaby";
     const pageDescription = "Custom-designed cake prop for Gucci store Miami in collaboration with The Webster. Creative direction by Mokibaby, produced by *MYLG!*.";

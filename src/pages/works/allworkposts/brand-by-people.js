@@ -6,11 +6,11 @@ import "./style.css";
 import worksData from '../works.json';
 import brandByPeopleData from './brand-by-people.json';
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
 import ReactModal from "react-modal"; // Import ReactModal
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const BrandByPeople = () => {
     const imageUrls = brandByPeopleData;
     let galleryRefs = useRef([]);

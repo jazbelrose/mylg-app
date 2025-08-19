@@ -6,10 +6,10 @@ import "./style.css";
 import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import { useData } from "../../../app/contexts/DataProvider";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const Nocco = () => {
     const pageTitle = "NOCCO Influencer Studio in Venice Beach, CA";
     const pageDescription = "Discover the innovative NOCCO Influencer Studio in Venice Beach, CA. Designed by MYLG, this interactive space combines dynamic visuals, product animations, and engaging brand experiences for filming and events.";

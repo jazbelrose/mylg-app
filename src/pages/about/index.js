@@ -6,7 +6,7 @@ import dataAbout from "./dataAbout.json";
 import Studiosubtitle from "../../assets/svg/subtitles.svg?react";
 import Tagline from "../../assets/svg/notjust.svg?react";
 import Brandingcard from "../../assets/svg/brandingcard.svg?react";
-import InlineSvg from "../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../components/inlinesvg/index.js";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./style.css";

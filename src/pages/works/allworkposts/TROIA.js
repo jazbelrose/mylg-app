@@ -8,9 +8,9 @@ import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const Troia = () => {
     const pageTitle = "The Root Of It All Cannabis Brand | Store Display, Brand Assets & Installation by *MYLG!*";
     const pageDescription = "Discover The Root Of It All a premium cannabis brand project by MYLG! Featuring custom store displays, brand assets, render production, and interactive installations.";

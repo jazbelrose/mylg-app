@@ -7,11 +7,11 @@ import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const ThePartyNeverEnds = () => {
     const pageTitle = "The Party Never Ends | Digital Art & Decor Production by MYLG!";
     const pageDescription = "Explore 'The Party Never Ends' project – an immersive experience with digital art, event decor, and custom installations produced and rendered by MYLG!";

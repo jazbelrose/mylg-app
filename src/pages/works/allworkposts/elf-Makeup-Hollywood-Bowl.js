@@ -5,11 +5,11 @@ import "./style.css";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const ElfMakeUpHollywoodBowl = () => {
     const pageTitle = "Elf Makeup at Hollywood Bowl - We Can Survive Event";
     const pageDescription = "Discover e.l.f. Cosmetics' memorable activation at the We Can Survive concert, hosted at the Hollywood Bowl, with remarkable performances by Alanis Morissette, Halsey, Weezer, and more. A captivating evening supporting mental health awareness.";

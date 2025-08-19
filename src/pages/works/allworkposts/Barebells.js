@@ -8,11 +8,11 @@ import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import works from '../works.json';
 import { useData } from "../../../app/contexts/DataProvider";
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const Barebells = () => {
     const pageTitle = "Barebells - Product Render, Influencer Studio Design & Branding";
     const pageDescription = "Dive into the Barebells project by *MYLG!* featuring product rendering, influencer studio design, signage, and innovative branding solutions.";

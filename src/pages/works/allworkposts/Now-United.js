@@ -8,11 +8,11 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const Barebells = () => {
     const pageTitle = "Complete Logo Rebrand for Now United | Creative by Mokibaby, Artwork by MYLG!";
     const pageDescription = "Discover the complete logo rebrand for Now United, designed by Mokibaby and crafted by MYLG!. A stunning transformation with creative visuals and digital artwork.";

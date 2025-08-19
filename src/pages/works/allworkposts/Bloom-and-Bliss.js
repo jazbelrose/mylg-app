@@ -6,9 +6,9 @@ import "./style.css";
 import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const BloomAndBliss = () => {
     const pageTitle = "Bloom & Bliss - Sustainable Luxury Skincare Portfolio";
     const pageDescription = "Explore Bloom & Bliss, a Los Angeles-based luxury skincare brand offering eco-conscious cannabis-infused creams. Discover elegant 3D renders, product shots, and sustainable wellness.";

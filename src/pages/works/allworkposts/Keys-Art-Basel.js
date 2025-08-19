@@ -8,9 +8,9 @@ import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const KeysArtBasel = () => {
     const pageTitle = "Keys @ Strawberry Moon Art Basel Booth | Creative by Mokibaby | MYLG!";
     const pageDescription = "Discover our immersive booth for Keys at Strawberry Moon during Art Basel Miami, featuring 3D renders, event production, and creative direction by Mokibaby.";

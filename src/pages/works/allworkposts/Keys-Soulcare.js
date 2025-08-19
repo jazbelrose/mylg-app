@@ -5,11 +5,11 @@ import { gsap } from "gsap";
 import "./style.css";
 import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const KeysSoulcare = () => {
     const pageTitle = "Keys Soulcare Immersive Space Design - Hamburg, Germany";
     const pageDescription = "*MYLG!* rendered a fully immersive 3D space for Keys Soulcare in collaboration with Mokibaby. The stunning visuals and branding helped secure client approval and bring this vision to life at Haller 6 in Hamburg.";

@@ -5,11 +5,11 @@ import { gsap } from "gsap";
 import "./style.css";
 import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const GhostCircusApparel = () => {
     const pageTitle = "Ghost Circus Apparel: Fashion Branding & Design";
     const pageDescription = "Ghost Circus Apparel's X by Eli James Collection features futuristic branding with photoshoots, styled fashion, custom gift boxes, and 3D-rendered designs. Handmade in Hollywood, CA.";

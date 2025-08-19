@@ -8,7 +8,7 @@ import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import { InfoSection } from "../../../components/infosection";
 import SingleTicker from "../../../components/singleticker";
 import { useData } from "../../../app/contexts/DataProvider";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const Ulta = () => {
     const pageTitle = "Ulta Beauty Bar Display | Produced, Built & Rendered by MYLG! | Creative by Mokibaby";
     const pageDescription = "Discover the Ulta Beauty Bar display project, produced, built, rendered, and installed by MYLG! with creative direction by Mokibaby. Featuring custom brand elements and a fully immersive experience.";

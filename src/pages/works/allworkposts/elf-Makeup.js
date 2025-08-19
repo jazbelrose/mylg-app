@@ -9,9 +9,9 @@ import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const ElfMakeup = () => {
     const pageTitle = "Elf Makeup Booth Design at NYLON House - Miami";
     const pageDescription = "Explore the exclusive e.l.f. Makeup Lounge at NYLON House Strawberry Moon in Miami, featuring a Mokibaby infinity mirror photo booth, touch-up sessions with top e.l.f. artists, and a skincare room showcasing the latest innovations. Conceptualized and executed by *MYLG!*.";

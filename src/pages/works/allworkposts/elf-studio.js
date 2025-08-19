@@ -10,7 +10,7 @@ import Slideshow from "../../../components/slideshow/slideshow";
 import { InfoSection } from "../../../components/infosection";
 import SingleTicker from "../../../components/singleticker";
 import { useData } from "../../../app/contexts/DataProvider";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const Elfstudio = () => {
     const pageTitle = "E.L.F. Studio - Large-Scale Event Planning & Production";
     const pageDescription = "Discover the E.L.F. Studio project, a large-scale event planned and produced in Tucson, Arizona. Collaboratively designed with creative director Mokibaby, including CAD plans, venue design, and complete event execution by *MYLG!*.";

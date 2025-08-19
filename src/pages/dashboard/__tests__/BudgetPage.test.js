@@ -117,7 +117,7 @@ beforeEach(() => {
     api.fetchBudgetHeaders.mockResolvedValue([
         { budgetId: 'b1', headerFinalTotalCost: 0, endDate: '', revision: 1 }
     ]);
-    BudgetPage = require('../BudgetPage.jsx').default;
+    BudgetPage = require('../BudgetPage.js').default;
 });
 afterEach(() => {
     document.body.innerHTML = '';

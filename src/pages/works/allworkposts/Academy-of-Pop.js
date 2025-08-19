@@ -10,7 +10,7 @@ import { InfoSection } from "../../../components/infosection";
 import SingleTicker from "../../../components/singleticker";
 import { useData } from "../../../app/contexts/DataProvider";
 import ScrollToTopButton from "../../../components/scrolltotopbutton";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const AcademyOfPop = () => {
     const pageTitle = "Academy of Pop - Interior Design and Branding Showcase";
     const pageDescription = "Explore the Academy of Pop, a groundbreaking project featuring bespoke interior design, branding, and logo creation by *MYLG!*.";

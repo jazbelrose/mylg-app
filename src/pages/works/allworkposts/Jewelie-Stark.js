@@ -5,11 +5,11 @@ import { gsap } from "gsap";
 import "./style.css";
 import jewelieStarkData from './Jewelie-Stark.json';
 import { InfoSection } from "../../../components/infosection/index.js";
-import SingleTicker from "../../../components/singleticker/index.jsx";
+import SingleTicker from "../../../components/singleticker/index.js";
 import { useData } from "../../../app/contexts/DataProvider";
 import ReactModal from "react-modal"; // Import ReactModal
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
-import InlineSvg from "../../../components/inlinesvg/index.jsx";
+import InlineSvg from "../../../components/inlinesvg/index.js";
 const JewelieStark = () => {
     const imageUrls = jewelieStarkData; // Use the goldPrincessData for image URLs
     let galleryRefs = useRef([]);
