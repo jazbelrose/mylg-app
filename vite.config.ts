@@ -7,7 +7,7 @@ const devCsp = [
   "script-src 'self' 'unsafe-inline' 'unsafe-eval' *.amazonaws.com *.amplify.aws",
   "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
   "font-src 'self' data: fonts.gstatic.com",
-  "img-src 'self' data: blob: *.amazonaws.com *.cloudfront.net https://tiles.stadiamaps.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org" 
+  "img-src 'self' data: blob: *.amazonaws.com *.cloudfront.net https://tiles.stadiamaps.com https://tile.openstreetmap.org https://*.tile.openstreetmap.org", // ← ✅ comma added here
   "media-src 'self' https: blob:",
   "connect-src 'self' http://localhost:* ws://localhost:* https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://nominatim.openstreetmap.org",
   "frame-ancestors 'none'",
