@@ -1,26 +1,15 @@
-// ProtectedRoute.jsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import SpinnerOverlay from '../../components/SpinnerOverlay';
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+export default function ProtectedRoute({ children }) {
+  const { loading, authStatus } = useAuth();
 
-  // Show loading state while authentication is being validated
-  if (loading) {
-    return (
-      <div style={{ 
-        position: 'relative',
-        height: '100vh',
-        width: '100vw'
-      }}>
-        <SpinnerOverlay />
-      </div>
-    );
+  if (loading) return <div style={{ padding: 24 }}>Checking session…</div>;
+
+  if (authStatus !== 'signedIn' && authStatus !== 'incompleteProfile') {
+    return <Navigate to="/login" replace />;
   }
 
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
-
-export default ProtectedRoute;
+  return children;
+}
