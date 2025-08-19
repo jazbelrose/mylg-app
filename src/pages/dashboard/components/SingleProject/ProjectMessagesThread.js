@@ -22,7 +22,7 @@ import { faTimes, faDownload } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../../../../components/ModalWithStack";
 import ConfirmModal from "../../../../components/ConfirmModal";
 import PromptModal from "../../../../components/PromptModal";
-import PDFPreview from "./PDFPreview.jsx";
+import PDFPreview from "./PDFPreview";
 import { GET_PROJECT_MESSAGES_URL, DELETE_PROJECT_MESSAGE_URL, DELETE_FILE_FROM_S3_URL, EDIT_MESSAGE_URL, S3_PUBLIC_BASE, apiFetch, } from "../../../../utils/api";
 const pmKey = (pid) => `project_messages_${pid}`;
 if (typeof document !== 'undefined') {

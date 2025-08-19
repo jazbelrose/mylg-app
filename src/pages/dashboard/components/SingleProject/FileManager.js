@@ -13,9 +13,9 @@ import { useData } from '../../../../app/contexts/DataProvider';
 import { API_BASE_URL, ZIP_FILES_URL, DELETE_FILE_FROM_S3_URL, DELETE_PROJECT_MESSAGE_URL, EDIT_MESSAGE_URL, S3_PUBLIC_BASE, apiFetch, } from '../../../../utils/api';
 import Spinner from '../../../../components/preloader-light';
 import styles from './FileManager.module.css';
-import Dropdown from './Dropdown.jsx';
+import Dropdown from './Dropdown';
 import pLimit from '../../../../utils/pLimit';
-import PDFPreview from './PDFPreview.jsx';
+import PDFPreview from './PDFPreview';
 if (typeof document !== 'undefined') {
     Modal.setAppElement('#root');
 }
