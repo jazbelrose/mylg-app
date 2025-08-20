@@ -1,4 +1,9 @@
-export function normalizeMessage(message = {}, defaultAction = 'unknown') {
+interface MessageObject {
+  action?: string;
+  [key: string]: any;
+}
+
+export function normalizeMessage(message: any = {}, defaultAction = 'unknown'): MessageObject {
   if (!message || typeof message !== 'object') {
     return { action: defaultAction };
   }

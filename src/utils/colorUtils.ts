@@ -1,6 +1,6 @@
 // Deterministically generate a hex color based on an identifier.
 // Uses hashing to keep the same color for a given ID across renders.
-export function getColor(identifier) {
+export function getColor(identifier: string | number): string {
   const idStr = String(identifier);
   let hash = 0;
   for (let i = 0; i < idStr.length; i++) {
@@ -14,7 +14,7 @@ export function getColor(identifier) {
 }
 
 // Helper to convert HSL color values to hex format
-function hslToHex(h, s, l) {
+function hslToHex(h: number, s: number, l: number): string {
   s /= 100;
   l /= 100;
 
@@ -46,7 +46,7 @@ function hslToHex(h, s, l) {
     b = x;
   }
 
-  const toHex = (v) => {
+  const toHex = (v: number): string => {
     const hex = Math.round((v + m) * 255)
       .toString(16)
       .padStart(2, "0");
@@ -57,7 +57,7 @@ function hslToHex(h, s, l) {
 }
 
 // Convert a hex color value (with optional alpha) to an rgba string
-export function hexToRgba(hex) {
+export function hexToRgba(hex: string): string {
   if (!hex) return '';
   let v = hex.replace('#', '');
   if (v.length === 3) {
@@ -77,7 +77,7 @@ export function hexToRgba(hex) {
 }
 
 // Convert a hex color to HSL components
-export function hexToHsl(hex) {
+export function hexToHsl(hex: string): { h: number; s: number; l: number } {
   let v = hex.replace('#', '');
   if (v.length === 3) {
     v = v
@@ -115,7 +115,7 @@ export function hexToHsl(hex) {
 }
 
 // Generate a sequential camaieu palette from a base color
-export function generateSequentialPalette(base, count) {
+export function generateSequentialPalette(base: string, count: number): string[] {
   const { h, s, l } = hexToHsl(base);
   const start = Math.min(95, l + 25);
   const end = Math.max(25, l - 25);
