@@ -2,8 +2,6 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useEffect, useState } from 'react';
 import styles from './AvatarStack.module.css';
 const getMaxVisible = () => {
-    if (window.innerWidth < 480)
-        return 2;
     if (window.innerWidth < 768)
         return 3;
     return 4;

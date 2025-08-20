@@ -729,20 +729,35 @@ body.ReactModal__Body--open .dashboard-wrapper {
 
 .project-header .header-content {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   width: 100%;
   max-width: 100%;
   padding: 0px 5px 5px;
   box-sizing: border-box;
-  
   overflow: hidden;
+}
+
+.project-header .header-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 100%;
 }
 
 .project-header .left-side,
 .project-header .right-side {
   display: flex;
   align-items: center;
+  gap: 6px;
+}
+
+.project-header .right-side {
+  margin-left: auto;
+}
+
+.project-header .left-side {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .project-header .left-side svg {
@@ -750,7 +765,6 @@ body.ReactModal__Body--open .dashboard-wrapper {
   /* Larger width */
   height: auto;
   flex-shrink: 0;
-  margin: 0 5px;
 }
 
 /* Reduce cogwheel icon width to match right-side icons */
@@ -850,7 +864,6 @@ body.ReactModal__Body--open .dashboard-wrapper {
 
 .project-header h2 {
   line-height: 0.8;
-  font-size: min(4rem, 5vw);
 }
 .project-header svg {
   width: 100px;
