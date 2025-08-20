@@ -4,7 +4,7 @@
 import { logSecurityEvent } from './securityUtils';
 
 // Content Security Policy generator
-export const generateCSP = (nonce) => {
+export const generateCSP = (nonce: string): string => {
   const csp = [
     "default-src 'self'",
     `script-src 'self' 'nonce-${nonce}' *.amazonaws.com *.amplify.aws`,
@@ -23,6 +23,8 @@ export const generateCSP = (nonce) => {
 
 // Request validator for API calls
 export class RequestValidator {
+  private allowedDomains: string[];
+
   constructor() {
     this.allowedDomains = [
       'amazonaws.com',
@@ -31,7 +33,7 @@ export class RequestValidator {
     ];
   }
   
-  validateUrl(url) {
+  validateUrl(url: string): boolean {
     try {
       const parsedUrl = new URL(url);
       const isAllowed = this.allowedDomains.some(domain => 
@@ -45,12 +47,12 @@ export class RequestValidator {
       
       return true;
     } catch (error) {
-      logSecurityEvent('invalid_url_format', { url, error: error.message });
+      logSecurityEvent('invalid_url_format', { url, error: (error as Error).message });
       return false;
     }
   }
   
-  validateHeaders(headers) {
+  validateHeaders(headers: Record<string, string>): boolean {
     const suspicious = ['x-forwarded-for', 'x-real-ip', 'x-original-url'];
     const found = Object.keys(headers).filter(key => 
       suspicious.includes(key.toLowerCase())
@@ -67,38 +69,40 @@ export class RequestValidator {
 
 // Secure localStorage wrapper with encryption
 export class SecureStorage {
+  private keyPrefix: string;
+
   constructor() {
     this.keyPrefix = 'mylg_secure_';
   }
   
-  async encrypt(data) {
+  async encrypt(data: any): Promise<string> {
     // Simple encryption for demo - in production use Web Crypto API
     const jsonString = JSON.stringify(data);
     const encoded = btoa(jsonString);
     return encoded;
   }
   
-  async decrypt(encryptedData) {
+  async decrypt(encryptedData: string): Promise<any> {
     try {
       const decoded = atob(encryptedData);
       return JSON.parse(decoded);
     } catch (error) {
-      logSecurityEvent('decryption_failed', { error: error.message });
+      logSecurityEvent('decryption_failed', { error: (error as Error).message });
       return null;
     }
   }
   
-  async setItem(key, value) {
+  async setItem(key: string, value: any): Promise<void> {
     try {
       const encrypted = await this.encrypt(value);
       localStorage.setItem(this.keyPrefix + key, encrypted);
       logSecurityEvent('secure_storage_write', { key });
     } catch (error) {
-      logSecurityEvent('secure_storage_write_failed', { key, error: error.message });
+      logSecurityEvent('secure_storage_write_failed', { key, error: (error as Error).message });
     }
   }
   
-  async getItem(key) {
+  async getItem(key: string): Promise<any> {
     try {
       const encrypted = localStorage.getItem(this.keyPrefix + key);
       if (!encrypted) return null;
@@ -107,19 +111,19 @@ export class SecureStorage {
       logSecurityEvent('secure_storage_read', { key });
       return decrypted;
     } catch (error) {
-      logSecurityEvent('secure_storage_read_failed', { key, error: error.message });
+      logSecurityEvent('secure_storage_read_failed', { key, error: (error as Error).message });
       return null;
     }
   }
   
-  removeItem(key) {
+  removeItem(key: string): void {
     localStorage.removeItem(this.keyPrefix + key);
     logSecurityEvent('secure_storage_delete', { key });
   }
 }
 
 // API Response validator
-export const validateApiResponse = (response, expectedFields = []) => {
+export const validateApiResponse = (response: any, expectedFields: string[] = []): boolean => {
   if (!response || typeof response !== 'object') {
     logSecurityEvent('invalid_api_response_format', { response });
     return false;
@@ -135,7 +139,7 @@ export const validateApiResponse = (response, expectedFields = []) => {
   // Check for potential XSS in string fields
   const stringFields = Object.entries(response)
     .filter(([key, value]) => typeof value === 'string')
-    .map(([key, value]) => ({ key, value }));
+    .map(([key, value]) => ({ key, value: value as string }));
     
   const suspiciousFields = stringFields.filter(({ value }) => 
     /<script|javascript:|on\w+=/i.test(value)
@@ -151,16 +155,33 @@ export const validateApiResponse = (response, expectedFields = []) => {
   return true;
 };
 
+interface UserInfo {
+  userId: string;
+  role: string;
+}
+
+interface Session {
+  userId: string;
+  role: string;
+  createdAt: number;
+  lastActivity: number;
+  sessionId: string;
+}
+
 // Session management with security checks
 export class SecureSessionManager {
+  private sessionKey: string;
+  private maxInactivity: number;
+  private storage: SecureStorage;
+
   constructor() {
     this.sessionKey = 'mylg_session';
     this.maxInactivity = 30 * 60 * 1000; // 30 minutes
     this.storage = new SecureStorage();
   }
   
-  async createSession(userInfo) {
-    const session = {
+  async createSession(userInfo: UserInfo): Promise<Session> {
+    const session: Session = {
       userId: userInfo.userId,
       role: userInfo.role,
       createdAt: Date.now(),
@@ -177,8 +198,8 @@ export class SecureSessionManager {
     return session;
   }
   
-  async getSession() {
-    const session = await this.storage.getItem(this.sessionKey);
+  async getSession(): Promise<Session | null> {
+    const session: Session | null = await this.storage.getItem(this.sessionKey);
     if (!session) return null;
     
     // Check if session is expired
@@ -195,7 +216,7 @@ export class SecureSessionManager {
     return session;
   }
   
-  async updateActivity() {
+  async updateActivity(): Promise<void> {
     const session = await this.getSession();
     if (session) {
       session.lastActivity = Date.now();
@@ -203,8 +224,8 @@ export class SecureSessionManager {
     }
   }
   
-  async destroySession() {
-    const session = await this.storage.getItem(this.sessionKey);
+  async destroySession(): Promise<void> {
+    const session: Session | null = await this.storage.getItem(this.sessionKey);
     if (session) {
       logSecurityEvent('session_destroyed', { sessionId: session.sessionId });
     }

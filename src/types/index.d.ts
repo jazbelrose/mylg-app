@@ -37,6 +37,27 @@ declare module './aws-exports' {
   export default awsConfig;
 }
 
+declare module './app/contexts/AuthContext' {
+  interface AuthContextType {
+    isAuthenticated: boolean;
+    setIsAuthenticated: (value: boolean) => void;
+    authStatus: string;
+    setAuthStatus: (value: string) => void;
+    user: any;
+    setUser: (value: any) => void;
+    refreshUser: (forceRefresh?: boolean) => Promise<void>;
+    validateAndSetUserSession: (label?: string) => Promise<void>;
+    getCurrentUser: () => Promise<any>;
+    getAuthTokens: () => Promise<any>;
+    globalSignOut: () => Promise<void>;
+    loading: boolean;
+    updateUserCognitoAttributes: (userAttributes: any) => Promise<void>;
+  }
+  
+  export const useAuth: () => AuthContextType;
+  export const AuthProvider: React.FC<{ children: React.ReactNode }>;
+}
+
 declare module './app/App' {
   import React from 'react';
   const App: React.FC;
@@ -53,6 +74,7 @@ declare module 'scramble-text' {
   export default class ScrambleText {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(element: HTMLElement, options?: any);
+    start(): ScrambleText;
     play(): void;
     stop(): void;
   }
