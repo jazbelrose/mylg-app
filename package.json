@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test": "echo 'No test runner configured yet. Tests exist but need test runner setup.'",
     "gen:endpoints": "tsx scripts/scan-lambdas.ts"
   },
   "dependencies": {
@@ -79,6 +80,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "terser": "^5.43.1",
     "tsx": "^4.20.4",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",

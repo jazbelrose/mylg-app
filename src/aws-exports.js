@@ -11,16 +11,15 @@ const awsConfig = {
       userPoolId: cfg.aws_user_pools_id,
       userPoolClientId: cfg.aws_user_pools_web_client_id,
       identityPoolId: cfg.aws_cognito_identity_pool_id,
-      // Only include OAuth if your JSON actually has a domain/values
-      ...(isNonEmpty(cfg.oauth) && {
+      // Only include OAuth if your JSON actually has proper oauth config
+      ...(isNonEmpty(cfg.oauth) && cfg.oauth.domain && {
         loginWith: {
           oauth: {
-            // If you later add Hosted UI settings, map them here:
-            // domain: cfg.oauth.domain,
-            // scopes: cfg.oauth.scope || ["email", "openid", "profile"],
-            // redirectSignIn: cfg.oauth.redirectSignIn,
-            // redirectSignOut: cfg.oauth.redirectSignOut,
-            // responseType: cfg.oauth.responseType || "code",
+            domain: cfg.oauth.domain,
+            scopes: cfg.oauth.scope || ["email", "openid", "profile"],
+            redirectSignIn: cfg.oauth.redirectSignIn,
+            redirectSignOut: cfg.oauth.redirectSignOut,
+            responseType: cfg.oauth.responseType || "code",
           },
         },
       }),
