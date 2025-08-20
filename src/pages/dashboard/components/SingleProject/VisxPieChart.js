@@ -9,17 +9,18 @@ import { animated, useSpring, to } from "@react-spring/web";
 import { formatUSD } from "../../../../utils/budgetUtils";
 import { CHART_COLORS, generateSequentialPalette, getColor, } from "../../../../utils/colorUtils";
 import { useData } from "../../../../app/contexts/DataProvider";
-const EXPLODE_PX = 8;
-function AnimatedArc({ arc, pie, color, showTooltip, hideTooltip, containerRef, clampTooltip, rafRef, explodePx = 8, }) {
+const EXPLODE_PX = 20;
+function AnimatedArc({ arc, pie, color, showTooltip, hideTooltip, containerRef, clampTooltip, rafRef, explodePx = 8, dataVersion }) {
     const [springs, api] = useSpring(() => ({
         startAngle: 0,
         endAngle: 0,
         x: 0,
         y: 0,
+        config: { tension: 300, friction: 30 }
     }));
     React.useEffect(() => {
         api.start({ startAngle: arc.startAngle, endAngle: arc.endAngle });
-    }, [arc, api]);
+    }, [arc.startAngle, arc.endAngle, api, dataVersion]);
     const pathD = to([springs.startAngle, springs.endAngle], (startAngle, endAngle) => pie.path({ ...arc, startAngle, endAngle }));
     const [cx, cy] = React.useMemo(() => pie.path.centroid(arc), [pie, arc]);
     const len = Math.max(1, Math.hypot(cx, cy));
@@ -68,6 +69,11 @@ export default function VisxPieChart({ data, total, formatTooltip = (d) => `${d.
     const projectBase = baseColor ||
         activeProject?.color ||
         (projectId ? getColor(projectId) : "#3b82f6");
+    
+    // Create a version string based on data to force re-animations when data changes
+    const dataVersion = React.useMemo(() => {
+        return data.map(d => `${d.name}:${d.value}`).join('-');
+    }, [data]);
     const palette = React.useMemo(() => {
         if (colors && colors.length)
             return colors;
@@ -110,7 +116,7 @@ export default function VisxPieChart({ data, total, formatTooltip = (d) => `${d.
                     position: "relative",
                     width,
                     height,
-                }, children: [_jsxs("svg", { width: width, height: height, children: [_jsx(Group, { top: height / 2, left: width / 2, children: _jsx(Pie, { data: data, pieValue: (d) => d.value, innerRadius: innerRadius, outerRadius: outerRadius, padAngle: isSingle ? 0 : 0.004, pieSortValues: colorMode === "sequential" ? (a, b) => b - a : undefined, children: (pie) => pie.arcs.map((arc, i) => (_jsx(AnimatedArc, { arc: arc, pie: pie, color: palette[i % palette.length], showTooltip: showTooltip, hideTooltip: hideTooltip, containerRef: containerRef, clampTooltip: clampTooltip, rafRef: rafRef, explodePx: EXPLODE_PX }, arc.data.name))) }) }), _jsx("text", { x: width / 2, y: height / 2, dy: 4, textAnchor: "middle", style: {
+                }, children: [_jsxs("svg", { width: width, height: height, children: [_jsx(Group, { top: height / 2, left: width / 2, children: _jsx(Pie, { data: data, pieValue: (d) => d.value, innerRadius: innerRadius, outerRadius: outerRadius, padAngle: isSingle ? 0 : 0.004, pieSortValues: colorMode === "sequential" ? (a, b) => b - a : undefined, children: (pie) => pie.arcs.map((arc, i) => (_jsx(AnimatedArc, { arc: arc, pie: pie, color: palette[i % palette.length], showTooltip: showTooltip, hideTooltip: hideTooltip, containerRef: containerRef, clampTooltip: clampTooltip, rafRef: rafRef, explodePx: EXPLODE_PX, dataVersion: dataVersion }, `${arc.data.name}-${dataVersion}`))) }) }), _jsx("text", { x: width / 2, y: height / 2, dy: 4, textAnchor: "middle", style: {
                                     fontSize: 16,
                                     fontWeight: 700,
                                     fill: "#fff",
