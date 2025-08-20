@@ -1,7 +1,13 @@
 export const DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
 
-export function setWithTTL(key, data, ttl = DEFAULT_TTL) {
-  const record = { ts: Date.now(), ttl, data };
+interface StorageRecord {
+  ts: number;
+  ttl: number;
+  data: any;
+}
+
+export function setWithTTL(key: string, data: any, ttl: number = DEFAULT_TTL): void {
+  const record: StorageRecord = { ts: Date.now(), ttl, data };
   try {
     localStorage.setItem(key, JSON.stringify(record));
   } catch {
@@ -9,7 +15,7 @@ export function setWithTTL(key, data, ttl = DEFAULT_TTL) {
   }
 }
 
-export function getWithTTL(key) {
+export function getWithTTL(key: string): any | null {
   try {
     const item = localStorage.getItem(key);
     if (!item) return null;
