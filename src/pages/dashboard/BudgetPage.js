@@ -35,6 +35,26 @@ import { fetchBudgetHeaders, createBudgetItem, updateBudgetItem, fetchBudgetItem
 import { enqueueProjectUpdate } from "../../utils/requestQueue";
 const TABLE_HEADER_FOOTER = 110;
 const TABLE_BOTTOM_MARGIN = 20;
+
+// simple throttle (leading + trailing)
+function throttle(fn, wait = 600) {
+    let last = 0, t, lastArgs;
+    return (...args) => {
+        const now = Date.now();
+        lastArgs = args;
+        const run = () => {
+            last = Date.now();
+            fn(...lastArgs);
+        };
+        if (now - last >= wait) {
+            run();
+        }
+        else {
+            clearTimeout(t);
+            t = setTimeout(run, wait - (now - last));
+        }
+    };
+}
 const BudgetPage = () => {
     const { projectSlug } = useParams();
     const navigate = useNavigate();
@@ -200,6 +220,9 @@ const BudgetPage = () => {
         return Array.from(set);
     }, [activeProject]);
     const { budgetHeader, setBudgetHeader, budgetItems, setBudgetItems, refresh: refreshBudgetData, } = useBudgetData(activeProject?.projectId);
+    const lastBudgetSigRef = useRef({ rev: null, total: null });
+    const prevTotalsRef = useRef({ budgeted: 0, final: 0, actual: 0, eff: 0 });
+    const throttledRefresh = useMemo(() => throttle(() => refreshBudgetData(), 600), [refreshBudgetData]);
     const [budgetData, setBudgetData] = useState([]);
     const [undoStack, setUndoStack] = useState([]);
     const [redoStack, setRedoStack] = useState([]);
@@ -744,6 +767,18 @@ const BudgetPage = () => {
         if (!activeProject?.projectId || !budgetHeader)
             return;
         const totals = calculateHeaderTotals(items);
+        const changed = totals.budgeted !== prevTotalsRef.current.budgeted ||
+            totals.final !== prevTotalsRef.current.final ||
+            totals.actual !== prevTotalsRef.current.actual ||
+            totals.effectiveMarkup !== prevTotalsRef.current.eff;
+        if (!changed)
+            return;
+        prevTotalsRef.current = {
+            budgeted: totals.budgeted,
+            final: totals.final,
+            actual: totals.actual,
+            eff: totals.effectiveMarkup,
+        };
         try {
             await updateBudgetItem(activeProject.projectId, budgetHeader.budgetItemId, {
                 headerBudgetedTotalCost: totals.budgeted,
@@ -1091,16 +1126,20 @@ const BudgetPage = () => {
                 else if (data.action === 'projectUpdated' && data.fields && data.fields.lastBudgetUpdate) {
                     if (data.senderId === userId)
                         return;
-                    if (activeProject?.projectId) {
-                        await refreshBudgetData();
-                    }
+                    throttledRefresh();
                 }
                 else if (data.action === 'budgetUpdated') {
                     if (data.senderId === userId)
                         return;
-                    if (activeProject?.projectId) {
-                        await refreshBudgetData();
-                    }
+                    const sig = {
+                        rev: data.revision ?? null,
+                        total: data.total ?? null,
+                    };
+                    const prev = lastBudgetSigRef.current;
+                    if (prev.rev === sig.rev && prev.total === sig.total)
+                        return;
+                    lastBudgetSigRef.current = sig;
+                    throttledRefresh();
                 }
             }
             catch {
@@ -1112,7 +1151,7 @@ const BudgetPage = () => {
             return () => ws.removeEventListener('message', handleMessage);
         }
         return undefined;
-    }, [ws, activeProject?.projectId, budgetHeader?.revision, userId, computeGroupsAndClients]);
+    }, [ws, activeProject?.projectId, budgetHeader?.revision, userId, throttledRefresh]);
     useEffect(() => {
         return () => {
             if (editingLineId) {
