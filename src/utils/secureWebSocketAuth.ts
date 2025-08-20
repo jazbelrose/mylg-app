@@ -3,14 +3,23 @@
 
 import { logSecurityEvent } from './securityUtils';
 
+interface TokenData {
+  jwtToken: string;
+  expiresAt: number;
+  used: boolean;
+}
+
 class SecureWebSocketAuth {
+  private tempTokens: Map<string, TokenData>;
+  private tokenTTL: number;
+
   constructor() {
     this.tempTokens = new Map();
     this.tokenTTL = 5 * 60 * 1000; // 5 minutes
   }
 
   // Generate a temporary token for WebSocket authentication
-  async generateTempToken(jwtToken) {
+  async generateTempToken(jwtToken: string): Promise<string> {
     try {
       // Create a temporary token that can be safely used in WebSocket URLs
       const tempToken = this.createTempToken();
@@ -30,13 +39,13 @@ class SecureWebSocketAuth {
       
       return tempToken;
     } catch (error) {
-      logSecurityEvent('temp_token_generation_failed', { error: error.message });
+      logSecurityEvent('temp_token_generation_failed', { error: (error as Error).message });
       throw error;
     }
   }
 
   // Create a secure temporary token
-  createTempToken() {
+  createTempToken(): string {
     // Use crypto.getRandomValues for cryptographically secure random values
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
@@ -44,7 +53,7 @@ class SecureWebSocketAuth {
   }
 
   // Validate and consume a temporary token
-  validateTempToken(tempToken) {
+  validateTempToken(tempToken: string): string | null {
     const tokenData = this.tempTokens.get(tempToken);
     
     if (!tokenData) {
@@ -73,7 +82,7 @@ class SecureWebSocketAuth {
   }
 
   // Clean up expired tokens
-  cleanupExpiredTokens() {
+  cleanupExpiredTokens(): void {
     const now = Date.now();
     for (const [token, data] of this.tempTokens.entries()) {
       if (now > data.expiresAt || data.used) {
@@ -83,7 +92,7 @@ class SecureWebSocketAuth {
   }
 
   // Clear all tokens (on logout)
-  clearAllTokens() {
+  clearAllTokens(): void {
     this.tempTokens.clear();
     logSecurityEvent('all_temp_tokens_cleared');
   }
@@ -93,7 +102,12 @@ class SecureWebSocketAuth {
 export const secureWebSocketAuth = new SecureWebSocketAuth();
 
 // Enhanced WebSocket connection function
-export const createSecureWebSocketConnection = async (baseUrl, jwtToken, sessionId, additionalParams = {}) => {
+export const createSecureWebSocketConnection = async (
+  baseUrl: string, 
+  jwtToken: string, 
+  sessionId: string, 
+  additionalParams: Record<string, any> = {}
+): Promise<WebSocket> => {
   try {
     // Use Sec-WebSocket-Protocol as an array for authentication
     const subprotocols = [jwtToken, sessionId];
@@ -106,7 +120,7 @@ export const createSecureWebSocketConnection = async (baseUrl, jwtToken, session
     return new WebSocket(baseUrl, subprotocols);
   } catch (error) {
     logSecurityEvent('secure_websocket_connection_failed', { 
-      error: error.message,
+      error: (error as Error).message,
       url: baseUrl 
     });
     throw error;
@@ -114,7 +128,7 @@ export const createSecureWebSocketConnection = async (baseUrl, jwtToken, session
 };
 
 // Alternative: Use WebSocket subprotocol for authentication (if backend supports it)
-export const createWebSocketWithSubprotocol = (baseUrl, jwtToken, sessionId) => {
+export const createWebSocketWithSubprotocol = (baseUrl: string, jwtToken: string, sessionId: string): WebSocket => {
   try {
     // Encode authentication info in subprotocol
     const authData = btoa(JSON.stringify({ 
@@ -132,7 +146,7 @@ export const createWebSocketWithSubprotocol = (baseUrl, jwtToken, sessionId) => 
     return new WebSocket(baseUrl, [`auth.${authData}`]);
   } catch (error) {
     logSecurityEvent('websocket_subprotocol_connection_failed', { 
-      error: error.message,
+      error: (error as Error).message,
       url: baseUrl 
     });
     throw error;
@@ -140,7 +154,7 @@ export const createWebSocketWithSubprotocol = (baseUrl, jwtToken, sessionId) => 
 };
 
 // Use Sec-WebSocket-Protocol with accessToken and sessionId
-export const createWebSocketWithSecProtocol = (baseUrl, accessToken, sessionId) => {
+export const createWebSocketWithSecProtocol = (baseUrl: string, accessToken: string, sessionId: string): WebSocket => {
   try {
     // Use Sec-WebSocket-Protocol for authentication
     const subprotocol = `${accessToken},${sessionId}`;
@@ -154,14 +168,14 @@ export const createWebSocketWithSecProtocol = (baseUrl, accessToken, sessionId) 
     return new WebSocket(baseUrl, subprotocol);
   } catch (error) {
     logSecurityEvent('websocket_sec_protocol_connection_failed', { 
-      error: error.message,
+      error: (error as Error).message,
       url: baseUrl 
     });
     throw error;
   }
 };
 
-export const initializeWebSocketWithJWT = (jwtToken) => {
+export const initializeWebSocketWithJWT = (jwtToken: string): WebSocket => {
   const baseUrl = 'wss://hly9zz2zci.execute-api.us-west-1.amazonaws.com/production/';
   return new WebSocket(baseUrl, jwtToken);
 };

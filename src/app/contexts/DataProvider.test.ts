@@ -1,10 +1,11 @@
-import { jsx as _jsx } from "react/jsx-runtime";
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
 jest.mock('./AuthContext', () => ({
     useAuth: jest.fn(),
 }));
+
 jest.mock('../../utils/api', () => ({
     THREADS_URL: 'threads',
     fetchAllUsers: jest.fn(() => Promise.resolve([])),
@@ -24,44 +25,52 @@ jest.mock('../../utils/api', () => ({
     declineProjectInvite: jest.fn(),
     cancelProjectInvite: jest.fn(),
 }));
+
 const { useAuth } = require('./AuthContext');
 const api = require('../../utils/api');
 const { DataProvider, useData } = require('./DataProvider');
-const TestComponent = () => {
+
+const TestComponent: React.FC = () => {
     const { projectsError, fetchProjects } = useData();
     React.useEffect(() => {
         fetchProjects();
     }, [fetchProjects]);
-    return _jsx("span", { "data-testid": "err", children: projectsError ? 'true' : 'false' });
+    return <span data-testid="err">{projectsError ? 'true' : 'false'}</span>;
 };
+
 describe('DataProvider', () => {
     beforeEach(() => {
         useAuth.mockReturnValue({ user: null });
         api.fetchProjectsFromApi.mockRejectedValue(new Error('fail'));
         api.fetchEvents.mockResolvedValue([]);
     });
+
     afterEach(() => {
         jest.clearAllMocks();
     });
+
     it('sets projectsError when project fetch fails', async () => {
-        render(_jsx(DataProvider, { children: _jsx(TestComponent, {}) }));
+        render(<DataProvider><TestComponent /></DataProvider>);
         await waitFor(() => {
             expect(screen.getByTestId('err')).toHaveTextContent('true');
         });
     });
+
     it('does not hydrate projects with budget data', async () => {
         useAuth.mockReturnValue({ user: { userId: 'u1', role: 'admin', projects: [] } });
         api.fetchProjectsFromApi.mockResolvedValue([{ projectId: 'p1' }]);
         api.fetchEvents.mockResolvedValue([]);
-        const BudgetCheck = () => {
+        
+        const BudgetCheck: React.FC = () => {
             const { projects, fetchProjects } = useData();
             React.useEffect(() => {
                 fetchProjects();
             }, [fetchProjects]);
             const hasBudget = projects[0]?.budget !== undefined ? 'true' : 'false';
-            return _jsx("span", { "data-testid": "budget", children: hasBudget });
+            return <span data-testid="budget">{hasBudget}</span>;
         };
-        render(_jsx(DataProvider, { children: _jsx(BudgetCheck, {}) }));
+        
+        render(<DataProvider><BudgetCheck /></DataProvider>);
         await waitFor(() => {
             expect(screen.getByTestId('budget')).toHaveTextContent('false');
         });
