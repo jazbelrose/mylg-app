@@ -7,7 +7,7 @@ import { useNotifications } from "../../../../app/contexts/NotificationContext";
 import { useNavigate } from 'react-router-dom';
 import { isMessageUnread } from '../../../../utils/messageUtils';
 import { useAuth } from "../../../../app/contexts/AuthContext";
-const WelcomeHeader = () => {
+const WelcomeHeader = ({ onCreateProject }) => {
     const { user } = useAuth();
     const { userData } = useData();
     const { notifications } = useNotifications();
@@ -51,7 +51,7 @@ const WelcomeHeader = () => {
         setGreeting(greetingText);
     }, []);
     const handleCreateProject = () => {
-        navigate('/dashboard/new');
+        onCreateProject?.();
     };
     const handleDashboardHomeClick = () => {
         navigate('/dashboard');

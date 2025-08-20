@@ -15,8 +15,6 @@ export const Dashboard = () => {
         switch (location.pathname) {
             case '/dashboard':
                 return `Dashboard - Welcome, ${userName}`;
-            case '/dashboard/new':
-                return 'Dashboard - New Project';
             case '/dashboard/projects':
                 return 'Dashboard - All Projects';
             case '/dashboard/settings':

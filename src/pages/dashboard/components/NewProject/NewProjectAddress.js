@@ -40,6 +40,6 @@ const NewProjectAddress = ({ address, setAddress, location, setLocation, style }
             console.log("No location found for the address.");
         }
     };
-    return (_jsxs("div", { className: "column-new-project-address", style: style, children: [_jsx("div", { className: "dashboard-item location", children: _jsx(Map, { location: location, address: address }) }), _jsxs("div", { className: "address-input-container", children: [_jsx("input", { type: "text", className: "address-input", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), placeholder: "Enter address" }), _jsx("button", { onClick: handleSearch, className: "address-button", disabled: isLoading, children: buttonText })] })] }));
+    return (_jsxs("div", { className: "column-new-project-address", style: style, children: [_jsx("div", { className: "dashboard-item location", children: _jsx(Map, { location: location, address: address }) }), _jsxs("div", { className: "address-input-container", children: [_jsx("input", { type: "text", className: "address-input", value: searchQuery, onChange: (e) => setSearchQuery(e.target.value), placeholder: "Enter address", "aria-label": "Project address" }), _jsx("button", { onClick: handleSearch, className: "address-button", disabled: isLoading, "aria-label": "Search address", children: buttonText })] })] }));
 };
 export default NewProjectAddress;

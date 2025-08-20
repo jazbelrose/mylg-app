@@ -9,6 +9,7 @@ import WelcomeWidget from "./components/Welcome/WelcomeWidget";
 import NavigationSidebar from "./components/Welcome/NavigationSidebar";
 import TopBar from "./components/Welcome/TopBar";
 import RecentActivity from "./components/Welcome/RecentActivity";
+import NewProjectModal from "./components/NewProjectModal";
 import AllProjects from "./AllProjects";
 import NotificationsPage from "./components/NotificationsPage";
 import Messages from "./components/Messages";
@@ -37,6 +38,7 @@ const WelcomeScreen = () => {
     const [activeView, setActiveView] = useState(initialView);
     const [dmUserSlug, setDmUserSlug] = useState(initialDMUserSlug);
     const [isMobile, setIsMobile] = useState(false);
+    const [showNewProjectModal, setShowNewProjectModal] = useState(false);
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         if (typeof window !== 'undefined') {
@@ -101,13 +103,16 @@ const WelcomeScreen = () => {
     // ✅ Hide TopBar and QuickStats in these views
     const isFullWidthView = ["projects", "notifications", "messages", "settings", "collaborators"].includes(activeView);
     const showTopBar = !isFullWidthView;
-    return (_jsxs("div", { className: "dashboard-wrapper welcome-screen no-vertical-center", children: [_jsx(WelcomeHeader, { userName: userName }), _jsxs("div", { className: "row-layout", children: [_jsx(NavigationSidebar, { setActiveView: setActiveView }), _jsxs("div", { className: "welcome-screen-details", children: [showTopBar && _jsx(TopBar, { setActiveView: setActiveView }), _jsxs("div", { className: `dashboard-content ${isFullWidthView ? "full-width" : ""}`, children: [!isFullWidthView && (_jsxs("div", { className: "quickstats-sidebar", children: [_jsx(WelcomeWidget, { setActiveView: setActiveView, setDmUserSlug: setDmUserSlug }), _jsx(RecentActivity, {})] })), _jsx("div", { className: "main-content", children: {
+    const openNewProjectModal = () => setShowNewProjectModal(true);
+    const closeNewProjectModal = () => setShowNewProjectModal(false);
+    const handleProjectCreated = () => setShowNewProjectModal(false);
+    return (_jsxs("div", { className: "dashboard-wrapper welcome-screen no-vertical-center", children: [_jsx(WelcomeHeader, { userName: userName, onCreateProject: openNewProjectModal }), _jsxs("div", { className: "row-layout", children: [_jsx(NavigationSidebar, { setActiveView: setActiveView, onCreateProject: openNewProjectModal }), _jsxs("div", { className: "welcome-screen-details", children: [showTopBar && _jsx(TopBar, { setActiveView: setActiveView }), _jsxs("div", { className: `dashboard-content ${isFullWidthView ? "full-width" : ""}`, children: [!isFullWidthView && (_jsxs("div", { className: "quickstats-sidebar", children: [_jsx(WelcomeWidget, { setActiveView: setActiveView, setDmUserSlug: setDmUserSlug }), _jsx(RecentActivity, {})] })), _jsx("div", { className: "main-content", children: {
                                             welcome: _jsx(AllProjectsCalendar, {}),
                                             projects: _jsx(AllProjects, {}),
                                             notifications: _jsx(NotificationsPage, { onNavigateToProject: handleNavigateToProject }),
                                             messages: _jsx(Messages, { initialUserSlug: dmUserSlug }),
                                             settings: _jsx(Settings, {}),
                                             collaborators: _jsx(Collaborators, {}),
-                                        }[activeView] || null })] })] })] })] }));
+                                        }[activeView] || null })] })] })]}), _jsx(NewProjectModal, { open: showNewProjectModal, onCancel: closeNewProjectModal, onCreated: handleProjectCreated })] }));
 };
 export default WelcomeScreen;

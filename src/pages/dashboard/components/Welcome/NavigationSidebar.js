@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { signOut } from "aws-amplify/auth"; // Import signOut from aws-amplify/auth
 import Cookies from "js-cookie"; // Import Cookies
 import "./style.css";
-const NavigationSidebar = ({ setActiveView }) => {
+const NavigationSidebar = ({ setActiveView, onCreateProject }) => {
     const { isAuthenticated, setIsAuthenticated, setUser } = useAuth();
     const { dmThreads } = useData();
     const { notifications } = useNotifications();
@@ -30,7 +30,7 @@ const NavigationSidebar = ({ setActiveView }) => {
         navigate(path);
     };
     const handleCreateProject = () => {
-        navigate("/dashboard/new");
+        onCreateProject?.();
     };
     const handleSignOut = async () => {
         try {
