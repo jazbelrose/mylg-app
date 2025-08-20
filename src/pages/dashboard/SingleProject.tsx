@@ -145,7 +145,7 @@ const SingleProject: React.FC = () => {
     <ProjectPageLayout 
       projectId={activeProject?.projectId}
       header={
-        <ProjectHeader 
+        <ProjectHeader
           activeProject={activeProject}
           parseStatusToNumber={parseStatusToNumber}
           userId={userId}
@@ -154,6 +154,7 @@ const SingleProject: React.FC = () => {
           onActiveProjectChange={handleActiveProjectChange}
           onOpenFiles={() => setFilesOpen(true)}
           onOpenQuickLinks={() => quickLinksRef.current?.openModal()}
+          title={activeProject?.title}
         />
       }
     >
@@ -187,6 +188,7 @@ const SingleProject: React.FC = () => {
                   initialFlashDate={flashDate}
                   showEventList={false}
                   onWrapperClick={openCalendarPage}
+                  onDateSelect={() => {}} // Add required prop
                 />
               </div>
             </div>
