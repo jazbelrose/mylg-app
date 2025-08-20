@@ -9,7 +9,7 @@ import { animated, useSpring, to } from "@react-spring/web";
 import { formatUSD } from "../../../../utils/budgetUtils";
 import { CHART_COLORS, generateSequentialPalette, getColor, } from "../../../../utils/colorUtils";
 import { useData } from "../../../../app/contexts/DataProvider";
-const EXPLODE_PX = 20;
+const EXPLODE_PX = 12;
 function AnimatedArc({ arc, pie, color, showTooltip, hideTooltip, containerRef, clampTooltip, rafRef, explodePx = 8, dataVersion }) {
     const [springs, api] = useSpring(() => ({
         startAngle: 0,
