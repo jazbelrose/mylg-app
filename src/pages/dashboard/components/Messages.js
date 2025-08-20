@@ -2,6 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-run
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useData } from "../../../app/contexts/DataProvider";
+import { useMessages } from "../../../app/contexts/MessagesContext";
 import { useAuth } from "../../../app/contexts/AuthContext";
 import { useSocket } from "../../../app/contexts/SocketContext";
 import { useOnlineStatus } from "../../../app/contexts/OnlineStatusContext";
@@ -85,10 +86,10 @@ const renderFilePreview = (file, folderKey = "chat_uploads") => {
 const Messages = ({ initialUserSlug = null }) => {
     const navigate = useNavigate();
     const { getAuthTokens, isAuthenticated } = useAuth();
-    const { userData, allUsers, isAdmin, setUserData, dmReadStatus, setDmReadStatus, setDmThreads, deletedMessageIds, markMessageDeleted, toggleReaction, } = useData();
+    const { userData, allUsers, isAdmin, setUserData } = useData();
+    const { dmReadStatus, setDmReadStatus, setDmThreads, deletedMessageIds, markMessageDeleted, toggleReaction, dmThreads } = useMessages();
     const isCurrentUserAdmin = isAdmin;
     const { onlineUsers } = useOnlineStatus();
-    const { dmThreads } = useData();
     const { setActiveDmConversationId } = useDMConversation();
     const [isMobile, setIsMobile] = useState(false);
     const [showConversation, setShowConversation] = useState(false);

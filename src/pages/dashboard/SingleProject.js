@@ -11,12 +11,14 @@ import LocationComponent from "./components/SingleProject/LocationComponent";
 import FileManagerComponent from "./components/SingleProject/FileManager";
 import TasksComponent from "./components/SingleProject/TasksComponent";
 import { useData } from "../../app/contexts/DataProvider";
+import { useProjects } from "../../app/contexts/ProjectsContext";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { findProjectBySlug, slugify } from "../../utils/slug";
 const SingleProject = () => {
-    const { activeProject: initialActiveProject, userId, projects, fetchProjectDetails, setProjects, setSelectedProjects, isAdmin, isBuilder, isDesigner, isClient, } = useData();
+    const { userId, isAdmin, isBuilder, isDesigner, isClient } = useData();
+    const { activeProject: initialActiveProject, projects, fetchProjectDetails, setProjects, setSelectedProjects } = useProjects();
     const navigate = useNavigate();
     const location = useLocation();
     const flashDate = location.state?.flashDate;

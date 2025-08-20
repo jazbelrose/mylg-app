@@ -13,7 +13,9 @@ import {
   sendProjectInvite,
   acceptProjectInvite,
   declineProjectInvite,
-  cancelProjectInvite
+  cancelProjectInvite,
+  GET_PROJECT_MESSAGES_URL,
+  apiFetch
 } from '../../utils/api';
 
 const ProjectsContext = createContext();
@@ -313,7 +315,59 @@ export const ProjectsProvider = ({ children }) => {
     fetchProjects();
   }, [userId, user?.role]);
 
-  // Fetch pending invites
+  // Fetch recent activity from projects
+  const fetchRecentActivity = useCallback(async (limit = 10) => {
+    try {
+      const events = [];
+      const projectsList = Array.isArray(userProjects) ? userProjects : [];
+
+      for (const project of projectsList) {
+        const projectTitle = project.title || 'Project';
+        const timeline = Array.isArray(project.timelineEvents)
+          ? project.timelineEvents
+          : [];
+
+        timeline.forEach(ev => {
+          const ts = ev.date || ev.timestamp;
+          if (!ts) return;
+          events.push({
+            id: `proj-${project.projectId}-${ev.id || uuid()}`,
+            type: 'project',
+            projectId: project.projectId,
+            projectTitle,
+            text: ev.title || 'Project updated',
+            timestamp: ts,
+          });
+        });
+
+        try {
+          const res = await apiFetch(`${GET_PROJECT_MESSAGES_URL}?projectId=${project.projectId}`);
+          const msgs = await res.json();
+          if (Array.isArray(msgs)) {
+            msgs.forEach(m => {
+              if (!m.timestamp) return;
+              events.push({
+                id: `msg-${m.messageId || m.optimisticId}`,
+                type: 'message',
+                projectId: project.projectId,
+                projectTitle,
+                text: m.text || m.body || m.content || 'New message',
+                timestamp: m.timestamp,
+              });
+            });
+          }
+        } catch (err) {
+          console.error('Failed to fetch messages for activity', err);
+        }
+      }
+
+      events.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      return events.slice(0, limit);
+    } catch (err) {
+      console.error('fetchRecentActivity error', err);
+      return [];
+    }
+  }, [userProjects]);
   useEffect(() => {
     if (!userId) {
       setPendingInvites([]);
@@ -353,6 +407,7 @@ export const ProjectsProvider = ({ children }) => {
     fetchProjectDetails,
     updateTimelineEvents,
     updateProjectFields,
+    fetchRecentActivity,
     handleSendInvite,
     handleAcceptInvite,
     handleDeclineInvite,
