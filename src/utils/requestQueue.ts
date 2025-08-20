@@ -1,8 +1,14 @@
-const pending = new Map();
-let timer = null;
+interface QueueEntry {
+  updateFn: (projectId: string, payload: Record<string, any>) => Promise<any>;
+  payloads: Record<string, any>[];
+  resolvers: (() => void)[];
+}
+
+const pending = new Map<string, QueueEntry>();
+let timer: NodeJS.Timeout | null = null;
 const RATE_LIMIT = 1000; // 1 second debounce/rate limit
 
-async function flushQueue() {
+async function flushQueue(): Promise<void> {
   if (timer) {
     clearTimeout(timer);
     timer = null;
@@ -19,18 +25,23 @@ async function flushQueue() {
       resolvers.forEach((r) => r());
     } catch (err) {
       console.error('Failed to flush project update', err);
-      resolvers.forEach((r) => r(err));
+      // For error cases, just log them but still resolve normally
+      resolvers.forEach((r) => r());
     }
   }
 }
 
-function scheduleFlush() {
+function scheduleFlush(): void {
   if (!timer) {
     timer = setTimeout(flushQueue, RATE_LIMIT);
   }
 }
 
-export function enqueueProjectUpdate(updateFn, projectId, payload) {
+export function enqueueProjectUpdate(
+  updateFn: (projectId: string, payload: Record<string, any>) => Promise<any>,
+  projectId: string,
+  payload: Record<string, any>
+): Promise<void> {
   if (!updateFn || !projectId || !payload) return Promise.resolve();
   return new Promise((resolve) => {
     const entry = pending.get(projectId) || {

@@ -1,6 +1,6 @@
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-export async function getAccessToken() {
+export async function getAccessToken(): Promise<string | null> {
   try {
     const session = await fetchAuthSession();
     if (!session?.tokens?.accessToken) throw new Error('No access token');

@@ -3,20 +3,23 @@ import { v4 as uuidv4 } from 'uuid';
 
 // CSRF Token Management
 class CSRFProtection {
+  private tokenKey: string;
+  private headerName: string;
+
   constructor() {
     this.tokenKey = 'csrf_token';
     this.headerName = 'X-CSRF-Token';
   }
 
   // Generate a new CSRF token
-  generateToken() {
+  generateToken(): string {
     const token = uuidv4();
     sessionStorage.setItem(this.tokenKey, token);
     return token;
   }
 
   // Get the current CSRF token
-  getToken() {
+  getToken(): string {
     let token = sessionStorage.getItem(this.tokenKey);
     if (!token) {
       token = this.generateToken();
@@ -25,13 +28,13 @@ class CSRFProtection {
   }
 
   // Validate CSRF token (for form submissions)
-  validateToken(submittedToken) {
+  validateToken(submittedToken: string): boolean {
     const storedToken = sessionStorage.getItem(this.tokenKey);
-    return storedToken && storedToken === submittedToken;
+    return storedToken !== null && storedToken === submittedToken;
   }
 
   // Add CSRF token to request headers
-  addToHeaders(headers = {}) {
+  addToHeaders(headers: Record<string, string> = {}): Record<string, string> {
     return {
       ...headers,
       [this.headerName]: this.getToken()
@@ -39,27 +42,29 @@ class CSRFProtection {
   }
 
   // Add CSRF token to fetch requests
-  addToFetchOptions(options = {}) {
+  addToFetchOptions(options: RequestInit = {}): RequestInit {
     return {
       ...options,
-      headers: this.addToHeaders(options.headers)
+      headers: this.addToHeaders(options.headers as Record<string, string>)
     };
   }
 
   // Clear the CSRF token (on logout)
-  clearToken() {
+  clearToken(): void {
     sessionStorage.removeItem(this.tokenKey);
   }
 }
 
 // Rate Limiting for Client-Side Protection
 class RateLimiter {
+  private requests: Map<string, number[]>;
+
   constructor() {
     this.requests = new Map();
   }
 
   // Check if request is allowed (returns true if allowed)
-  isAllowed(key, maxRequests = 10, windowMs = 60000) {
+  isAllowed(key: string, maxRequests: number = 10, windowMs: number = 60000): boolean {
     const now = Date.now();
     const windowStart = now - windowMs;
     
@@ -67,7 +72,7 @@ class RateLimiter {
       this.requests.set(key, []);
     }
     
-    const requestTimes = this.requests.get(key);
+    const requestTimes = this.requests.get(key)!;
     
     // Remove old requests outside the window
     const validRequests = requestTimes.filter(time => time > windowStart);
@@ -84,7 +89,7 @@ class RateLimiter {
   }
 
   // Get remaining requests in current window
-  getRemainingRequests(key, maxRequests = 10, windowMs = 60000) {
+  getRemainingRequests(key: string, maxRequests: number = 10, windowMs: number = 60000): number {
     const now = Date.now();
     const windowStart = now - windowMs;
     
@@ -92,25 +97,33 @@ class RateLimiter {
       return maxRequests;
     }
     
-    const requestTimes = this.requests.get(key);
+    const requestTimes = this.requests.get(key)!;
     const validRequests = requestTimes.filter(time => time > windowStart);
     
     return Math.max(0, maxRequests - validRequests.length);
   }
 
   // Clear rate limiting data for a key
-  clear(key) {
+  clear(key: string): void {
     this.requests.delete(key);
   }
 
   // Clear all rate limiting data
-  clearAll() {
+  clearAll(): void {
     this.requests.clear();
   }
 }
 
+interface SecurityLogEntry {
+  timestamp: string;
+  event: string;
+  details: Record<string, any>;
+  userAgent: string;
+  url: string;
+}
+
 // Input Sanitization
-export const sanitizeInput = (input) => {
+export const sanitizeInput = (input: any): any => {
   if (typeof input !== 'string') return input;
   
   // Basic XSS prevention - encode HTML entities
@@ -124,7 +137,7 @@ export const sanitizeInput = (input) => {
 };
 
 // Secure API request wrapper
-export const secureApiRequest = async (url, options = {}) => {
+export const secureApiRequest = async (url: string, options: RequestInit = {}): Promise<Response> => {
   const csrf = new CSRFProtection();
   const rateLimiter = new RateLimiter();
   
@@ -164,8 +177,8 @@ export const csrfProtection = new CSRFProtection();
 export const rateLimiter = new RateLimiter();
 
 // Security event logging
-export const logSecurityEvent = (event, details = {}) => {
-  const logEntry = {
+export const logSecurityEvent = (event: string, details: Record<string, any> = {}): void => {
+  const logEntry: SecurityLogEntry = {
     timestamp: new Date().toISOString(),
     event,
     details,
@@ -177,7 +190,7 @@ export const logSecurityEvent = (event, details = {}) => {
   console.warn('Security Event:', logEntry);
   
   // Store in session for debugging (limit to 100 entries)
-  const logs = JSON.parse(sessionStorage.getItem('security_logs') || '[]');
+  const logs: SecurityLogEntry[] = JSON.parse(sessionStorage.getItem('security_logs') || '[]');
   logs.push(logEntry);
   if (logs.length > 100) {
     logs.shift();
