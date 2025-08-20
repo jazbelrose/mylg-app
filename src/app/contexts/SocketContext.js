@@ -3,6 +3,8 @@ import React, { createContext, useContext, useEffect, useState, useRef, useCallb
 import { v4 as uuid } from 'uuid';
 import { useAuth } from './AuthContext';
 import { useData } from './DataProvider';
+import { useProjects } from './ProjectsContext';
+import { useMessages } from './MessagesContext';
 import { useDMConversation } from './DMConversationContext';
 import { WEBSOCKET_URL } from '../../utils/api';
 import { mergeAndDedupeMessages } from '../../utils/messageUtils';
@@ -16,7 +18,9 @@ export const useSocket = () => useContext(SocketContext);
 // component should consume both contexts instead.
 export const SocketProvider = ({ children }) => {
     const { getAuthTokens } = useAuth();
-    const { setUserData, setDmThreads, userId, setProjects, setUserProjects, setActiveProject, updateProjectFields, setProjectMessages, deletedMessageIds, markMessageDeleted, activeProject, fetchProjects, fetchUserProfile, refreshUsers, } = useData();
+    const { setUserData, userId, refreshUsers, fetchUserProfile } = useData();
+    const { setProjects, setUserProjects, setActiveProject, updateProjectFields, activeProject, fetchProjects } = useProjects();
+    const { setProjectMessages, deletedMessageIds, markMessageDeleted, setDmThreads } = useMessages();
     const { activeDmConversationId } = useDMConversation();
     const [ws, setWs] = useState(null); // state variable for the WebSocket
     const [isConnected, setIsConnected] = useState(false);

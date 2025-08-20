@@ -3,11 +3,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import SVGThumbnail from './components/AllProjects/SVGThumbnail';
 import "./style.css";
 import { useData } from '../../app/contexts/DataProvider';
+import { useProjects } from '../../app/contexts/ProjectsContext';
 import Spinner from '../../components/preloader-light';
 import { useNavigate } from 'react-router-dom';
 import { slugify } from '../../utils/slug';
 const AllProjects = () => {
-    const { projects, isLoading, fetchProjectDetails, projectsError, fetchProjects } = useData();
+    const { projects, isLoading, fetchProjectDetails, projectsError, fetchProjects } = useProjects();
     const navigate = useNavigate();
     const [filterQuery, setFilterQuery] = useState('');
     const [imageErrors, setImageErrors] = useState({});

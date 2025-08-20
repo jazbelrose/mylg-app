@@ -11,6 +11,8 @@ import { NavigationDirectionProvider } from "./contexts/NavigationDirectionProvi
 import AuthEventHandler from "./contexts/AuthEventHandler";
 import { AuthProvider } from "./contexts/AuthContext";
 import { DataProvider } from "./contexts/DataProvider";
+import { ProjectsProvider } from "./contexts/ProjectsContext";
+import { MessagesProvider } from "./contexts/MessagesContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { DMConversationProvider } from "./contexts/DMConversationContext";
 import { ScrollProvider } from "./contexts/ScrollContext";
@@ -54,7 +56,7 @@ export default function App() {
             mediaQuery.removeListener(handleChange);
         };
     }, []);
-    return (_jsx(HelmetProvider, { children: _jsx(AuthProvider, { children: _jsx(DataProvider, { children: _jsx(NotificationProvider, { children: _jsx(DMConversationProvider, { children: _jsx(SocketProvider, { children: _jsx(NotificationSocketBridge, { children: _jsx(OnlineStatusProvider, { children: _jsx(ScrollProvider, { children: _jsx(NavigationDirectionProvider, { children: _jsxs(Router, { basename: import.meta.env.BASE_URL, children: [_jsx(AuthEventHandler, {}), _jsx(MainContent, { isLoading: isLoading }), _jsx(NotificationContainer, {})] }) }) }) }) }) }) }) }) }) }) }));
+    return (_jsx(HelmetProvider, { children: _jsx(AuthProvider, { children: _jsx(DataProvider, { children: _jsx(ProjectsProvider, { children: _jsx(MessagesProvider, { children: _jsx(NotificationProvider, { children: _jsx(DMConversationProvider, { children: _jsx(SocketProvider, { children: _jsx(NotificationSocketBridge, { children: _jsx(OnlineStatusProvider, { children: _jsx(ScrollProvider, { children: _jsx(NavigationDirectionProvider, { children: _jsxs(Router, { basename: import.meta.env.BASE_URL, children: [_jsx(AuthEventHandler, {}), _jsx(MainContent, { isLoading: isLoading }), _jsx(NotificationContainer, {})] }) }) }) }) }) }) }) }) }) }) }) }) }));
 }
 function MainContent({ isLoading }) {
     const location = useLocation();
