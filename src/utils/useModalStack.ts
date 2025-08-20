@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 let openCount = 0;
 
-export default function useModalStack(isOpen) {
+export default function useModalStack(isOpen: boolean): void {
   useEffect(() => {
     if (typeof document === 'undefined') return;
 
