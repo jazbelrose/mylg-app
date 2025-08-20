@@ -1,4 +1,4 @@
-import jsSha256 from 'js-sha256';
+import { sha256 as jsSha256 } from 'js-sha256';
 
 export async function sha256(str: string): Promise<string> {
   if (typeof crypto !== 'undefined' && crypto.subtle?.digest) {

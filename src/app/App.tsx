@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import Modal from "react-modal";
 import { gsap } from "gsap";
@@ -32,7 +32,7 @@ interface MainContentProps {
     isLoading: boolean;
 }
 
-export default function App(): JSX.Element {
+export default function App(): React.ReactElement {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     
     useEffect(() => {
@@ -94,7 +94,7 @@ export default function App(): JSX.Element {
     );
 }
 
-function MainContent({ isLoading }: MainContentProps): JSX.Element {
+function MainContent({ isLoading }: MainContentProps): React.ReactElement {
     const location = useLocation();
     const hideHeader = location.pathname.startsWith("/dashboard");
     
