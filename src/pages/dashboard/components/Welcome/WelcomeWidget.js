@@ -1,6 +1,8 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import React, { useEffect, useRef, useState } from "react";
 import { useData } from "../../../../app/contexts/DataProvider";
+import { useUsers } from "../../../../app/contexts/UsersContext";
+import { useProjects } from "../../../../app/contexts/ProjectsContext";
 import { useNotifications } from "../../../../app/contexts/NotificationContext";
 import { useNotificationSocket } from "../../../../app/NotificationSocketBridge";
 import { Bell, FileText, ChevronRight } from "lucide-react";
@@ -11,7 +13,9 @@ import Inbox from "./inbox";
 import "./style.css";
 import { isMessageUnread } from "../../../../utils/messageUtils";
 const LeftSideBar = ({ setActiveView, setDmUserSlug }) => {
-    const { userData, allUsers, projects, fetchProjectDetails } = useData();
+    const { userData } = useData();
+    const { allUsers } = useUsers();
+    const { projects, fetchProjectDetails } = useProjects();
     const { notifications, removeNotification } = useNotifications();
     const { emitNotificationRead } = useNotificationSocket();
     const navigate = useNavigate();
@@ -101,8 +105,8 @@ const LeftSideBar = ({ setActiveView, setDmUserSlug }) => {
         return `${days}d ago`;
     };
     return (_jsx("div", { className: "quick-stats-container-column", children: _jsxs("div", { className: "left-sidebar-grid", children: [_jsxs("div", { className: "row-items", children: [_jsxs("div", { className: "stat-item left-stat-large", onClick: () => handleNavigation("notifications"), style: { cursor: "pointer" }, children: [_jsxs("div", { className: "stat-item-header", children: [_jsxs("div", { className: "notification-icon-wrapper", children: [_jsx(Bell, { className: "stat-icon" }), unreadNotifications > 0 && _jsx("span", { className: "notification-badge" })] }), _jsxs("div", { className: "stats-header", children: [_jsx("span", { className: "stats-title", children: "Notifications" }), _jsx("span", { className: "stats-count", children: unreadNotifications })] })] }), notifications.length === 0 ? (_jsx("div", { className: "progress-text", children: "No notifications" })) : (_jsxs(_Fragment, { children: [_jsxs("ul", { className: "notification-preview-list", ref: notifListRef, children: [_jsx("li", { ref: topSentinelRef, style: { listStyle: "none", height: 1, margin: 0, padding: 0 } }), sortedNotifications.map((notif, idx) => {
-                                                    const sender = allUsers.find(u => u.userId === notif.senderId) || {};
-                                                    const project = projects.find(p => p.projectId === notif.projectId);
+                                                    const sender = (allUsers || []).find(u => u.userId === notif.senderId) || {};
+                                                    const project = (projects || []).find(p => p.projectId === notif.projectId);
                                                     const thumb = project?.thumbnails?.[0] || sender.thumbnail;
                                                     const name = project
                                                         ? project.title || "Project"
@@ -115,7 +119,7 @@ const LeftSideBar = ({ setActiveView, setDmUserSlug }) => {
                                                             emitNotificationRead(notif["timestamp#uuid"]);
                                                             if (notif.projectId) {
                                                                 await fetchProjectDetails(notif.projectId);
-                                                                const proj = projects.find(p => p.projectId === notif.projectId);
+                                                                const proj = (projects || []).find(p => p.projectId === notif.projectId);
                                                                 const slug = proj ? slugify(proj.title) : notif.projectId;
                                                                 navigate(`/dashboard/projects/${slug}`);
                                                             }
