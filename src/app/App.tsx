@@ -1,4 +1,3 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import React, { useState, useEffect } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import Modal from "react-modal";
@@ -22,12 +21,20 @@ import AppRoutes from "./routes";
 import Headermain from "../components/header/";
 import Preloader from "../components/preloader";
 import { NotificationContainer } from "../components/ToastNotifications";
+
 gsap.registerPlugin(ScrollTrigger, useGSAP);
+
 if (typeof document !== "undefined") {
     Modal.setAppElement("#root");
 }
-export default function App() {
-    const [isLoading, setIsLoading] = useState(true);
+
+interface MainContentProps {
+    isLoading: boolean;
+}
+
+export default function App(): JSX.Element {
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    
     useEffect(() => {
         if (isLoading) {
             const timer = setTimeout(() => {
@@ -37,27 +44,67 @@ export default function App() {
             return () => clearTimeout(timer);
         }
     }, [isLoading]);
+    
     useEffect(() => {
-        const setFavicon = (darkMode) => {
-            const link = document.querySelector("link[rel~='icon']");
-            if (!link)
-                return;
+        const setFavicon = (darkMode: boolean): void => {
+            const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+            if (!link) return;
             link.href = darkMode ? "/favicon-light.png" : "/favicon-light.png";
         };
+        
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
         setFavicon(mediaQuery.matches);
-        const handleChange = (e) => {
+        
+        const handleChange = (e: MediaQueryListEvent): void => {
             setFavicon(e.matches);
         };
+        
         mediaQuery.addListener(handleChange);
         return () => {
             mediaQuery.removeListener(handleChange);
         };
     }, []);
-    return (_jsx(HelmetProvider, { children: _jsx(AuthProvider, { children: _jsx(DataProvider, { children: _jsx(NotificationProvider, { children: _jsx(DMConversationProvider, { children: _jsx(SocketProvider, { children: _jsx(NotificationSocketBridge, { children: _jsx(OnlineStatusProvider, { children: _jsx(ScrollProvider, { children: _jsx(NavigationDirectionProvider, { children: _jsxs(Router, { basename: import.meta.env.BASE_URL, children: [_jsx(AuthEventHandler, {}), _jsx(MainContent, { isLoading: isLoading }), _jsx(NotificationContainer, {})] }) }) }) }) }) }) }) }) }) }) }));
+    
+    return (
+        <HelmetProvider>
+            <AuthProvider>
+                <DataProvider>
+                    <NotificationProvider>
+                        <DMConversationProvider>
+                            <SocketProvider>
+                                <NotificationSocketBridge>
+                                    <OnlineStatusProvider>
+                                        <ScrollProvider>
+                                            <NavigationDirectionProvider>
+                                                <Router basename={import.meta.env.BASE_URL}>
+                                                    <AuthEventHandler />
+                                                    <MainContent isLoading={isLoading} />
+                                                    <NotificationContainer />
+                                                </Router>
+                                            </NavigationDirectionProvider>
+                                        </ScrollProvider>
+                                    </OnlineStatusProvider>
+                                </NotificationSocketBridge>
+                            </SocketProvider>
+                        </DMConversationProvider>
+                    </NotificationProvider>
+                </DataProvider>
+            </AuthProvider>
+        </HelmetProvider>
+    );
 }
-function MainContent({ isLoading }) {
+
+function MainContent({ isLoading }: MainContentProps): JSX.Element {
     const location = useLocation();
     const hideHeader = location.pathname.startsWith("/dashboard");
-    return isLoading ? (_jsx(Preloader, {})) : (_jsxs(_Fragment, { children: [!hideHeader && _jsx(Headermain, {}), _jsx(AppRoutes, {}), _jsx(ScrollToTopButton, {})] }));
+    
+    return isLoading ? (
+        <Preloader />
+    ) : (
+        <>
+            {!hideHeader && <Headermain />}
+            <AppRoutes />
+            <ScrollToTopButton />
+        </>
+    );
 }
