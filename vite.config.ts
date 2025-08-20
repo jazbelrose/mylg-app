@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import svgr from 'vite-plugin-svgr';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import svgr from 'vite-plugin-svgr'
 
 // dev
 const devCsp = [
@@ -10,12 +10,12 @@ const devCsp = [
   "font-src 'self' data: fonts.gstatic.com",
   "img-src 'self' data: blob: *.amazonaws.com *.cloudfront.net https://tiles.stadiamaps.com",
   "media-src 'self' https: blob:",
-  // ⬇️ add CloudFront here
-  "connect-src 'self' http://localhost:* ws://localhost:* https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://*.cloudfront.net https://nominatim.openstreetmap.org",
+  // ⬇️ allow LAN fetch + HMR over WS on 3000 (and any port if you change later)
+  "connect-src 'self' http://localhost:* ws://localhost:* http://192.168.1.200:* ws://192.168.1.200:* https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://*.cloudfront.net https://nominatim.openstreetmap.org",
   "frame-ancestors 'none'",
-].join('; ');
+].join('; ')
 
-// prod
+// prod (unchanged for LAN; keep locked down)
 const prodCsp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' *.amazonaws.com *.amplify.aws",
@@ -23,21 +23,24 @@ const prodCsp = [
   "font-src 'self' data: fonts.gstatic.com",
   "img-src 'self' data: https://d1cazymewvlm0k.cloudfront.net https://d2qb21tb4meex0.cloudfront.net *.amazonaws.com https://tiles.stadiamaps.com",
   "media-src 'self' https://d1cazymewvlm0k.cloudfront.net https://d2qb21tb4meex0.cloudfront.net *.amazonaws.com",
-  // ⬇️ add CloudFront here too (or list the exact hosts)
   "connect-src 'self' https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://*.cloudfront.net https://nominatim.openstreetmap.org",
   "frame-ancestors 'none'",
-].join('; ');
-
+].join('; ')
 
 export default defineConfig(({ mode }) => {
-  const isDev = mode === 'development';
+  const isDev = mode === 'development'
 
-  const common = {
+  const securityHeaders = {
+    'Content-Security-Policy': isDev ? devCsp : prodCsp,
+    'X-Frame-Options': 'DENY',
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  }
+
+  return {
     plugins: [react(), svgr()],
-    define: {
-      // keeps libs that read process.env from blowing up in dev
-      ...(isDev && { 'process.env': {} })
-    },
+    define: { ...(isDev && { 'process.env': {} }) },
     build: {
       sourcemap: false,
       rollupOptions: {
@@ -50,35 +53,27 @@ export default defineConfig(({ mode }) => {
         },
       },
       minify: 'terser',
-      terserOptions: {
-        compress: { drop_console: true, drop_debugger: true },
-      },
+      terserOptions: { compress: { drop_console: true, drop_debugger: true } },
     },
     optimizeDeps: {
       include: ['react', 'react-dom', 'aws-amplify'],
       exclude: ['@lexical/react', 'lexical'],
     },
     envPrefix: 'VITE_',
-  } as const;
 
-  const securityHeaders = {
-    'Content-Security-Policy': isDev ? devCsp : prodCsp,
-    'X-Frame-Options': 'DENY',
-    'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  };
-
-  return {
-    ...common,
     server: {
+      host: true,          // ⬅️ bind to 0.0.0.0 so LAN can reach it
       port: 3000,
       strictPort: true,
       open: true,
-      headers: securityHeaders, // <— dev headers (fixes CSP/XFO meta warnings)
+      headers: securityHeaders,
+      hmr: {
+        host: '192.168.1.200',  // ⬅️ your LAN IP
+        port: 3000,
+        protocol: 'ws',
+      },
     },
-    preview: {
-      headers: securityHeaders, // <— test prod-like headers with `vite preview`
-    },
-  };
-});
+
+    preview: { headers: securityHeaders },
+  }
+})

@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import React from "react";
+import React, { memo } from "react";
 import { Pie } from "@visx/shape";
 import { Group } from "@visx/group";
 import { ParentSize } from "@visx/responsive";
@@ -8,7 +8,6 @@ import { localPoint } from "@visx/event";
 import { animated, useSpring, to } from "@react-spring/web";
 import { formatUSD } from "../../../../utils/budgetUtils";
 import { CHART_COLORS, generateSequentialPalette, getColor, } from "../../../../utils/colorUtils";
-import { useData } from "../../../../app/contexts/DataProvider";
 const EXPLODE_PX = 8;
 function AnimatedArc({ arc, pie, color, showTooltip, hideTooltip, containerRef, clampTooltip, rafRef, explodePx = 8, }) {
     const [springs, api] = useSpring(() => ({
@@ -63,10 +62,8 @@ function AnimatedArc({ arc, pie, color, showTooltip, hideTooltip, containerRef, 
 }
 // Generic pie/donut chart rendered with visx. Used by budget components
 // and header summaries.
-export default function VisxPieChart({ data, total, formatTooltip = (d) => `${d.name}: ${formatUSD(d.value)}`, donutRatio = 0.6, colors, baseColor, colorMode = "sequential", projectId, }) {
-    const { activeProject } = useData();
+function VisxPieChart({ data, total, formatTooltip = (d) => `${d.name}: ${formatUSD(d.value)}`, donutRatio = 0.6, colors, baseColor, colorMode = "sequential", projectId, }) {
     const projectBase = baseColor ||
-        activeProject?.color ||
         (projectId ? getColor(projectId) : "#3b82f6");
     const palette = React.useMemo(() => {
         if (colors && colors.length)
@@ -134,6 +131,8 @@ export default function VisxPieChart({ data, total, formatTooltip = (d) => `${d.
                             minWidth: 60,
                             maxWidth: 320,
                             wordBreak: "break-word",
-                        }, children: formatTooltip(tooltipData) }))] }));
+        }, children: formatTooltip(tooltipData) }))] }));
         } }));
 }
+
+export default memo(VisxPieChart, (prev, next) => (prev.total === next.total && prev.data === next.data && prev.colors === next.colors && prev.baseColor === next.baseColor && prev.donutRatio === next.donutRatio));

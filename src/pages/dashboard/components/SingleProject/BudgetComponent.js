@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useSocket } from '../../../../app/contexts/SocketContext';
 import { CircleDollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -115,11 +115,11 @@ const BudgetComponent = ({ activeProject }) => {
     const colors = useMemo(() => 
     // Reverse the palette so the largest slice uses the darkest color.
     generateSequentialPalette(activeProject?.color || getColor(activeProject?.projectId), pieDataSorted.length).reverse(), [activeProject?.color, activeProject?.projectId, pieDataSorted.length]);
-    const formatTooltip = (d) => {
+    const formatTooltip = useCallback((d) => {
         const isPercent = groupBy === "none" && d.name === "Effective Markup";
         const rounded = Math.round(d.value);
         return `${d.name}: ${isPercent ? rounded + "%" : formatUSD(rounded)}`;
-    };
+    }, [groupBy]);
     const openInvoicePreview = async () => {
         if (!activeProject?.projectId)
             return;
