@@ -1,5 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import { fetchAllUsers, fetchUserProfile as fetchUserProfileApi, updateUserProfile } from '../../utils/api';
 
@@ -101,7 +101,7 @@ export const UsersProvider = ({ children }) => {
     fetchUserProfile();
   }, [fetchUserProfile]);
 
-  const value = {
+  const value = useMemo(() => ({
     // User info
     userName,
     userId,
@@ -127,7 +127,26 @@ export const UsersProvider = ({ children }) => {
     fetchUserProfile,
     refreshUsers,
     updateUserProfile,
-  };
+  }), [
+    userName,
+    userId,
+    user,
+    userData,
+    setUserData,
+    allUsers,
+    setAllUsers,
+    isLoading,
+    setIsLoading,
+    loadingProfile,
+    isAdmin,
+    isDesigner,
+    isBuilder,
+    isVendor,
+    isClient,
+    fetchUserProfile,
+    refreshUsers,
+    updateUserProfile,
+  ]);
 
   return _jsx(UsersContext.Provider, { value: value, children: children });
 };

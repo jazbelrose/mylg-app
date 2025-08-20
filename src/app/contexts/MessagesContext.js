@@ -1,5 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAuth } from './AuthContext';
 import { THREADS_URL, apiFetch } from '../../utils/api';
 import { getWithTTL, setWithTTL, DEFAULT_TTL } from '../../utils/storageWithTTL';
@@ -29,15 +29,15 @@ export const MessagesProvider = ({ children }) => {
   // server copies that arrive later due to propagation lag.
   const deletedMessageIdsRef = useRef(new Set());
 
-  const markMessageDeleted = (id) => {
+  const markMessageDeleted = useCallback((id) => {
     if (id) deletedMessageIdsRef.current.add(id);
-  };
+  }, []);
 
-  const clearDeletedMessageId = (id) => {
+  const clearDeletedMessageId = useCallback((id) => {
     if (id) deletedMessageIdsRef.current.delete(id);
-  };
+  }, []);
 
-  const toggleReaction = (msgId, emoji, reactorId, conversationId, conversationType, ws) => {
+  const toggleReaction = useCallback((msgId, emoji, reactorId, conversationId, conversationType, ws) => {
     if (!msgId || !emoji || !reactorId) return;
 
     const updateArr = (arr = []) =>
@@ -104,7 +104,7 @@ export const MessagesProvider = ({ children }) => {
         })
       );
     }
-  };
+  }, []);
 
   // Persist dmThreads and dmReadStatus
   useEffect(() => {
@@ -132,7 +132,7 @@ export const MessagesProvider = ({ children }) => {
     fetchThreads();
   }, [userId]);
 
-  const value = {
+  const value = useMemo(() => ({
     // State
     projectMessages,
     setProjectMessages,
@@ -146,7 +146,17 @@ export const MessagesProvider = ({ children }) => {
     markMessageDeleted,
     clearDeletedMessageId,
     toggleReaction,
-  };
+  }), [
+    projectMessages,
+    setProjectMessages,
+    dmThreads,
+    setDmThreads,
+    dmReadStatus,
+    setDmReadStatus,
+    markMessageDeleted,
+    clearDeletedMessageId,
+    toggleReaction,
+  ]);
 
   return _jsx(MessagesContext.Provider, { value: value, children: children });
 };

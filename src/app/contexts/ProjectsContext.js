@@ -1,5 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { v4 as uuid } from 'uuid';
 import pLimit from '../../utils/pLimit';
 import { useAuth } from './AuthContext';
@@ -59,8 +59,8 @@ export const ProjectsProvider = ({ children }) => {
     }
   }, [activeProject]);
 
-  // Helper functions
-  const addIdsToEvents = (events) => {
+  // Helper functions (memoized to prevent re-renders)
+  const addIdsToEvents = useCallback((events) => {
     let changed = false;
     const withIds = events.map(ev => {
       if (ev.id) return ev;
@@ -68,9 +68,9 @@ export const ProjectsProvider = ({ children }) => {
       return { ...ev, id: uuid() };
     });
     return { events: withIds, changed };
-  };
+  }, []);
 
-  const ensureProjectsHaveEventIds = async (items) => {
+  const ensureProjectsHaveEventIds = useCallback(async (items) => {
     const limit = pLimit(3);
     const updated = new Array(items.length);
     const tasks = [];
@@ -98,11 +98,11 @@ export const ProjectsProvider = ({ children }) => {
 
     await Promise.all(tasks);
     return updated;
-  };
+  }, [addIdsToEvents]);
 
-  // Debounced fetchProjects
+  // Debounced fetchProjects (memoized)
   const lastFetchRef = useRef(0);
-  const fetchProjects = async (retryCount = 0) => {
+  const fetchProjects = useCallback(async (retryCount = 0) => {
     const now = Date.now();
     if (now - lastFetchRef.current < 2000 && retryCount === 0) return;
     lastFetchRef.current = now;
@@ -157,10 +157,10 @@ export const ProjectsProvider = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isAdmin, userId, ensureProjectsHaveEventIds]);
 
-  // Fetch single project details
-  const fetchProjectDetails = async (projectId) => {
+  // Fetch single project details (memoized)
+  const fetchProjectDetails = useCallback(async (projectId) => {
     if (!projects || !Array.isArray(projects)) {
       console.error("Projects data is not available yet.");
       return;
@@ -205,10 +205,10 @@ export const ProjectsProvider = ({ children }) => {
       console.error(`Project with projectId: ${projectId} not found`);
       setActiveProject(null);
     }
-  };
+  }, [projects, addIdsToEvents]);
 
-  // Update timeline events for a project
-  const updateTimelineEvents = async (projectId, events) => {
+  // Update timeline events for a project (memoized)
+  const updateTimelineEvents = useCallback(async (projectId, events) => {
     const withIds = events.map(ev => ({ ...ev, id: ev.id || uuid() }));
     try {
       await updateTimelineEventsApi(projectId, withIds);
@@ -238,10 +238,10 @@ export const ProjectsProvider = ({ children }) => {
     } catch (error) {
       console.error('Error updating timeline events:', error);
     }
-  };
+  }, []);
 
-  // Generic project field update helper
-  const updateProjectFields = async (projectId, fields) => {
+  // Generic project field update helper (memoized)
+  const updateProjectFields = useCallback(async (projectId, fields) => {
     try {
       await updateProjectFieldsApi(projectId, fields);
       const merge = project => {
@@ -266,19 +266,19 @@ export const ProjectsProvider = ({ children }) => {
     } catch (error) {
       console.error('Error updating project fields:', error);
     }
-  };
+  }, []);
 
-  // Project invites handlers
-  const handleSendInvite = async (projectId, recipientUsername) => {
+  // Project invites handlers (memoized)
+  const handleSendInvite = useCallback(async (projectId, recipientUsername) => {
     try {
       await sendProjectInvite(projectId, recipientUsername);
       // Optionally refresh invites or show success message
     } catch (err) {
       console.error('Failed to send invite', err);
     }
-  };
+  }, []);
 
-  const handleAcceptInvite = async (inviteId) => {
+  const handleAcceptInvite = useCallback(async (inviteId) => {
     try {
       await acceptProjectInvite(inviteId);
       setPendingInvites(prev => prev.filter(inv => inv.inviteId !== inviteId));
@@ -287,25 +287,25 @@ export const ProjectsProvider = ({ children }) => {
     } catch (err) {
       console.error('Failed to accept invite', err);
     }
-  };
+  }, [fetchProjects]);
 
-  const handleDeclineInvite = async (inviteId) => {
+  const handleDeclineInvite = useCallback(async (inviteId) => {
     try {
       await declineProjectInvite(inviteId);
       setPendingInvites(prev => prev.filter(inv => inv.inviteId !== inviteId));
     } catch (err) {
       console.error('Failed to decline invite', err);
     }
-  };
+  }, []);
 
-  const handleCancelInvite = async (inviteId) => {
+  const handleCancelInvite = useCallback(async (inviteId) => {
     try {
       await cancelProjectInvite(inviteId);
       setPendingInvites(prev => prev.filter(inv => inv.inviteId !== inviteId));
     } catch (err) {
       console.error('Failed to cancel invite', err);
     }
-  };
+  }, []);
 
   // Fetch projects when user changes
   useEffect(() => {
@@ -313,7 +313,7 @@ export const ProjectsProvider = ({ children }) => {
       return;
     }
     fetchProjects();
-  }, [userId, user?.role]);
+  }, [userId, user?.role, fetchProjects]);
 
   // Fetch recent activity from projects
   const fetchRecentActivity = useCallback(async (limit = 10) => {
@@ -387,7 +387,7 @@ export const ProjectsProvider = ({ children }) => {
     loadInvites();
   }, [userId]);
 
-  const value = {
+  const value = useMemo(() => ({
     // State
     projects: userProjects,
     allProjects: projects,
@@ -412,7 +412,29 @@ export const ProjectsProvider = ({ children }) => {
     handleAcceptInvite,
     handleDeclineInvite,
     handleCancelInvite,
-  };
+  }), [
+    userProjects,
+    projects,
+    setProjects,
+    setUserProjects,
+    activeProject,
+    setActiveProject,
+    selectedProjects,
+    setSelectedProjects,
+    projectsError,
+    isLoading,
+    setIsLoading,
+    pendingInvites,
+    fetchProjects,
+    fetchProjectDetails,
+    updateTimelineEvents,
+    updateProjectFields,
+    fetchRecentActivity,
+    handleSendInvite,
+    handleAcceptInvite,
+    handleDeclineInvite,
+    handleCancelInvite,
+  ]);
 
   return _jsx(ProjectsContext.Provider, { value: value, children: children });
 };
