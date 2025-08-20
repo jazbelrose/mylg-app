@@ -7,7 +7,7 @@ import ReactModal from "react-modal";
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
 import SingleTicker from "../../../components/singleticker/index";
 import { useData } from "../../../app/contexts/DataProvider";

@@ -1,4 +1,4 @@
-import { getUniqueSlug } from '../dashboard/components/SingleProject/GalleryComponent.jsx';
+import { getUniqueSlug } from '../dashboard/components/SingleProject/GalleryComponent.js';
 jest.mock('lucide-react', () => ({ GalleryVerticalEnd: () => null }));
 describe('getUniqueSlug', () => {
     it('increments slug when duplicate exists', () => {

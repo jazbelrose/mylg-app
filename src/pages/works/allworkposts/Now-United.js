@@ -8,7 +8,7 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import works from '../works.json';
 import BlogPostButton from "../../../components/blogpostbutton/BlogPostButton.js";
 import { useData } from "../../../app/contexts/DataProvider";
-import Ticker from "../../../components/ticker/index.jsx";
+import Ticker from "../../../components/ticker/index.js";
 import { InfoSection } from "../../../components/infosection/index.js";
 import SingleTicker from "../../../components/singleticker/index";
 import { ScrollTrigger } from 'gsap/ScrollTrigger';

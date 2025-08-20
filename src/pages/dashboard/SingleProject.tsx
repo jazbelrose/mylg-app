@@ -168,13 +168,14 @@ const SingleProject: React.FC = () => {
           transition={{ duration: 0.3 }}
         >
           <div className="overview-layout">
-            <QuickLinksComponent ref={quickLinksRef} hideTrigger={true} />
+            <QuickLinksComponent ref={quickLinksRef} hideTrigger={true} {...{} as any} />
             
             <FileManagerComponent
               isOpen={filesOpen}
               onRequestClose={() => setFilesOpen(false)}
               showTrigger={false}
               folder="uploads"
+              {...{} as any}
             />
             
             <div className="dashboard-layout budget-calendar-layout">

@@ -177,7 +177,7 @@ const ActualRoutes: React.FC<ActualRoutesProps> = ({ location }) => {
               variants={pageVariants}
               transition={pageTransition}
             >
-              <GalleryPage />
+              <GalleryPage projectId={undefined} />
             </motion.div>
           } 
         />
@@ -239,7 +239,7 @@ const ActualRoutes: React.FC<ActualRoutesProps> = ({ location }) => {
               variants={pageVariants}
               transition={pageTransition}
             >
-              <EmailVerification />
+              <EmailVerification registrationData={undefined} userEmail={undefined} />
             </motion.div>
           } 
         />
