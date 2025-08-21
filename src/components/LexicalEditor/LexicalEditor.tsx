@@ -39,6 +39,7 @@ import ImagePlugin from "./plugins/ImagePlugin";
 import FigmaPlugin from "./plugins/FigmaPlugin";
 import SpeechToTextPlugin from "./plugins/SpeechToTextPlugin";
 import ToolbarActionsPlugin from "./plugins/ToolbarActionsPlugin";
+import InitialContentPlugin from "./plugins/InitialContentPlugin";
 
 interface LexicalEditorProps {
   onChange: (content: string) => void;
@@ -55,6 +56,12 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({ onChange, initialContent,
     const persistenceRef = useRef<IndexeddbPersistence | null>(null);
     const initialContentRef = useRef<string | undefined>(initialContent);
     const hasScrolledToBottom = useRef<boolean>(false);
+
+    // Update initialContentRef when initialContent changes
+    useEffect(() => {
+        console.log("[LexicalEditor] initialContent changed:", initialContent);
+        initialContentRef.current = initialContent;
+    }, [initialContent]);
 
     // Memoize the project ID so it isn't recalculated unnecessarily.
     const projectId = useMemo(() => {
@@ -114,6 +121,11 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({ onChange, initialContent,
         });
 
         const provider = new WebsocketProvider("ws://35.165.113.63:1234", id, doc);
+        
+        const sharedType = doc.getText("lexical");
+        // Attach extra properties to the provider instance.
+        (provider as any).doc = doc; // TODO: Fix provider type
+        (provider as any).sharedType = sharedType; // TODO: Fix provider type
         
         provider.on("status", (event: { status: string }) => {
             console.log("WebSocket status:", event.status);
@@ -222,10 +234,13 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({ onChange, initialContent,
                                 />
                                 <CollaborationPlugin
                                     id={projectId}
-                                    providerFactory={getProvider as any}
-                                    initialEditorState={initialContentRef.current}
+                                    providerFactory={getProvider as any} // TODO: Fix provider factory type
                                     shouldBootstrap={true}
                                     username={userName}
+                                />
+                                <InitialContentPlugin 
+                                    initialContent={initialContent} 
+                                    projectId={projectId} 
                                 />
                                 <RemoveEmptyLayoutItemsOnBackspacePlugin />
                                 {providerRef.current && (

@@ -19,6 +19,8 @@ const DescriptionComponent: React.FC<DescriptionComponentProps> = ({
   registerToolbar,
 }) => {
   const initialDescription = activeProject.description || "";
+  console.log("[DescriptionComponent] activeProject:", activeProject);
+  console.log("[DescriptionComponent] initialDescription:", initialDescription);
   const [selectedDescription, setSelectedDescription] = useState<string>(initialDescription);
   const [lastSavedDescription, setLastSavedDescription] = useState<string>(initialDescription);
   const [isDirty, setIsDirty] = useState<boolean>(false);
