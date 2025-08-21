@@ -120,7 +120,8 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
   const [, setYjsProvider] = useState<WebsocketProvider | null>(null);
 
-  // Build same-origin WS endpoint so HTTPS → WSS, HTTP → WS (Fx/Safari safe)
+  // Build same-origin WS endpoint so HTTPS → WSS, HTTP → WS 
+  // This approach is Firefox/Safari safe and avoids mixed content issues
   const WS_ENDPOINT = useMemo(() => {
     const scheme = window.location.protocol === "https:" ? "wss" : "ws";
     return `${scheme}://${window.location.host}/yjs`;

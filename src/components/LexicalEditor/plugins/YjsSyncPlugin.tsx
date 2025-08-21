@@ -24,8 +24,11 @@ export default function YjsSyncPlugin({ provider }: { provider?: ProviderLike })
       updateTimeoutRef.current = setTimeout(() => {
         // Only trigger update if editor is still mounted and provider exists
         if (provider && editor) {
-          editor.update(() => {
-            // Minimal update to trigger collaboration decorations refresh
+          // Use requestAnimationFrame for better Firefox performance
+          requestAnimationFrame(() => {
+            editor.update(() => {
+              // Minimal update to trigger collaboration decorations refresh
+            });
           });
         }
       }, 16); // ~60fps debouncing
