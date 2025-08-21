@@ -141,7 +141,11 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
   const [, setYjsProvider] = useState<WebsocketProvider | null>(null);
   const WS_ENDPOINT = useMemo(() => {
-    // Use EC2 instance for Yjs server as mentioned in the requirements
+    // For testing purposes, use localhost if in development
+    if (import.meta.env.DEV) {
+      return "ws://localhost:1234";
+    }
+    // Use EC2 instance for production
     return "ws://35.165.113.63:1234";
   }, []);
 
