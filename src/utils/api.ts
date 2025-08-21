@@ -10,6 +10,7 @@ interface ApiFetchOptions extends RequestInit {
   retryCount?: number;
   retryDelay?: number;
   skipRateLimit?: boolean;
+  onNetworkError?: (error: Error) => void;
 }
 
 const userProfilesCache = new Map();
@@ -120,7 +121,14 @@ export const {
  * available and throws for non-OK responses.
  */
 export async function apiFetch(url: string, options: ApiFetchOptions = {}) {
-  const { retryCount = 3, retryDelay = 500, skipRateLimit = false, ...fetchOptions } = options;
+  const {
+    retryCount = 3,
+    retryDelay = 500,
+    skipRateLimit = false,
+    onNetworkError,
+    ...fetchOptions
+  } = options;
+  
   
   // Rate limiting check (unless explicitly skipped)
   if (!skipRateLimit) {
@@ -193,10 +201,17 @@ export async function apiFetch(url: string, options: ApiFetchOptions = {}) {
     }
   }
 
+  if (lastError instanceof TypeError && /Failed to fetch/i.test(lastError.message)) {
+    lastError = new Error('Network request failed. Please check your connection and try again.');
+    if (onNetworkError) {
+      onNetworkError(lastError);
+    }
+  }
+
   console.error('apiFetch error:', lastError);
-  logSecurityEvent('api_request_failed', { 
-    url: new URL(url).pathname, 
-    error: lastError.message 
+  logSecurityEvent('api_request_failed', {
+    url: new URL(url).pathname,
+    error: lastError.message
   });
   throw lastError;
 }

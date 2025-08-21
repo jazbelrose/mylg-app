@@ -2,7 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useEffect, useRef, useState, useLayoutEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import { Canvas, PencilBrush, Rect, IText, Image } from 'fabric';
 import { useData } from '../../../../app/contexts/DataProvider';
-import { API_BASE_URL, apiFetch } from '../../../../utils/api';
+import { EDIT_PROJECT_URL, apiFetch } from '../../../../utils/api';
 import { notify } from '../../../../components/ToastNotifications';
 import SpinnerOverlay from '../../../../components/SpinnerOverlay';
 // ...existing code...
@@ -87,7 +87,7 @@ const DesignerComponent = forwardRef<DesignerRef, DesignerComponentProps>((props
         try {
             const canvasJson = JSON.stringify(fabricCanvas.toJSON());
             console.log('Saving canvas:', { projectId: activeProject.projectId, dataLength: canvasJson.length });
-            const apiUrl = `${API_BASE_URL}/editProject?projectId=${activeProject.projectId}`;
+            const apiUrl = `${EDIT_PROJECT_URL}?projectId=${activeProject.projectId}`;
             const res = await apiFetch(apiUrl, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -169,7 +169,7 @@ const DesignerComponent = forwardRef<DesignerRef, DesignerComponentProps>((props
             // Try to save synchronously
             if (fabricCanvasRef.current && activeProject?.projectId) {
                 const canvasJson = JSON.stringify(fabricCanvasRef.current.toJSON());
-                navigator.sendBeacon(`${API_BASE_URL}/editProject?projectId=${activeProject.projectId}`, JSON.stringify({ canvasJson }));
+                navigator.sendBeacon(`${EDIT_PROJECT_URL}?projectId=${activeProject.projectId}`, JSON.stringify({ canvasJson }));
             }
             e.preventDefault();
             e.returnValue = '';
@@ -325,7 +325,7 @@ const DesignerComponent = forwardRef<DesignerRef, DesignerComponentProps>((props
                 // Always fetch fresh data from API
                 if (activeProject?.projectId) {
                     console.log('Loading canvas from API for project:', activeProject.projectId);
-                    const apiUrl = `${API_BASE_URL}/editProject?projectId=${activeProject.projectId}`;
+                    const apiUrl = `${EDIT_PROJECT_URL}?projectId=${activeProject.projectId}`;
                     const res = await apiFetch(apiUrl);
                     if (res.ok) {
                         const data = await res.json();
@@ -339,6 +339,7 @@ const DesignerComponent = forwardRef<DesignerRef, DesignerComponentProps>((props
                     }
                     else {
                         console.error('Failed to load from API:', res.status, res.statusText);
+                        notify('error', `Failed to load canvas: ${res.status} ${res.statusText}`);
                     }
                 }
                 if (jsonString) {
@@ -384,6 +385,7 @@ const DesignerComponent = forwardRef<DesignerRef, DesignerComponentProps>((props
             }
             catch (err) {
                 console.error('Failed to load canvas:', err);
+                notify('error', `Failed to load canvas: ${err.message}`);
                 fabricCanvas.clear();
                 fabricCanvas.renderAll();
             }
