@@ -203,16 +203,8 @@ export const useData = () => ({
 
 // ---------- Provider ----------
 export const DataProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const { user } = useAuth() as { user?: UserLite | null }; // adapt if your AuthContext exports richer types
-
-  const userId = user?.userId;
-  const role = (user?.role || "").toLowerCase();
-  const isAdmin = role === "admin";
-  const isDesigner = role === "designer";
-  const isBuilder = role === "builder";
-  const isVendor = role === "vendor";
-  const isClient = role === "client";
-  const userName = user ? `${user.firstName ?? ""} ` : "Guest";
+// useAuth now provides typed user + derived fields directly
+const { user, userId, userName, isAdmin, isDesigner, isBuilder, isVendor, isClient } = useAuth();
 
   const [allUsers, setAllUsers] = useState<UserLite[]>([]);
   const [userData, setUserData] = useState<UserLite | null>(null);
