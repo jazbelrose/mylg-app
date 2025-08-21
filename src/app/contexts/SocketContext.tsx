@@ -1,5 +1,5 @@
 import { jsx as _jsx } from "react/jsx-runtime";
-import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react';
 import { v4 as uuid } from 'uuid';
 import { useAuth } from './AuthContext';
 import { useData } from './DataProvider';
@@ -8,24 +8,65 @@ import { WEBSOCKET_URL } from '../../utils/api';
 import { mergeAndDedupeMessages } from '../../utils/messageUtils';
 import { createSecureWebSocketConnection, secureWebSocketAuth } from '../../utils/secureWebSocketAuth';
 import { logSecurityEvent } from '../../utils/securityUtils';
-const SocketContext = createContext();
-export const useSocket = () => useContext(SocketContext);
+
+// Type extensions for WebSocket with custom properties
+interface ExtendedWebSocket extends WebSocket {
+  keepAliveInterval?: NodeJS.Timeout;
+}
+
+interface MessageData {
+  timestamp: string;
+  [key: string]: any;
+}
+
+interface AuthContextType {
+  isAuthenticated: boolean;
+  user: any;
+  authStatus: string;
+  getAuthTokens?: () => Promise<any>;
+}
+
+interface SocketContextType {
+  ws: WebSocket | null;
+  isConnected: boolean;
+  onlineUsers: any[];
+  sendMessage: (conversationId: string, text: string, recipientId: string) => void;
+  sendProjectMessage: (projectId: string, text: string, senderId: string) => void;
+  editProjectMessage: (messageId: string, newText: string, projectId: string) => void;
+  deleteProjectMessage: (messageId: string, projectId: string) => void;
+  markProjectMessageAsRead: (projectId: string, messageId: string) => void;
+  sendProjectUpdate: (projectId: string, updates: any, optimistic?: boolean) => void;
+  sendDirectMessage: (recipientId: string, text: string) => void;
+  editDirectMessage: (messageId: string, newText: string, conversationId: string) => void;
+  deleteDirectMessage: (messageId: string, conversationId: string) => void;
+  markDirectMessageAsRead: (conversationId: string, messageId: string) => void;
+  generateSessionId: () => string;
+}
+
+const SocketContext = createContext<SocketContextType | undefined>(undefined);
+export const useSocket = () => {
+  const context = useContext(SocketContext);
+  if (context === undefined) {
+    throw new Error('useSocket must be used within a SocketProvider');
+  }
+  return context;
+};
 // Avoid pulling NotificationContext into this provider. SocketProvider mounts
 // inside NotificationProvider, so calling useNotifications here would read the
 // default context value before NotificationProvider runs. A separate bridge
 // component should consume both contexts instead.
-export const SocketProvider = ({ children }) => {
-    const { getAuthTokens } = useAuth();
+export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const { getAuthTokens } = useAuth() as AuthContextType & { getAuthTokens: () => Promise<any> };
     const { setUserData, setDmThreads, userId, setProjects, setUserProjects, setActiveProject, updateProjectFields, setProjectMessages, deletedMessageIds, markMessageDeleted, activeProject, fetchProjects, fetchUserProfile, refreshUsers, } = useData();
     const { activeDmConversationId } = useDMConversation();
-    const [ws, setWs] = useState(null); // state variable for the WebSocket
-    const [isConnected, setIsConnected] = useState(false);
-    const [onlineUsers, setOnlineUsers] = useState([]);
-    const refreshUsersRef = useRef(refreshUsers);
-    const fetchUserProfileRef = useRef(fetchUserProfile);
-    const collaboratorsUpdateTimeout = useRef(null);
-    const reconnectInterval = useRef(null);
-    const wsRef = useRef(null);
+    const [ws, setWs] = useState<ExtendedWebSocket | null>(null); // state variable for the WebSocket
+    const [isConnected, setIsConnected] = useState<boolean>(false);
+    const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
+    const refreshUsersRef = useRef<any>(refreshUsers);
+    const fetchUserProfileRef = useRef<any>(fetchUserProfile);
+    const collaboratorsUpdateTimeout = useRef<NodeJS.Timeout | null>(null);
+    const reconnectInterval = useRef<NodeJS.Timeout | null>(null);
+    const wsRef = useRef<ExtendedWebSocket | null>(null);
     const generateSessionId = useCallback(() => {
         if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
             return crypto.randomUUID();
@@ -100,7 +141,7 @@ export const SocketProvider = ({ children }) => {
                 wsRef.current = socket;
                 stopReconnect();
                 socket.send(JSON.stringify({ action: 'presencePing' }));
-                socket.keepAliveInterval = setInterval(() => {
+                (socket as ExtendedWebSocket).keepAliveInterval = setInterval(() => {
                     if (socket.readyState === WebSocket.OPEN) {
                         socket.send(JSON.stringify({ action: 'presencePing' }));
                     }
@@ -206,7 +247,7 @@ export const SocketProvider = ({ children }) => {
                                 // Determine the new last message snippet for the inbox preview
                                 const convoMsgs = updatedMsgs
                                     .filter(m => m.conversationId === data.conversationId)
-                                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                                    .sort((a: MessageData, b: MessageData) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
                                 const lastMsg = convoMsgs[0];
                                 const newSnippet = lastMsg?.text || '';
                                 const newTs = lastMsg?.timestamp || new Date().toISOString();
@@ -318,15 +359,15 @@ export const SocketProvider = ({ children }) => {
                 // 1008 = policy/auth reject.
                 // 1011 = server error during connect.
                 setIsConnected(false);
-                if (socket.keepAliveInterval)
-                    clearInterval(socket.keepAliveInterval);
+                if ((socket as ExtendedWebSocket).keepAliveInterval)
+                    clearInterval((socket as ExtendedWebSocket).keepAliveInterval!);
                 setWs(null);
                 wsRef.current = null;
                 startReconnect();
             };
-            socket.onerror = (err) => {
+            socket.onerror = (err: Event) => {
                 console.error('Socket error:', err);
-                logSecurityEvent('websocket_error', { error: err.message || 'Unknown error' });
+                logSecurityEvent('websocket_error', { error: (err as any).message || 'Unknown error' });
                 if (socket.readyState === WebSocket.OPEN) {
                     socket.close();
                 }
@@ -345,8 +386,8 @@ export const SocketProvider = ({ children }) => {
             stopReconnect();
             const socket = wsRef.current;
             if (socket) {
-                if (socket.keepAliveInterval)
-                    clearInterval(socket.keepAliveInterval);
+                if ((socket as ExtendedWebSocket).keepAliveInterval)
+                    clearInterval((socket as ExtendedWebSocket).keepAliveInterval!);
                 socket.close();
                 setWs(null);
                 wsRef.current = null;

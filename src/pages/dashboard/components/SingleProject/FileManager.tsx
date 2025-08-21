@@ -16,11 +16,36 @@ import styles from './FileManager.module.css';
 import Dropdown from './Dropdown';
 import pLimit from '../../../../utils/pLimit';
 import PDFPreview from './PDFPreview';
+
+interface FileManagerProps {
+  folder?: string;
+  displayName?: string;
+  style?: React.CSSProperties;
+  showTrigger?: boolean;
+  isOpen?: boolean;
+  onRequestClose?: () => void;
+}
+
+interface FileItem {
+  fileName?: string;
+  name?: string;
+  key?: string;
+  url?: string;
+  lastModified?: Date | number;
+  size?: number;
+  kind?: string;
+  [key: string]: any;
+}
+
+interface FolderOption {
+  key: string;
+  name: string;
+}
 if (typeof document !== 'undefined') {
     Modal.setAppElement('#root');
 }
-const encodeS3Key = (key = '') => key.split('/').map((segment) => encodeURIComponent(segment)).join('/');
-const FileManagerComponent = forwardRef(({ folder = 'uploads', displayName, style, showTrigger = true, isOpen, onRequestClose, }, ref) => {
+const encodeS3Key = (key: string = '') => key.split('/').map((segment) => encodeURIComponent(segment)).join('/');
+const FileManagerComponent = forwardRef<any, FileManagerProps>(({ folder = 'uploads', displayName, style, showTrigger = true, isOpen, onRequestClose, }, ref) => {
     // Retrieve activeProject, user info, and admin IDs from context
     const { activeProject, user, isAdmin, isBuilder, isDesigner, projectMessages = {}, setProjectMessages = () => { }, } = useData();
     const [folderKey, setFolderKey] = useState(folder);
@@ -39,7 +64,7 @@ const FileManagerComponent = forwardRef(({ folder = 'uploads', displayName, styl
                 return _jsx(PenTool, { size: size });
         }
     };
-    const getFileKind = (fileName) => {
+    const getFileKind = (fileName: string) => {
         if (!fileName)
             return '';
         const ext = fileName.split('.').pop().toLowerCase();
@@ -72,20 +97,20 @@ const FileManagerComponent = forwardRef(({ folder = 'uploads', displayName, styl
         { key: 'downloads', name: 'Downloads' },
     ];
     // Local state setup – note we use folderKey when accessing the files array
-    const fileInputRef = useRef(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [localActiveProject, setLocalActiveProject] = useState(activeProject || {});
-    const [isFilesModalOpen, setFilesModalOpen] = useState(false);
-    const [selectedFiles, setSelectedFiles] = useState([]);
-    const [isImageModalOpen, setImageModalOpen] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
-    const [selectedItems, setSelectedItems] = useState(new Set());
-    const [isSelectMode, setIsSelectMode] = useState(false);
-    const [currentIndex, setCurrentIndex] = useState(null);
-    const [deleting, setDeleting] = useState(false);
-    const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
-    const [uploadingFiles, setUploadingFiles] = useState(new Set());
-    const [isDragging, setIsDragging] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [localActiveProject, setLocalActiveProject] = useState<any>(activeProject || {});
+    const [isFilesModalOpen, setFilesModalOpen] = useState<boolean>(false);
+    const [selectedFiles, setSelectedFiles] = useState<FileItem[]>([]);
+    const [isImageModalOpen, setImageModalOpen] = useState<boolean>(false);
+    const [selectedImage, setSelectedImage] = useState<FileItem | null>(null);
+    const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+    const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
+    const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+    const [deleting, setDeleting] = useState<boolean>(false);
+    const [isConfirmingDelete, setIsConfirmingDelete] = useState<boolean>(false);
+    const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
+    const [isDragging, setIsDragging] = useState<boolean>(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState(() => typeof window !== 'undefined'
         ? localStorage.getItem('fileManagerViewMode') || 'grid'
@@ -406,7 +431,7 @@ const FileManagerComponent = forwardRef(({ folder = 'uploads', displayName, styl
     const initiateDownload = (url) => {
         const link = document.createElement('a');
         link.href = url;
-        link.download = true;
+        link.download = "";
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -526,7 +551,7 @@ const FileManagerComponent = forwardRef(({ folder = 'uploads', displayName, styl
             await uploadData({
                 key: filename,
                 data: file,
-                options: { accessLevel: 'public' }
+                options: { accessLevel: 'guest' as any }
             });
             await new Promise(resolve => setTimeout(resolve, 2000));
             const fileUrl = `${S3_PUBLIC_BASE}/${encodeS3Key(filename)}`;
@@ -633,7 +658,7 @@ const FileManagerComponent = forwardRef(({ folder = 'uploads', displayName, styl
         try {
             console.debug('[files] fetch', { folderKey });
             setIsLoading(true);
-            const lists = await Promise.all(prefixes.map((prefix) => list({ prefix, options: { accessLevel: 'public' } })));
+            const lists = await Promise.all(prefixes.map((prefix) => list({ prefix, options: { accessLevel: 'guest' as any } })));
             const files = lists
                 .flatMap((res) => res?.items || [])
                 .filter((item) => item.key && !item.key.endsWith('/'))

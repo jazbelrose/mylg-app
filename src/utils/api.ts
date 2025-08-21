@@ -1,6 +1,17 @@
 import { waitForAuthReady } from './waitForAuthReady';
 import { csrfProtection, rateLimiter, logSecurityEvent } from './securityUtils';
 
+// Type definitions
+interface ApiEndpoints {
+  [key: string]: string;
+}
+
+interface ApiFetchOptions extends RequestInit {
+  retryCount?: number;
+  retryDelay?: number;
+  skipRateLimit?: boolean;
+}
+
 const userProfilesCache = new Map();
 // Consolidated list of endpoints. Values can be overridden via environment variables
 
@@ -54,13 +65,13 @@ const BASE_ENDPOINTS = {
 
 const defaults = BASE_ENDPOINTS[ENV] || BASE_ENDPOINTS.development;
 
-export const API_ENDPOINTS = Object.keys(BASE_ENDPOINTS.development).reduce(
-  (acc, key) => {
+export const API_ENDPOINTS: ApiEndpoints = Object.keys(BASE_ENDPOINTS.development).reduce(
+  (acc: ApiEndpoints, key) => {
     const envKey = `VITE_${key}`;
     acc[key] = import.meta.env[envKey] || defaults[key];
     return acc;
   },
-  {}
+  {} as ApiEndpoints
 );
 
 
@@ -108,7 +119,7 @@ export const {
  * Wrapper around fetch that attaches the current user's access token if
  * available and throws for non-OK responses.
  */
-export async function apiFetch(url, options = {}) {
+export async function apiFetch(url: string, options: ApiFetchOptions = {}) {
   const { retryCount = 3, retryDelay = 500, skipRateLimit = false, ...fetchOptions } = options;
   
   // Rate limiting check (unless explicitly skipped)
@@ -490,9 +501,9 @@ export async function deleteGallery(galleryId, projectId) {
   await apiFetch(url, { method: 'DELETE' });
 }
 
-export async function deleteGalleryFiles(projectId, galleryId, gallerySlug) {
+export async function deleteGalleryFiles(projectId: string, galleryId?: string, gallerySlug?: string) {
   if (!projectId) return;
-  const body = { projectId };
+  const body: any = { projectId };
   if (galleryId) body.galleryId = galleryId;
   if (gallerySlug) body.gallerySlug = gallerySlug;
   const res = await apiFetch(DELETE_GALLERY_FUNCTION_URL, {
