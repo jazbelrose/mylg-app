@@ -87,8 +87,30 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     if (activeProject && typeof activeProject === "object") {
       return (activeProject as any).projectId ?? "default-project";
     }
-    return (activeProject as string) ?? "default-project";
+    return ((activeProject as unknown) as string) ?? "default-project";
   }, [activeProject]);
+
+  // Cleanup provider on unmount
+  useEffect(() => {
+    return () => {
+      if (providerRef.current) {
+        try {
+          providerRef.current.destroy();
+        } catch (error) {
+          console.warn("[LexicalEditor] Error destroying provider:", error);
+        }
+        providerRef.current = null;
+      }
+      if (persistenceRef.current) {
+        try {
+          persistenceRef.current.destroy();
+        } catch (error) {
+          console.warn("[LexicalEditor] Error destroying persistence:", error);
+        }
+        persistenceRef.current = null;
+      }
+    };
+  }, []);
 
   // Clear prior IndexedDB when project changes
   useEffect(() => {
@@ -112,12 +134,15 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     hasScrolledToBottom.current = false;
   }, [projectId]);
 
-  const [, setYjsProvider] = useState<WebsocketProvider | null>(null);
+  // Memoize username to prevent flickering and unnecessary re-renders
+  const stableUserName = useMemo(() => {
+    return userName && userName.trim() ? userName.trim() : "anonymous";
+  }, [userName]);
 
-  // Build same-origin WS endpoint so HTTPS → WSS, HTTP → WS (Fx/Safari safe)
+  const [, setYjsProvider] = useState<WebsocketProvider | null>(null);
   const WS_ENDPOINT = useMemo(() => {
-    const scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    return `${scheme}://${window.location.host}/yjs`;
+    // Use EC2 instance for Yjs server as mentioned in the requirements
+    return "ws://35.165.113.63:1234";
   }, []);
 
   // Create or reuse the provider for this room
@@ -140,7 +165,10 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
       });
       persistenceRef.current = persistence;
 
-      const provider = new WebsocketProvider(WS_ENDPOINT, id, doc) as ProviderWithExtras;
+      const provider = new WebsocketProvider(WS_ENDPOINT, id, doc, {
+        connect: true,
+        maxBackoffTime: 5000, // Max 5 seconds between reconnection attempts
+      }) as ProviderWithExtras;
       const sharedType = doc.getText("lexical");
 
       provider.doc = doc;
@@ -149,12 +177,18 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
       providerRef.current = provider;
       setYjsProvider(provider);
 
-      // Helpful logs
+      // Enhanced connection monitoring and error handling
       provider.on("status", (event: { status: string }) => {
         console.log("[y-websocket] status:", event.status, "room:", id);
+        if (event.status === "disconnected") {
+          console.warn("[y-websocket] Disconnected from Yjs server");
+        }
       });
       provider.on("sync", (isSynced: boolean) => {
         console.log("[y-websocket] sync:", isSynced, "room:", id);
+      });
+      provider.on("connection-error", (event: any) => {
+        console.error("[y-websocket] Connection error:", event);
       });
 
       return provider as WebsocketProvider;
@@ -217,6 +251,13 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     []
   );
 
+  // Memoize provider factory to prevent unnecessary re-creation
+  const memoizedProviderFactory = useCallback(
+    (id: string, yjsDocMap: Map<string, Y.Doc>) => {
+      return getProvider(id, yjsDocMap) as unknown as WebsocketProvider;
+    },
+    [getProvider]
+  );
   // Safely parse initialContent JSON for initialEditorState seeding (used only if Yjs doc is empty)
   const parseInitialEditorState = useCallback(() => {
     const raw = initialContentRef.current;
@@ -282,12 +323,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
                 <CollaborationPlugin
                   id={projectId}
                   providerFactory={
-                    getProvider as unknown as (
-                      id: string,
-                      yjsDocMap: Map<string, Y.Doc>,
-                      // Allow extra args without breaking types
-                      ..._rest: unknown[]
-                    ) => WebsocketProvider
+                    memoizedProviderFactory as any
                   }
                   /**
                    * IMPORTANT: Provide a function that sets editor state ONLY when the Yjs doc is empty.
@@ -301,7 +337,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
                     editor.setEditorState(parsed);
                   }}
                   shouldBootstrap={true}
-                  username={userName ?? "anonymous"}
+                  username={stableUserName}
                 />
 
                 <RemoveEmptyLayoutItemsOnBackspacePlugin />
