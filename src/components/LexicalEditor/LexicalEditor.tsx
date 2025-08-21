@@ -82,6 +82,18 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({ onChange, initialContent,
                     console.error("Error clearing IndexedDB:", err);
                 });
         }
+        
+        // Clean up WebSocket provider when project changes
+        if (providerRef.current && typeof providerRef.current.destroy === 'function') {
+            try {
+                console.log("🧹 Cleaning up WebSocket provider for project:", projectId);
+                providerRef.current.destroy();
+                providerRef.current = null;
+                setYjsProvider(null);
+            } catch (error) {
+                console.warn("⚠️ Error cleaning up WebSocket provider:", error);
+            }
+        }
     }, [projectId]);
 
     // If needed, you can set up the anchor element for plugins (like draggable blocks)
@@ -123,24 +135,67 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({ onChange, initialContent,
         // Use dynamic scheme detection to avoid mixed content issues
         const scheme = location.protocol === 'https:' ? 'wss' : 'ws';
         const WS_ENDPOINT = `${scheme}://${location.host}/yjs`;
-        const provider = new WebsocketProvider(WS_ENDPOINT, id, doc);
         
-        const sharedType = doc.getText("lexical");
-        // Attach extra properties to the provider instance.
-        (provider as any).doc = doc; // TODO: Fix provider type
-        (provider as any).sharedType = sharedType; // TODO: Fix provider type
-        
-        provider.on("status", (event: { status: string }) => {
-            console.log("WebSocket status:", event.status);
-        });
+        try {
+            const provider = new WebsocketProvider(WS_ENDPOINT, id, doc, {
+                // Add connection parameters for better reliability
+                connect: true,
+                maxBackoffTime: 5000,
+                disableBc: false
+            });
+            
+            const sharedType = doc.getText("lexical");
+            // Attach extra properties to the provider instance.
+            (provider as any).doc = doc; // TODO: Fix provider type
+            (provider as any).sharedType = sharedType; // TODO: Fix provider type
+            
+            // Enhanced connection status monitoring
+            provider.on("status", (event: { status: string }) => {
+                console.log("🔗 Yjs WebSocket status:", event.status);
+                if (event.status === 'disconnected') {
+                    console.warn("⚠️ Collaboration features temporarily unavailable");
+                } else if (event.status === 'connected') {
+                    console.log("✅ Collaboration features restored");
+                }
+            });
 
-        provider.on("sync", (isSynced: boolean) => {
-            console.log("Collaboration sync status:", isSynced);
-        });
+            provider.on("sync", (isSynced: boolean) => {
+                console.log("🔄 Collaboration sync status:", isSynced ? "synced" : "syncing");
+            });
 
-        providerRef.current = provider;
-        setYjsProvider(provider);
-        return provider;
+            // Add connection error handling
+            provider.on("connection-error", (error: any) => {
+                console.error("❌ Yjs WebSocket connection error:", error);
+                console.info("ℹ️ Editor will continue to work locally. Changes will sync when connection is restored.");
+            });
+
+            // Add connection close handling
+            provider.on("connection-close", (event: any) => {
+                console.warn("🔌 Yjs WebSocket connection closed:", event.code, event.reason);
+                if (event.code !== 1000) { // 1000 = normal closure
+                    console.info("🔄 Attempting to reconnect...");
+                }
+            });
+
+            providerRef.current = provider;
+            setYjsProvider(provider);
+            return provider;
+        } catch (error) {
+            console.error("❌ Failed to create Yjs WebSocket provider:", error);
+            console.info("ℹ️ Editor will work in offline mode. Collaboration features are disabled.");
+            
+            // Return a minimal provider that still allows local editing
+            const offlineProvider = {
+                doc,
+                sharedType: doc.getText("lexical"),
+                on: () => {},
+                off: () => {},
+                destroy: () => {}
+            };
+            
+            providerRef.current = offlineProvider as any;
+            return offlineProvider as any;
+        }
     }, []);
 
     // Memoize the LexicalComposer configuration so it's only created once.

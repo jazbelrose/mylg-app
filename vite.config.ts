@@ -78,6 +78,23 @@ export default defineConfig(({ mode }) => {
           ws: true,
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/yjs/, ''),
+          configure: (proxy, _options) => {
+            proxy.on('error', (err, _req, _res) => {
+              console.error('🚨 Yjs WebSocket proxy error:', err.message);
+              // Don't crash the proxy, just log the error
+            });
+            
+            proxy.on('proxyReqWs', (_proxyReq, _req, _socket) => {
+              console.log('🔗 Yjs WebSocket proxy request to:', _options.target);
+            });
+            
+            proxy.on('close', (_res, _socket, _head) => {
+              console.log('🔌 Yjs WebSocket proxy connection closed');
+            });
+          },
+          // Add timeout and retry options
+          timeout: 5000,
+          proxyTimeout: 5000,
         },
       },
     },
