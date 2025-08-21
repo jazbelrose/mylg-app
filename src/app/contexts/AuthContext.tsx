@@ -209,7 +209,9 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
   // ---- derived values (memoized) ----
   const userId = user?.userId;
   const role = user?.role;
-  const userName = user?.firstName ? `${user.firstName} ` : "Guest";
+  const userName = useMemo(() => {
+    return user?.firstName ? user.firstName.trim() : "Guest";
+  }, [user?.firstName]);
 
   const isAdmin = role === "admin";
   const isDesigner = role === "designer";

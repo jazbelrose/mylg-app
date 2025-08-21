@@ -20,6 +20,7 @@ import DraggableBlockPlugin from "./plugins/DraggableBlockPlugin";
 import FloatingToolbar from "./plugins/FloatingToolbar";
 import { DropdownProvider } from "./contexts/DropdownContext";
 import { CollaborationPlugin } from "@lexical/react/LexicalCollaborationPlugin";
+import { Provider } from "@lexical/yjs";
 import DragAndDropPlugin from "./plugins/DragAndDropPlugin";
 import AutoScrollToBottomPlugin from "./plugins/AutoScrollToBottomPlugin";
 import DeleteImagePlugin from "./plugins/DeleteImagePlugin";
@@ -68,6 +69,11 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
   registerToolbar,
 }) => {
   const { userName, activeProject } = useData();
+  
+  // Memoize userName to prevent unnecessary CollaborationPlugin re-renders
+  const stableUserName = useMemo(() => {
+    return userName || "Guest";
+  }, [userName]);
   const editorRef = useRef<HTMLDivElement | null>(null);
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -87,7 +93,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     if (activeProject && typeof activeProject === "object") {
       return (activeProject as any).projectId ?? "default-project";
     }
-    return (activeProject as string) ?? "default-project";
+    return String(activeProject) ?? "default-project";
   }, [activeProject]);
 
   // Clear prior IndexedDB when project changes
@@ -122,9 +128,9 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
   // Create or reuse the provider for this room
   const getProvider = useCallback(
-    (id: string, yjsDocMap: Map<string, Y.Doc>) => {
+    (id: string, yjsDocMap: Map<string, Y.Doc>): Provider => {
       if (providerRef.current) {
-        return providerRef.current as WebsocketProvider;
+        return providerRef.current as unknown as Provider;
       }
 
       let doc = yjsDocMap.get(id);
@@ -157,7 +163,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
         console.log("[y-websocket] sync:", isSynced, "room:", id);
       });
 
-      return provider as WebsocketProvider;
+      return provider as unknown as Provider;
     },
     [WS_ENDPOINT]
   );
@@ -281,14 +287,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
                 <CollaborationPlugin
                   id={projectId}
-                  providerFactory={
-                    getProvider as unknown as (
-                      id: string,
-                      yjsDocMap: Map<string, Y.Doc>,
-                      // Allow extra args without breaking types
-                      ..._rest: unknown[]
-                    ) => WebsocketProvider
-                  }
+                  providerFactory={getProvider}
                   /**
                    * IMPORTANT: Provide a function that sets editor state ONLY when the Yjs doc is empty.
                    * The CollaborationPlugin handles the “seed when empty” logic; we just supply the seed.
@@ -301,7 +300,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
                     editor.setEditorState(parsed);
                   }}
                   shouldBootstrap={true}
-                  username={userName ?? "anonymous"}
+                  username={stableUserName}
                 />
 
                 <RemoveEmptyLayoutItemsOnBackspacePlugin />
