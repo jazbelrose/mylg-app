@@ -10,6 +10,7 @@ import { NavigationDirectionProvider } from "./contexts/NavigationDirectionProvi
 import AuthEventHandler from "./contexts/AuthEventHandler";
 import { AuthProvider } from "./contexts/AuthContext";
 import { DataProvider } from "./contexts/DataProvider";
+import { InvitesProvider } from "./contexts/InvitesProvider";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import { DMConversationProvider } from "./contexts/DMConversationContext";
 import { ScrollProvider } from "./contexts/ScrollContext";
@@ -69,8 +70,9 @@ export default function App(): React.ReactElement {
         <HelmetProvider>
             <AuthProvider>
                 <DataProvider>
-                    <NotificationProvider>
-                        <DMConversationProvider>
+                    <InvitesProvider>
+                        <NotificationProvider>
+                            <DMConversationProvider>
                             <SocketProvider>
                                 <NotificationSocketBridge>
                                     <OnlineStatusProvider>
@@ -87,7 +89,8 @@ export default function App(): React.ReactElement {
                                 </NotificationSocketBridge>
                             </SocketProvider>
                         </DMConversationProvider>
-                    </NotificationProvider>
+                        </NotificationProvider>
+                    </InvitesProvider>
                 </DataProvider>
             </AuthProvider>
         </HelmetProvider>

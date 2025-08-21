@@ -23,11 +23,6 @@ import {
   updateProjectFields as updateProjectFieldsApi,
   updateUserProfile, // <- assumes same name/types
   apiFetch,
-  fetchPendingInvites,
-  sendProjectInvite,
-  acceptProjectInvite,
-  declineProjectInvite,
-  cancelProjectInvite,
   GET_PROJECT_MESSAGES_URL,
 } from "../../utils/api";
 import { getWithTTL, setWithTTL, DEFAULT_TTL } from "../../utils/storageWithTTL";
@@ -85,13 +80,6 @@ export interface DMThread {
   [k: string]: unknown;
 }
 
-export interface Invite {
-  inviteId: string;
-  projectId: string;
-  recipientUsername: string;
-  [k: string]: unknown;
-}
-
 type ProjectMessagesMap = Record<string, Message[]>; // projectId -> messages
 type DMReadStatusMap = Record<string, string>;       // threadId -> ISO timestamp
 
@@ -103,12 +91,6 @@ interface AuthDataValue {
   allUsers: UserLite[];
   userData: UserLite | null;
   setUserData: React.Dispatch<React.SetStateAction<UserLite | null>>;
-  pendingInvites: Invite[];
-  setPendingInvites: React.Dispatch<React.SetStateAction<Invite[]>>;
-  handleSendInvite: (projectId: string, recipientUsername: string) => Promise<void>;
-  handleAcceptInvite: (inviteId: string) => Promise<void>;
-  handleDeclineInvite: (inviteId: string) => Promise<void>;
-  handleCancelInvite: (inviteId: string) => Promise<void>;
   refreshUsers: () => Promise<void>;
   updateUserProfile: typeof updateUserProfile;
   isAdmin: boolean;
@@ -217,8 +199,6 @@ const { user, userId, userName, isAdmin, isDesigner, isBuilder, isVendor, isClie
     const stored = getWithTTL("dmThreads");
     return Array.isArray(stored) ? (stored as DMThread[]) : [];
   });
-
-  const [pendingInvites, setPendingInvites] = useState<Invite[]>([]);
 
   const deletedMessageIdsRef = useRef<Set<string>>(new Set());
   const markMessageDeleted = (id?: string) => {
@@ -351,63 +331,6 @@ const { user, userId, userName, isAdmin, isDesigner, isBuilder, isVendor, isClie
     };
     fetchThreads();
   }, [userId]);
-
-  // Invites
-  useEffect(() => {
-    if (!userId) {
-      setPendingInvites([]);
-      return;
-    }
-    const loadInvites = async () => {
-      try {
-        const items = await fetchPendingInvites(userId);
-        setPendingInvites(Array.isArray(items) ? (items as Invite[]) : []);
-      } catch (err) {
-        console.error("Failed to fetch invites", err);
-      }
-    };
-    loadInvites();
-  }, [userId]);
-
-  const handleSendInvite = async (projectId: string, recipientUsername: string) => {
-    try {
-      await sendProjectInvite(projectId, recipientUsername);
-      if (userId) {
-        const items = await fetchPendingInvites(userId);
-        setPendingInvites(Array.isArray(items) ? (items as Invite[]) : []);
-      }
-    } catch (err) {
-      console.error("Failed to send invite", err);
-    }
-  };
-
-  const handleAcceptInvite = async (inviteId: string) => {
-    try {
-      await acceptProjectInvite(inviteId);
-      setPendingInvites((prev) => prev.filter((inv) => inv.inviteId !== inviteId));
-      await fetchProjects();
-    } catch (err) {
-      console.error("Failed to accept invite", err);
-    }
-  };
-
-  const handleDeclineInvite = async (inviteId: string) => {
-    try {
-      await declineProjectInvite(inviteId);
-      setPendingInvites((prev) => prev.filter((inv) => inv.inviteId !== inviteId));
-    } catch (err) {
-      console.error("Failed to decline invite", err);
-    }
-  };
-
-  const handleCancelInvite = async (inviteId: string) => {
-    try {
-      await cancelProjectInvite(inviteId);
-      setPendingInvites((prev) => prev.filter((inv) => inv.inviteId !== inviteId));
-    } catch (err) {
-      console.error("Failed to cancel invite", err);
-    }
-  };
 
   // Helpers for event IDs
   const addIdsToEvents = (events: TimelineEvent[]) => {
@@ -759,12 +682,6 @@ const { user, userId, userName, isAdmin, isDesigner, isBuilder, isVendor, isClie
       allUsers,
       userData,
       setUserData,
-      pendingInvites,
-      setPendingInvites,
-      handleSendInvite,
-      handleAcceptInvite,
-      handleDeclineInvite,
-      handleCancelInvite,
       refreshUsers,
       updateUserProfile,
       isAdmin,
@@ -779,7 +696,6 @@ const { user, userId, userName, isAdmin, isDesigner, isBuilder, isVendor, isClie
       userName,
       allUsers,
       userData,
-      pendingInvites,
       isAdmin,
       isDesigner,
       isBuilder,
