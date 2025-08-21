@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback, useMemo, RefObject } from "react";
+import React, { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { useData } from "../../app/contexts/DataProvider";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
@@ -120,7 +120,10 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({ onChange, initialContent,
             console.log("IndexedDB synced for project:", id);
         });
 
-        const provider = new WebsocketProvider("ws://35.165.113.63:1234", id, doc);
+        // Use dynamic scheme detection to avoid mixed content issues
+        const scheme = location.protocol === 'https:' ? 'wss' : 'ws';
+        const WS_ENDPOINT = `${scheme}://${location.host}/yjs`;
+        const provider = new WebsocketProvider(WS_ENDPOINT, id, doc);
         
         const sharedType = doc.getText("lexical");
         // Attach extra properties to the provider instance.
@@ -235,6 +238,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({ onChange, initialContent,
                                 <CollaborationPlugin
                                     id={projectId}
                                     providerFactory={getProvider as any} // TODO: Fix provider factory type
+                                    initialEditorState={initialContentRef.current}
                                     shouldBootstrap={true}
                                     username={userName}
                                 />

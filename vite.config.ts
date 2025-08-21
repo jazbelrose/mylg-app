@@ -10,8 +10,8 @@ const devCsp = [
   "font-src 'self' data: fonts.gstatic.com",
   "img-src 'self' data: blob: *.amazonaws.com *.cloudfront.net https://tiles.stadiamaps.com",
   "media-src 'self' https: blob:",
-  // ⬇️ allow LAN fetch + HMR over WS on 3000 (and any port if you change later)
-  "connect-src 'self' http://localhost:* ws://localhost:* http://192.168.1.200:* ws://192.168.1.200:* https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://*.cloudfront.net https://nominatim.openstreetmap.org",
+  // ⬇️ allow LAN fetch + HMR over WS on 3000 (and any port if you change later) + ws/wss for Yjs
+  "connect-src 'self' http://localhost:* ws://localhost:* http://192.168.1.200:* ws://192.168.1.200:* https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://*.cloudfront.net https://nominatim.openstreetmap.org ws: wss:",
   "frame-ancestors 'none'",
 ].join('; ')
 
@@ -23,7 +23,7 @@ const prodCsp = [
   "font-src 'self' data: fonts.gstatic.com",
   "img-src 'self' data: https://d1cazymewvlm0k.cloudfront.net https://d2qb21tb4meex0.cloudfront.net *.amazonaws.com https://tiles.stadiamaps.com",
   "media-src 'self' https://d1cazymewvlm0k.cloudfront.net https://d2qb21tb4meex0.cloudfront.net *.amazonaws.com",
-  "connect-src 'self' https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://*.cloudfront.net https://nominatim.openstreetmap.org",
+  "connect-src 'self' https://*.amazonaws.com https://*.amplify.aws wss://*.amazonaws.com https://*.cloudfront.net https://nominatim.openstreetmap.org ws: wss:",
   "frame-ancestors 'none'",
 ].join('; ')
 
@@ -71,6 +71,14 @@ export default defineConfig(({ mode }) => {
         host: '192.168.1.200',  // ⬅️ your LAN IP
         port: 3000,
         protocol: 'ws',
+      },
+      proxy: {
+        '/yjs': {
+          target: 'ws://35.165.113.63:1234',
+          ws: true,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/yjs/, ''),
+        },
       },
     },
 
