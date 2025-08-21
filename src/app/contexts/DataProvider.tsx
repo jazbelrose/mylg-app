@@ -47,7 +47,7 @@ interface ProjectMember {
   joinedAt: string;
 }
 
-interface Message {
+export interface Message {
   messageId: string;
   projectId?: string;
   threadId?: string;
@@ -86,13 +86,13 @@ interface DataContextType {
   setUserData: (data: User | null) => void;
   projects: Project[];
   setProjects: (projects: Project[] | ((prev: Project[]) => Project[])) => void;
-  setUserProjects: (projects: Project[]) => void;
+  setUserProjects: (projects: Project[] | ((prev: Project[]) => Project[])) => void;
   allUsers: User[];
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   loadingProfile: boolean;
   activeProject: Project | null;
-  setActiveProject: (project: Project | null) => void;
+  setActiveProject: (project: Project | null | ((prev: Project | null) => Project | null)) => void;
   selectedProjects: string[];
   setSelectedProjects: (ids: string[] | ((prev: string[]) => string[])) => void;
   fetchProjectDetails: (projectId: string) => Promise<Project | null>;
@@ -114,15 +114,16 @@ interface DataContextType {
   updateTimelineEvents: (projectId: string, events: any[]) => Promise<void>;
   updateProjectFields: (projectId: string, updates: Record<string, any>) => Promise<void>;
   pendingInvites: PendingInvite[];
+  setPendingInvites: (invites: PendingInvite[] | ((prev: PendingInvite[]) => PendingInvite[])) => void;
   handleSendInvite: (projectId: string, email: string, role: string) => Promise<void>;
   handleAcceptInvite: (inviteId: string) => Promise<void>;
   handleDeclineInvite: (inviteId: string) => Promise<void>;
   handleCancelInvite: (inviteId: string) => Promise<void>;
   refreshUsers: () => Promise<void>;
   dmThreads: DMThread[];
-  setDmThreads: (threads: DMThread[]) => void;
+  setDmThreads: (threads: DMThread[] | ((prev: DMThread[]) => DMThread[])) => void;
   projectMessages: Record<string, Message[]>;
-  setProjectMessages: (messages: Record<string, Message[]>) => void;
+  setProjectMessages: (messages: Record<string, Message[]> | ((prev: Record<string, Message[]>) => Record<string, Message[]>)) => void;
   deletedMessageIds: Set<string>;
   markMessageDeleted: (messageId: string) => void;
   clearDeletedMessageId: (messageId: string) => void;
@@ -358,6 +359,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
     updateTimelineEvents,
     updateProjectFields,
     pendingInvites,
+    setPendingInvites,
     handleSendInvite,
     handleAcceptInvite,
     handleDeclineInvite,
