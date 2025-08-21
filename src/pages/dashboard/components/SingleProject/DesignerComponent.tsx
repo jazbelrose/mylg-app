@@ -8,6 +8,31 @@ import SpinnerOverlay from '../../../../components/SpinnerOverlay';
 // ...existing code...
 import styles from './DesignerComponent.module.css';
 import { StaticCanvas } from 'fabric';
+
+interface DesignerComponentProps {
+  style?: React.CSSProperties;
+  [key: string]: any;
+}
+
+interface CanvasObject {
+  id: string;
+  name: string;
+  obj: any;
+}
+
+interface DesignerRef {
+  changeMode: (mode: string) => void;
+  addText: () => void;
+  triggerImageUpload: () => void;
+  handleColorChange: (color: string) => void;
+  handleUndo: () => void;
+  handleRedo: () => void;
+  handleCopy: () => void;
+  handlePaste: () => void;
+  handleDelete: () => void;
+  handleClear: () => void;
+  handleSave: () => void;
+}
 const fabric = { Canvas, PencilBrush, Rect, IText, Image };
 const TOOL_MODES = {
     SELECT: 'select',
@@ -16,7 +41,7 @@ const TOOL_MODES = {
     TEXT: 'text',
     IMAGE: 'image',
 };
-if (!StaticCanvas.prototype._defensivePatched) {
+if (!(StaticCanvas.prototype as any)._defensivePatched) {
     // Patch clearContext
     const origClearContext = StaticCanvas.prototype.clearContext;
     StaticCanvas.prototype.clearContext = function (ctx) {
@@ -32,25 +57,25 @@ if (!StaticCanvas.prototype._defensivePatched) {
             return undefined;
         return origGetContext.call(this);
     };
-    StaticCanvas.prototype._defensivePatched = true;
+    (StaticCanvas.prototype as any)._defensivePatched = true;
 }
-const DesignerComponent = forwardRef((props, ref) => {
+const DesignerComponent = forwardRef<DesignerRef, DesignerComponentProps>((props, ref) => {
     // ...existing code...
-    const canvasRef = useRef(null);
-    const containerRef = useRef(null);
-    const fileInputRef = useRef(null);
-    const [mode, setMode] = useState(TOOL_MODES.SELECT);
-    const [objects, setObjects] = useState([]);
-    const [selectedId, setSelectedId] = useState(null);
-    const [color, setColor] = useState('#ffffff');
-    const [loadingCanvas, setLoadingCanvas] = useState(false);
-    const [canvasReady, setCanvasReady] = useState(false);
-    const [isDirty, setIsDirty] = useState(false);
-    const history = useRef({ stack: [], index: -1 });
-    const clipboard = useRef(null);
-    const fabricCanvasRef = useRef(null);
-    const isRestoringHistory = useRef(false);
-    const isInitialLoad = useRef(true);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [mode, setMode] = useState<string>(TOOL_MODES.SELECT);
+    const [objects, setObjects] = useState<CanvasObject[]>([]);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [color, setColor] = useState<string>('#ffffff');
+    const [loadingCanvas, setLoadingCanvas] = useState<boolean>(false);
+    const [canvasReady, setCanvasReady] = useState<boolean>(false);
+    const [isDirty, setIsDirty] = useState<boolean>(false);
+    const history = useRef<{ stack: any[], index: number }>({ stack: [], index: -1 });
+    const clipboard = useRef<any>(null);
+    const fabricCanvasRef = useRef<any>(null);
+    const isRestoringHistory = useRef<boolean>(false);
+    const isInitialLoad = useRef<boolean>(true);
     const { activeProject, setActiveProject } = useData();
     const saveCanvas = useCallback(async (showToast = false) => {
         const fabricCanvas = fabricCanvasRef.current;
@@ -263,7 +288,7 @@ const DesignerComponent = forwardRef((props, ref) => {
             let zoom = fabricCanvas.getZoom();
             zoom *= 0.999 ** delta;
             zoom = Math.min(3, Math.max(0.5, zoom));
-            fabricCanvas.zoomToPoint({ x: e.offsetX, y: e.offsetY }, zoom);
+            fabricCanvas.zoomToPoint({ x: e.offsetX, y: e.offsetY } as any, zoom);
             e.stopPropagation();
         };
         canvasEl.addEventListener('wheel', handleWheel, { passive: false });
@@ -336,7 +361,7 @@ const DesignerComponent = forwardRef((props, ref) => {
                                 fabricCanvas.renderAll();
                                 fabricCanvas.requestRenderAll();
                                 console.log('Canvas loaded and rendered successfully');
-                                resolve();
+                                resolve(undefined);
                             });
                         });
                         isRestoringHistory.current = false;
@@ -456,7 +481,7 @@ const DesignerComponent = forwardRef((props, ref) => {
             const fabricCanvas = fabricCanvasRef.current;
             if (!fabricCanvas)
                 return;
-            fabric.Image.fromURL(evt.target.result)
+            fabric.Image.fromURL(evt.target?.result as string)
                 .then((img) => {
                 img.set({ left: 50, top: 50, selectable: true, evented: true, name: `img-${Date.now()}` });
                 fabricCanvas.add(img);
