@@ -14,7 +14,6 @@ import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ClickableLinkPlugin } from "@lexical/react/LexicalClickableLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 
 import TextStylePlugin from "./plugins/TextStylePlugin";
 import DraggableBlockPlugin from "./plugins/DraggableBlockPlugin";
@@ -77,16 +76,9 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
   // Keep initial content in a ref and sync when prop changes (handles async load & project switch)
   const initialContentRef = useRef<string | undefined>(initialContent);
-  const [shouldHydrateContent, setShouldHydrateContent] = useState(false);
   
   useEffect(() => {
-    const previousContent = initialContentRef.current;
     initialContentRef.current = initialContent;
-    
-    // If we received new content that wasn't there before, trigger hydration
-    if (initialContent && initialContent !== previousContent) {
-      setShouldHydrateContent(true);
-    }
   }, [initialContent]);
 
   const hasScrolledToBottom = useRef(false);
@@ -142,7 +134,6 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     
     // Reset cached content to prevent stale content from previous project
     initialContentRef.current = initialContent;
-    setShouldHydrateContent(false);
   }, [roomId, initialContent]);
 
   // Reset autoscroll flag on project change
@@ -301,31 +292,6 @@ const WS_ENDPOINT = useMemo(() => {
     }
   }, []);
 
-  // Plugin component to handle content hydration
-  const ContentHydrationPlugin: React.FC = () => {
-    const [editor] = useLexicalComposerContext();
-    
-    useEffect(() => {
-      if (shouldHydrateContent && initialContentRef.current) {
-        const seed = parseInitialEditorState();
-        if (seed) {
-          editor.update(() => {
-            try {
-              const parsed = editor.parseEditorState(seed);
-              editor.setEditorState(parsed);
-              console.log("[LexicalEditor] Content hydrated from prop");
-            } catch (error) {
-              console.warn("[LexicalEditor] Failed to hydrate content:", error);
-            }
-          });
-          setShouldHydrateContent(false);
-        }
-      }
-    }, [editor]);
-    
-    return null;
-  };
-
   return (
     <div
       ref={editorRef}
@@ -376,16 +342,22 @@ const WS_ENDPOINT = useMemo(() => {
                   ErrorBoundary={LexicalErrorBoundary}
                 />
 
-                <ContentHydrationPlugin />
-
                 <CollaborationPlugin
                   id={roomId}
                   providerFactory={memoizedProviderFactory as any}
-                  shouldBootstrap={false}
+                  shouldBootstrap={true} // only runs when Y doc is empty
                   username={stableUserName}
-              
-                 
-                 
+                  initialEditorState={(editor) => {
+                    const seed = parseInitialEditorState();
+                    if (!seed) return;
+                    try {
+                      const parsed = editor.parseEditorState(seed);
+                      editor.setEditorState(parsed);
+                      console.log("[LexicalEditor] bootstrapped from DB JSON");
+                    } catch (e) {
+                      console.warn("[LexicalEditor] bootstrap failed:", e);
+                    }
+                  }}
                 />
 
                 <RemoveEmptyLayoutItemsOnBackspacePlugin />

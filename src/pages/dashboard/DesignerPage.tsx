@@ -186,6 +186,7 @@ const DesignerPage: React.FC = () => {
                       <div className="dashboard-layout" style={{ paddingBottom: "5px" }}>
                         <LexicalEditor
                           key={activeProject?.projectId}
+                          initialContent={activeProject.description || undefined}
                           onChange={() => {/* set dirty if you need */}}
                           registerToolbar={setBriefToolbarActions}
                         />
