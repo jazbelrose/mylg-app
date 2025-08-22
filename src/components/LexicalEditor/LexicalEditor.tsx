@@ -109,8 +109,9 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
     return null; // Return null instead of fallback to prevent wrong room connections
   }, [activeProject]);
 
-  // Clear prior IndexedDB when project changes
+  // Clear prior IndexedDB and WebSocket provider when project changes
   useEffect(() => {
+    // Tear down IndexedDB for the old room
     if (persistenceRef.current) {
       persistenceRef.current
         .destroy()
@@ -125,13 +126,19 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
         });
     }
     
-    // Also cleanup WebSocket provider when projectId becomes null
-    if (!projectId && providerRef.current) {
-      console.log("Cleaning up WebSocket provider due to null projectId");
-      providerRef.current.destroy();
+    // Tear down WebSocket for the old room
+    if (providerRef.current) {
+      try { 
+        providerRef.current.destroy(); 
+      } catch (e) {
+        console.warn("Error destroying provider:", e);
+      }
       providerRef.current = null;
       setYjsProvider(null);
     }
+    
+    // Reset room tracking
+    currentRoomRef.current = null;
   }, [projectId]);
 
   // Reset autoscroll flag on project change
@@ -141,56 +148,68 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
 
   const [, setYjsProvider] = useState<WebsocketProvider | null>(null);
 
-  // Build same-origin WS endpoint so HTTPS → WSS, HTTP → WS (Fx/Safari safe)
-const WS_ENDPOINT = useMemo(() => {
-  const scheme = window.location.protocol === "https:" ? "wss" : "ws";
-  const url = new URL(`${scheme}://${window.location.host}/yjs`);
-  if (userId) url.searchParams.set("userId", userId);
-  if (projectId) url.searchParams.set("room", projectId); // ✅ Add this
-  return url.toString();
-}, [userId, projectId]);
+  // Track which room the current provider belongs to
+  const currentRoomRef = useRef<string | null>(null);
+
+  // Build base WS endpoint (no room in the URL, only auth params)
+  const WS_BASE = useMemo(() => {
+    const scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const url = new URL(`${scheme}://${window.location.host}/yjs`);
+    if (userId) url.searchParams.set("userId", userId);
+    return url.toString();
+  }, [userId]);
 
 
-  // Create or reuse the provider for this room
+  // Create or reuse the provider for this room - now room-aware
   const getProvider = useCallback(
-    (id: string, yjsDocMap: Map<string, Y.Doc>) => {
-      if (providerRef.current) {
+    (roomId: string, yjsDocMap: Map<string, Y.Doc>) => {
+      // Reuse only if we're already connected to THIS room
+      if (providerRef.current && currentRoomRef.current === roomId) {
         return providerRef.current as WebsocketProvider;
       }
 
-      let doc = yjsDocMap.get(id);
-      if (!doc) {
-        doc = new Y.Doc();
-        yjsDocMap.set(id, doc);
+      // Otherwise, clean up any existing provider
+      if (providerRef.current) {
+        try { 
+          providerRef.current.destroy(); 
+        } catch (e) {
+          console.warn("Error destroying existing provider:", e);
+        }
+        providerRef.current = null;
       }
 
-      // Persistence per-room
-      const persistence = new IndexeddbPersistence(id, doc);
+      // Ensure we have a doc per room
+      let doc = yjsDocMap.get(roomId);
+      if (!doc) {
+        doc = new Y.Doc();
+        yjsDocMap.set(roomId, doc);
+      }
+
+      // Per-room IndexedDB cache
+      const persistence = new IndexeddbPersistence(roomId, doc);
       persistence.on("synced", () => {
-        console.log("IndexedDB synced for project:", id);
+        console.log("IndexedDB synced for project:", roomId);
       });
       persistenceRef.current = persistence;
 
-      const provider = new WebsocketProvider(WS_ENDPOINT, '', doc) as ProviderWithExtras; // ✅ Room only here
-      const sharedType = doc.getText("lexical");
-
+      // ✅ Pass the room as the SECOND ARG (canonical y-websocket usage)
+      const provider = new WebsocketProvider(WS_BASE, roomId, doc) as ProviderWithExtras;
       provider.doc = doc;
-      provider.sharedType = sharedType;
+      provider.sharedType = doc.getText("lexical");
+
+      provider.on("status", (e: { status: string }) =>
+        console.log("[y-websocket] status:", e.status, "room:", roomId)
+      );
+      provider.on("sync", (isSynced: boolean) =>
+        console.log("[y-websocket] sync:", isSynced, "room:", roomId)
+      );
 
       providerRef.current = provider;
+      currentRoomRef.current = roomId;
       setYjsProvider(provider);
-
-      // Helpful logs
-      provider.on("status", (event: { status: string }) => {
-        console.log("[y-websocket] status:", event.status, "room:", id);
-      });
-      provider.on("sync", (isSynced: boolean) => {
-        console.log("[y-websocket] sync:", isSynced, "room:", id);
-      });
-
       return provider as WebsocketProvider;
     },
-    [WS_ENDPOINT]
+    [WS_BASE]
   );
 
   // Lexical composer config
@@ -314,8 +333,9 @@ const WS_ENDPOINT = useMemo(() => {
                 {/* Only render CollaborationPlugin when we have a valid projectId */}
                 {projectId && (
                   <CollaborationPlugin
+                    key={projectId}         // ← forces new binding per room
                     id={projectId}
-                  providerFactory={getProvider as any}
+                    providerFactory={getProvider as any}
                   /**
                    * IMPORTANT: Provide a function that sets editor state ONLY when the Yjs doc is empty.
                    * The CollaborationPlugin handles the “seed when empty” logic; we just supply the seed.
