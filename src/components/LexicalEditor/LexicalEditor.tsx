@@ -14,6 +14,7 @@ import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { LinkPlugin } from "@lexical/react/LexicalLinkPlugin";
 import { ClickableLinkPlugin } from "@lexical/react/LexicalClickableLinkPlugin";
 import { ListPlugin } from "@lexical/react/LexicalListPlugin";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 
 import TextStylePlugin from "./plugins/TextStylePlugin";
 import DraggableBlockPlugin from "./plugins/DraggableBlockPlugin";
@@ -76,8 +77,16 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
   // Keep initial content in a ref and sync when prop changes (handles async load & project switch)
   const initialContentRef = useRef<string | undefined>(initialContent);
+  const [shouldHydrateContent, setShouldHydrateContent] = useState(false);
+  
   useEffect(() => {
+    const previousContent = initialContentRef.current;
     initialContentRef.current = initialContent;
+    
+    // If we received new content that wasn't there before, trigger hydration
+    if (initialContent && initialContent !== previousContent) {
+      setShouldHydrateContent(true);
+    }
   }, [initialContent]);
 
   const hasScrolledToBottom = useRef(false);
@@ -85,9 +94,9 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
   // Memoize project id
   const projectId = useMemo(() => {
     if (activeProject && typeof activeProject === "object") {
-      return (activeProject as any).projectId ?? "default-project";
+      return activeProject.projectId ?? "default-project";
     }
-    return ((activeProject as unknown) as string) ?? "default-project";
+    return (activeProject as unknown as string) ?? "default-project";
   }, [activeProject]);
 
   // Cleanup provider on unmount
@@ -112,7 +121,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     };
   }, []);
 
-  // Clear prior IndexedDB when project changes
+  // Clear prior IndexedDB when project changes and reset cached content
   useEffect(() => {
     if (persistenceRef.current) {
       persistenceRef.current
@@ -127,7 +136,11 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
           persistenceRef.current = null;
         });
     }
-  }, [projectId]);
+    
+    // Reset cached content to prevent stale content from previous project
+    initialContentRef.current = initialContent;
+    setShouldHydrateContent(false);
+  }, [projectId, initialContent]);
 
   // Reset autoscroll flag on project change
   useEffect(() => {
@@ -272,6 +285,31 @@ const WS_ENDPOINT = useMemo(() => {
     }
   }, []);
 
+  // Plugin component to handle content hydration
+  const ContentHydrationPlugin: React.FC = () => {
+    const [editor] = useLexicalComposerContext();
+    
+    useEffect(() => {
+      if (shouldHydrateContent && initialContentRef.current) {
+        const seed = parseInitialEditorState();
+        if (seed) {
+          editor.update(() => {
+            try {
+              const parsed = editor.parseEditorState(seed);
+              editor.setEditorState(parsed);
+              console.log("[LexicalEditor] Content hydrated from prop");
+            } catch (error) {
+              console.warn("[LexicalEditor] Failed to hydrate content:", error);
+            }
+          });
+          setShouldHydrateContent(false);
+        }
+      }
+    }, [editor]);
+    
+    return null;
+  };
+
   return (
     <div
       ref={editorRef}
@@ -322,18 +360,23 @@ const WS_ENDPOINT = useMemo(() => {
                   ErrorBoundary={LexicalErrorBoundary}
                 />
 
+                <ContentHydrationPlugin />
+
                 <CollaborationPlugin
                   id={projectId}
-                  providerFactory={
-                    memoizedProviderFactory as any
-                  }
+                  providerFactory={memoizedProviderFactory as any}
               
                   initialEditorState={(editor) => {
+                    // Only bootstrap if Yjs document is empty and we have initial content
                     const seed = parseInitialEditorState();
                     if (!seed) return;
-                    // Let Lexical parse the serialized state
-                    const parsed = editor.parseEditorState(seed);
-                    editor.setEditorState(parsed);
+                    try {
+                      const parsed = editor.parseEditorState(seed);
+                      editor.setEditorState(parsed);
+                      console.log("[LexicalEditor] Initial content bootstrapped from Yjs");
+                    } catch (error) {
+                      console.warn("[LexicalEditor] Failed to bootstrap initial content:", error);
+                    }
                   }}
                   shouldBootstrap={true}
                   username={stableUserName}
