@@ -22,6 +22,7 @@ import AppRoutes from "./routes";
 import Headermain from "../components/header/";
 import Preloader from "../components/preloader";
 import { NotificationContainer } from "../components/ToastNotifications";
+import { WebSocketDiagnostic, useWebSocketDiagnostic } from "../components/WebSocketDiagnostic";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -100,6 +101,7 @@ export default function App(): React.ReactElement {
 function MainContent({ isLoading }: MainContentProps): React.ReactElement {
     const location = useLocation();
     const hideHeader = location.pathname.startsWith("/dashboard");
+    const { isVisible, setIsVisible } = useWebSocketDiagnostic();
     
     return isLoading ? (
         <Preloader />
@@ -108,6 +110,10 @@ function MainContent({ isLoading }: MainContentProps): React.ReactElement {
             {!hideHeader && <Headermain />}
             <AppRoutes />
             <ScrollToTopButton />
+            <WebSocketDiagnostic 
+                isVisible={isVisible} 
+                onClose={() => setIsVisible(false)} 
+            />
         </>
     );
 }
