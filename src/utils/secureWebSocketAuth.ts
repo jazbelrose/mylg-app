@@ -109,15 +109,48 @@ export const createSecureWebSocketConnection = async (
   additionalParams: Record<string, any> = {}
 ): Promise<WebSocket> => {
   try {
+    // Validate JWT token is not expired
+    const tokenPayload = JSON.parse(atob(jwtToken.split('.')[1]));
+    const now = Math.floor(Date.now() / 1000);
+    if (tokenPayload.exp && tokenPayload.exp < now) {
+      throw new Error('JWT token is expired');
+    }
+
     // Use Sec-WebSocket-Protocol as an array for authentication
     const subprotocols = [jwtToken, sessionId];
 
     logSecurityEvent('secure_websocket_connection_initiated', { 
       url: baseUrl,
-      sessionId: sessionId?.substring(0, 8) + '...'
+      sessionId: sessionId?.substring(0, 8) + '...',
+      tokenExpiry: tokenPayload.exp
     });
 
-    return new WebSocket(baseUrl, subprotocols);
+    const socket = new WebSocket(baseUrl, subprotocols);
+    
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('WebSocket connection timeout'));
+        socket.close();
+      }, 10000);
+
+      socket.onopen = () => {
+        clearTimeout(timeout);
+        console.log('✅ WebSocket connection established successfully');
+        resolve(socket);
+      };
+
+      socket.onerror = (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      };
+
+      socket.onclose = (event) => {
+        clearTimeout(timeout);
+        if (event.code !== 1000) {
+          reject(new Error(`WebSocket closed with code ${event.code}: ${event.reason}`));
+        }
+      };
+    });
   } catch (error) {
     logSecurityEvent('secure_websocket_connection_failed', { 
       error: (error as Error).message,

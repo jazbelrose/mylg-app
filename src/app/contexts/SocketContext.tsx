@@ -8,6 +8,7 @@ import { WEBSOCKET_URL } from '../../utils/api';
 import { mergeAndDedupeMessages } from '../../utils/messageUtils';
 import { createSecureWebSocketConnection, secureWebSocketAuth } from '../../utils/secureWebSocketAuth';
 import { logSecurityEvent } from '../../utils/securityUtils';
+import { WebSocketHealthMonitor, ConnectionHealth } from '../../utils/websocketUtils';
 
 // Type extensions for WebSocket with custom properties
 interface ExtendedWebSocket extends WebSocket {
@@ -30,6 +31,7 @@ interface SocketContextType {
   ws: WebSocket | null;
   isConnected: boolean;
   onlineUsers: any[];
+  connectionHealth?: ConnectionHealth;
   sendMessage: (conversationId: string, text: string, recipientId: string) => void;
   sendProjectMessage: (projectId: string, text: string, senderId: string) => void;
   editProjectMessage: (messageId: string, newText: string, projectId: string) => void;
@@ -62,11 +64,13 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [ws, setWs] = useState<ExtendedWebSocket | null>(null); // state variable for the WebSocket
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
+    const [connectionHealth, setConnectionHealth] = useState<ConnectionHealth | undefined>(undefined);
     const refreshUsersRef = useRef<any>(refreshUsers);
     const fetchUserProfileRef = useRef<any>(fetchUserProfile);
     const collaboratorsUpdateTimeout = useRef<NodeJS.Timeout | null>(null);
     const reconnectInterval = useRef<NodeJS.Timeout | null>(null);
     const wsRef = useRef<ExtendedWebSocket | null>(null);
+    const healthMonitorRef = useRef<WebSocketHealthMonitor | null>(null);
     const generateSessionId = useCallback(() => {
         if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
             return crypto.randomUUID();
@@ -74,6 +78,16 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         return uuid();
     }, []);
     const sessionIdRef = useRef(sessionStorage.getItem('ws_session_id') || generateSessionId());
+    useEffect(() => {
+        // Initialize health monitor
+        healthMonitorRef.current = new WebSocketHealthMonitor((health) => {
+            setConnectionHealth(health);
+        });
+        
+        return () => {
+            healthMonitorRef.current?.destroy();
+        };
+    }, []);
     useEffect(() => {
         sessionStorage.setItem('ws_session_id', sessionIdRef.current);
     }, []);
@@ -99,11 +113,44 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const startReconnect = () => {
         if (reconnectInterval.current || wsRef.current)
             return;
-        reconnectInterval.current = setInterval(() => {
-            if (!wsRef.current) {
-                connectWebSocket();
+        
+        // Use exponential backoff for reconnection attempts
+        let retryDelay = 1000; // Start with 1 second
+        let retryCount = 0;
+        const maxRetries = 10;
+        const maxDelay = 30000; // Max 30 seconds
+        
+        const attempt = () => {
+            if (wsRef.current) {
+                stopReconnect();
+                return;
             }
-        }, 5000);
+            
+            if (retryCount >= maxRetries) {
+                console.error('Max reconnection attempts reached, stopping...');
+                stopReconnect();
+                return;
+            }
+            
+            console.log(`Reconnection attempt ${retryCount + 1}/${maxRetries} in ${retryDelay}ms`);
+            retryCount++;
+            
+            setTimeout(() => {
+                if (!wsRef.current) {
+                    connectWebSocket().then(() => {
+                        // Reset retry count on successful connection
+                        retryCount = 0;
+                        retryDelay = 1000;
+                    }).catch(() => {
+                        // Exponential backoff
+                        retryDelay = Math.min(retryDelay * 2, maxDelay);
+                        attempt();
+                    });
+                }
+            }, retryDelay);
+        };
+        
+        attempt();
     };
     const stopReconnect = () => {
         if (reconnectInterval.current) {
@@ -133,23 +180,60 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 console.warn('connectWebSocket called but socket already exists');
                 return;
             }
+            
+            console.log('🔗 Attempting WebSocket connection...');
             // Establish WebSocket connection with secure authentication
             const socket = await createSecureWebSocketConnection(WEBSOCKET_URL, tokens.idToken, sessionId);
+            
+            // Add connection timeout handling
+            const connectionTimeout = setTimeout(() => {
+                if (socket.readyState === WebSocket.CONNECTING) {
+                    console.error('WebSocket connection timeout');
+                    socket.close();
+                }
+            }, 10000); // 10 second timeout
+            
             socket.onopen = () => {
+                clearTimeout(connectionTimeout);
+                console.log('✅ WebSocket connected successfully');
                 setIsConnected(true);
                 setWs(socket);
                 wsRef.current = socket;
                 stopReconnect();
+                
+                // Notify health monitor
+                healthMonitorRef.current?.onConnect();
+                
+                // Send initial presence ping
                 socket.send(JSON.stringify({ action: 'presencePing' }));
+                healthMonitorRef.current?.onPing();
+                
+                // Set up keep-alive with error handling
                 (socket as ExtendedWebSocket).keepAliveInterval = setInterval(() => {
                     if (socket.readyState === WebSocket.OPEN) {
-                        socket.send(JSON.stringify({ action: 'presencePing' }));
+                        try {
+                            socket.send(JSON.stringify({ action: 'presencePing' }));
+                            healthMonitorRef.current?.onPing();
+                        } catch (error) {
+                            console.error('Failed to send keep-alive ping:', error);
+                            clearInterval((socket as ExtendedWebSocket).keepAliveInterval!);
+                        }
+                    } else {
+                        clearInterval((socket as ExtendedWebSocket).keepAliveInterval!);
                     }
                 }, 30000);
             };
             socket.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
+                    
+                    // Handle pong responses for connection health monitoring
+                    if (data.type === 'pong') {
+                        console.log('📡 Received pong:', data);
+                        healthMonitorRef.current?.onPong();
+                        return;
+                    }
+                    
                     // Avoid flooding the console with frequent presence updates
                     if (data.type !== 'onlineUsers') {
                         // Useful for debugging other events
@@ -353,25 +437,48 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 }
             };
             socket.onclose = (event) => {
-                // Log close event with code and reason
-                console.log('WS close', event.code, event.reason);
-                // 1006 = handshake/authorizer/URL issue.
-                // 1008 = policy/auth reject.
-                // 1011 = server error during connect.
+                clearTimeout(connectionTimeout);
+                // Log close event with code and reason for debugging
+                console.log('🔌 WebSocket closed:', {
+                    code: event.code,
+                    reason: event.reason,
+                    wasClean: event.wasClean,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Handle different close codes appropriately
+                const shouldReconnect = event.code !== 1000 && event.code !== 1001; // Don't reconnect on normal/going away
+                
                 setIsConnected(false);
                 if ((socket as ExtendedWebSocket).keepAliveInterval)
                     clearInterval((socket as ExtendedWebSocket).keepAliveInterval!);
                 setWs(null);
                 wsRef.current = null;
-                startReconnect();
+                
+                // Notify health monitor
+                healthMonitorRef.current?.onDisconnect();
+                
+                // Only reconnect for abnormal closures
+                if (shouldReconnect) {
+                    console.log('🔄 Scheduling reconnection due to abnormal closure');
+                    startReconnect();
+                } else {
+                    console.log('⏹️ Normal connection closure, not reconnecting');
+                }
             };
             socket.onerror = (err: Event) => {
-                console.error('Socket error:', err);
+                clearTimeout(connectionTimeout);
+                console.error('Socket error:', {
+                    error: err,
+                    readyState: socket.readyState,
+                    timestamp: new Date().toISOString()
+                });
                 logSecurityEvent('websocket_error', { error: (err as any).message || 'Unknown error' });
-                if (socket.readyState === WebSocket.OPEN) {
+                
+                // Don't close if already closing/closed
+                if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
                     socket.close();
                 }
-                startReconnect();
             };
         }
         catch (error) {
@@ -416,5 +523,24 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             return () => ws.removeEventListener('open', handleOpen);
         }
     }, [ws, activeProject?.projectId]);
-    return (_jsx(SocketContext.Provider, { value: { ws, isConnected, onlineUsers }, children: children }));
+    return (_jsx(SocketContext.Provider, { 
+        value: { 
+            ws, 
+            isConnected, 
+            onlineUsers, 
+            connectionHealth,
+            sendMessage: () => {}, // TODO: Implement
+            sendProjectMessage: () => {}, // TODO: Implement  
+            editProjectMessage: () => {}, // TODO: Implement
+            deleteProjectMessage: () => {}, // TODO: Implement
+            markProjectMessageAsRead: () => {}, // TODO: Implement
+            sendProjectUpdate: () => {}, // TODO: Implement
+            sendDirectMessage: () => {}, // TODO: Implement
+            editDirectMessage: () => {}, // TODO: Implement
+            deleteDirectMessage: () => {}, // TODO: Implement
+            markDirectMessageAsRead: () => {}, // TODO: Implement
+            generateSessionId
+        }, 
+        children: children 
+    }));
 };

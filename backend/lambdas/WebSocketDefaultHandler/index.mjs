@@ -653,47 +653,102 @@ const handlePresencePing = async (event) => {
     return { statusCode: 400, body: "Missing connection/user info" };
   }
 
-  const newTTL = Math.floor(Date.now() / 1000) + 5 * 60;
+  const newTTL = Math.floor(Date.now() / 1000) + 10 * 60; // Extend to 10 minutes
+  const currentTime = new Date().toISOString();
 
   try {
+    // Update connection with ping timestamp and extended TTL
     await dynamoDb.update({
       TableName: process.env.CONNECTIONS_TABLE,
       Key: { connectionId },
-      UpdateExpression: "SET expiresAt = :exp, lastPing = :pingTime",
+      UpdateExpression: "SET expiresAt = :exp, lastPing = :pingTime, connectionHealthy = :healthy",
       ConditionExpression: "attribute_exists(connectionId)",
       ExpressionAttributeValues: {
         ":exp": newTTL,
-        ":pingTime": new Date().toISOString(),
+        ":pingTime": currentTime,
+        ":healthy": true,
       },
     }).promise();
 
-    console.log(`📶 Presence updated: ${connectionId}`);
+    console.log(`📶 Presence updated: ${connectionId} at ${currentTime}`);
 
+    // Send immediate pong response to client
+    try {
+      await apigwManagementApi.postToConnection({
+        ConnectionId: connectionId,
+        Data: JSON.stringify({ 
+          type: "pong", 
+          timestamp: currentTime,
+          status: "healthy"
+        }),
+      }).promise();
+    } catch (pongError) {
+      console.error(`Failed to send pong to ${connectionId}:`, pongError);
+    }
+
+    // Get active connections (filter out expired ones)
+    const now = Math.floor(Date.now() / 1000);
     const result = await dynamoDb.scan({
       TableName: process.env.CONNECTIONS_TABLE,
-      ProjectionExpression: "connectionId, userId",
+      ProjectionExpression: "connectionId, userId, expiresAt, lastPing",
+      FilterExpression: "expiresAt > :now",
+      ExpressionAttributeValues: { ":now": now }
     }).promise();
 
-    const uniqueUsers = Array.from(new Set(result.Items.map(item => item.userId)));
-    const payload = { type: "onlineUsers", users: uniqueUsers };
+    const staleConnections = [];
+    const activeConnections = result.Items.filter(item => {
+      if (!item.expiresAt || item.expiresAt <= now) {
+        staleConnections.push(item.connectionId);
+        return false;
+      }
+      return true;
+    });
 
+    // Clean up stale connections
+    if (staleConnections.length > 0) {
+      console.log(`🧹 Cleaning ${staleConnections.length} stale connections`);
+      await Promise.allSettled(
+        staleConnections.map(staleId =>
+          dynamoDb.delete({ 
+            TableName: process.env.CONNECTIONS_TABLE, 
+            Key: { connectionId: staleId } 
+          }).promise()
+        )
+      );
+    }
+
+    const uniqueUsers = Array.from(new Set(activeConnections.map(item => item.userId)));
+    const onlineUsersPayload = { type: "onlineUsers", users: uniqueUsers };
+
+    // Broadcast online users to active connections only
     await Promise.allSettled(
-      result.Items.map(({ connectionId }) =>
+      activeConnections.map(({ connectionId: connId }) =>
         apigwManagementApi.postToConnection({
-          ConnectionId: connectionId,
-          Data: JSON.stringify(payload),
+          ConnectionId: connId,
+          Data: JSON.stringify(onlineUsersPayload),
         }).promise().catch(err => {
           if (err.statusCode === 410) {
-            dynamoDb.delete({ TableName: process.env.CONNECTIONS_TABLE, Key: { connectionId } }).promise();
+            console.log(`🧹 Connection ${connId} is stale, will be cleaned up`);
+            dynamoDb.delete({ 
+              TableName: process.env.CONNECTIONS_TABLE, 
+              Key: { connectionId: connId } 
+            }).promise();
+          } else {
+            console.error(`Failed to broadcast to ${connId}:`, err);
           }
         })
       )
     );
 
-    return { statusCode: 200, body: JSON.stringify({ status: "pong" }) };
+    return { statusCode: 200, body: JSON.stringify({ 
+      status: "pong",
+      timestamp: currentTime,
+      activeConnections: activeConnections.length,
+      onlineUsers: uniqueUsers.length
+    }) };
   } catch (err) {
     if (err.code === "ConditionalCheckFailedException") {
-      console.warn(`⚠️ Connection record missing for ${connectionId}`);
+      console.warn(`⚠️ Connection record missing for ${connectionId}, user may need to reconnect`);
       return { statusCode: 404, body: "Connection not found" };
     }
     console.error("❌ Failed to update presence TTL or broadcast:", err);

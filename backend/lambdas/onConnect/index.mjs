@@ -38,7 +38,7 @@ export const handler = async (event) => {
   }
 
   try {
-    // 1) Remove prior connections for this user (optional policy)
+    // 1) Find existing connections for this user
     const existing = await dynamoDb.query({
       TableName: process.env.CONNECTIONS_TABLE,
       IndexName: "userId-sessionId-index",
@@ -46,15 +46,33 @@ export const handler = async (event) => {
       ExpressionAttributeValues: { ":u": userId }
     }).promise();
 
+    console.log(`Found ${existing.Items?.length || 0} existing connections for user ${userId}`);
+
+    // 2) Only remove stale connections (older than 1 minute) or those with same sessionId
     if (existing.Items?.length) {
-      await Promise.all(
-        existing.Items.map((conn) =>
-          dynamoDb.delete({
-            TableName: process.env.CONNECTIONS_TABLE,
-            Key: { connectionId: conn.connectionId }
-          }).promise()
-        )
+      const now = new Date().toISOString();
+      const oneMinuteAgo = new Date(Date.now() - 60000).toISOString();
+      
+      const connectionsToRemove = existing.Items.filter(conn => 
+        // Remove if same sessionId (replacing) or if connection is stale
+        conn.sessionId === sessionId || 
+        conn.connectedAt < oneMinuteAgo ||
+        !conn.lastPing || conn.lastPing < oneMinuteAgo
       );
+      
+      if (connectionsToRemove.length > 0) {
+        console.log(`Removing ${connectionsToRemove.length} stale/duplicate connections`);
+        await Promise.all(
+          connectionsToRemove.map((conn) =>
+            dynamoDb.delete({
+              TableName: process.env.CONNECTIONS_TABLE,
+              Key: { connectionId: conn.connectionId }
+            }).promise()
+          )
+        );
+      } else {
+        console.log('No stale connections to remove');
+      }
     }
 
     // 2) Save new connection (omit undefined fields)
@@ -62,6 +80,7 @@ export const handler = async (event) => {
       connectionId,
       userId,
       connectedAt: new Date().toISOString(),
+      lastPing: new Date().toISOString(), // Initialize lastPing
       expiresAt: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
     };
     if (sessionId) item.sessionId = sessionId;
