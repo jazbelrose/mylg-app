@@ -44,17 +44,28 @@ export default function YjsIdleSavePlugin({
     pendingSaveRef.current = true;
     try {
       // Get current editor state as JSON
-      editor.getEditorState().read(() => {
+      await editor.getEditorState().read(() => {
         const json = JSON.stringify(editor.getEditorState().toJSON());
         
         // Only save if content has actually changed
         if (json !== lastSaveRef.current) {
           lastSaveRef.current = json;
+          console.log('[YjsIdleSavePlugin] Triggering save, content length:', json.length);
           onSave(json).catch((error) => {
             console.error('[YjsIdleSavePlugin] Save failed:', error);
+            // Reset lastSaveRef so we'll retry on next opportunity
+            if (error.message.includes('concurrent') || error.message.includes('conflict')) {
+              console.warn('[YjsIdleSavePlugin] Conflict detected, will retry later');
+            } else {
+              lastSaveRef.current = ''; // Reset to force retry
+            }
           });
+        } else {
+          console.log('[YjsIdleSavePlugin] No changes detected, skipping save');
         }
       });
+    } catch (error) {
+      console.error('[YjsIdleSavePlugin] Error reading editor state:', error);
     } finally {
       pendingSaveRef.current = false;
     }
