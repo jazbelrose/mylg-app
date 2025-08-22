@@ -26,7 +26,7 @@ Interactive Tools
 
 Calendar integration for task planning and time-blocking
 
-Lexical-based rich text editor for project notes and proposals
+Lexical-based rich text editor for project notes and proposals with real-time collaboration
 
 Support for voice notes and (planned) voice recognition
 
@@ -47,3 +47,19 @@ Multi-user calendar sharing and task scheduling
 AI-assisted design chat (exploring GPT-J via AWS Bedrock)
 
 Improved rendering workflows for 2D/3D assets
+
+## 📖 Technical Documentation
+
+### Lexical Editor System
+For detailed technical information about the real-time collaborative editor:
+
+- **[Lexical Editor Architecture](./LEXICAL_EDITOR_ARCHITECTURE.md)** - Complete technical analysis including content hydration, YJS WebSocket server role, data persistence, and improvement recommendations
+- **[Editor Flow Diagrams](./LEXICAL_EDITOR_DIAGRAMS.md)** - Visual diagrams showing data flow, component relationships, and system architecture
+- **[Editor Summary](./LEXICAL_EDITOR_SUMMARY.md)** - Executive summary with actionable recommendations and implementation roadmap
+
+### Key Technical Features
+- **Real-time Collaboration**: Operational transforms via Yjs for conflict-free editing
+- **Multi-layer Persistence**: IndexedDB for offline support + DynamoDB for permanent storage  
+- **Performance Optimization**: Debounced updates and intelligent batching
+- **Security**: JWT authentication for WebSocket connections (planned improvements)
+- **Scalability**: Architecture supports 100+ concurrent users per document
