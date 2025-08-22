@@ -12,6 +12,19 @@ function validateUser(userId) {
   return userId && typeof userId === 'string' && userId.trim().length > 0;
 }
 
+// Room access validation (implement your business logic here)
+function validateRoomAccess(userId, roomId) {
+  // In production, check if user has permission to access this room/project
+  // For now, allow access if user is authenticated
+  
+  // Example business rules you might implement:
+  // - Check if user is a member of the project
+  // - Check if project is public
+  // - Check user permissions/role
+  
+  return validateUser(userId);
+}
+
 const host = process.env.HOST || '0.0.0.0';
 const port = process.env.PORT || 1234;
 const server = http.createServer((req, res) => {
@@ -30,13 +43,29 @@ function getYDoc(roomId) {
   return yDocs.get(roomId);
 }
 
+// Room tracking for better isolation and debugging
+const roomConnections = new Map(); // roomId -> Set of {ws, userId, userName}
+
 wss.on('connection', (ws, req) => {
   // Extract room ID from URL path (standard y-websocket approach)
-  // URL format: /roomId?userId=123 or /roomId (roomId becomes the docName)
   const roomId = (req.url || '').slice(1).split('?')[0] || 'default-room';
+  
+  // Parse user info from URL parameters  
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const userId = url.searchParams.get('userId');
+  const userName = url.searchParams.get('userName') || userId || 'anonymous';
 
   // Reuse or create the Y.Doc for this room
   const doc = getYDoc(roomId);
+
+  // Track connection in room
+  if (!roomConnections.has(roomId)) {
+    roomConnections.set(roomId, new Set());
+  }
+  const connectionInfo = { ws, userId, userName, roomId };
+  roomConnections.get(roomId).add(connectionInfo);
+
+  console.log(`🔗 User ${userName} connected to room: ${roomId} (${roomConnections.get(roomId).size} users in room)`);
 
   // Setup the connection with the shared Y.Doc - pass the doc explicitly
   setupWSConnection(ws, req, { docName: roomId, doc });
@@ -46,6 +75,20 @@ wss.on('connection', (ws, req) => {
   ws.on('pong', () => {
     ws.isAlive = true;
   });
+
+  // Handle disconnection
+  ws.on('close', () => {
+    // Remove from room tracking
+    if (roomConnections.has(roomId)) {
+      roomConnections.get(roomId).delete(connectionInfo);
+      if (roomConnections.get(roomId).size === 0) {
+        roomConnections.delete(roomId);
+        console.log(`📤 User ${userName} disconnected from room: ${roomId} (room now empty)`);
+      } else {
+        console.log(`📤 User ${userName} disconnected from room: ${roomId} (${roomConnections.get(roomId).size} users remaining)`);
+      }
+    }
+  });
 });
 
 // Heartbeat mechanism to detect broken connections
@@ -53,6 +96,7 @@ const heartbeat = setInterval(() => {
   wss.clients.forEach((ws) => {
     if (ws.isAlive === false) {
       console.log('💔 Terminating broken connection');
+      // The close event will handle room cleanup
       return ws.terminate();
     }
     
@@ -68,17 +112,26 @@ server.on('upgrade', (req, socket, head) => {
   // Parse URL parameters for authentication
   const url = new URL(req.url, `http://${req.headers.host}`);
   const userId = url.searchParams.get('userId');
+  const userName = url.searchParams.get('userName') || userId || 'anonymous';
 
   // Validate authentication
   if (!validateUser(userId)) {
-    console.log('❌ Authentication failed for user:', userId, 'room:', roomId);
+    console.log('❌ Authentication failed for user:', userName, 'room:', roomId);
     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
     socket.destroy();
     return;
   }
 
-  // Log with cleaner format - show username (we'll improve this to show actual username later)
-  console.log('✅ User authenticated:', userId, 'for room:', roomId);
+  // Validate room access
+  if (!validateRoomAccess(userId, roomId)) {
+    console.log('❌ Room access denied for user:', userName, 'room:', roomId);
+    socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
+    socket.destroy();
+    return;
+  }
+
+  // Log with cleaner format showing username and room
+  console.log('✅ User authenticated:', userName, 'for room:', roomId);
 
   const handleAuth = ws => {
     wss.emit('connection', ws, req);

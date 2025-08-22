@@ -161,8 +161,9 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
   const wsParams = useMemo(() => {
     const params: Record<string, string> = {};
     if (userId) params.userId = userId;
+    if (userName) params.userName = userName;
     return params;
-  }, [userId]);
+  }, [userId, userName]);
 
 
   // Create or reuse the provider for this room - now room-aware
