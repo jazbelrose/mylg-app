@@ -255,12 +255,29 @@ const pingTimeout = 30000
  * @param {any} opts
  */
 exports.setupWSConnection = (conn, req, { docName = (req.url || '').slice(1).split('?')[0], gc = true } = {}) => {
+  console.log(`[utils] setupWSConnection → docName: ${docName}`)
+
   conn.binaryType = 'arraybuffer'
   // get doc, initialize if it does not exist yet
   const doc = getYDoc(docName, gc)
   doc.conns.set(conn, new Set())
+
+  // Log when updates happen
+  doc.on('update', () => {
+    console.log(`[utils] Y.Doc updated in room: ${docName}`)
+  })
+
   // listen and reply to events
-  conn.on('message', /** @param {ArrayBuffer} message */ message => messageListener(conn, doc, new Uint8Array(message)))
+  conn.on('message', /** @param {ArrayBuffer} message */ message => {
+    console.log(`[utils] Message received in room ${docName}:`, new Uint8Array(message).toString())
+    messageListener(conn, doc, new Uint8Array(message))
+  })
+
+  // Optional: Log sync awareness
+  const awareness = new awarenessProtocol.Awareness(doc)
+  awareness.on('change', (changes) => {
+    console.log(`[utils] Awareness change in room ${docName}:`, changes)
+  })
 
   // Check if connection is still alive
   let pongReceived = true

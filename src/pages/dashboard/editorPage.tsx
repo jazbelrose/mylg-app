@@ -11,7 +11,7 @@ import UnifiedToolbar from "../../components/UnifiedToolbar";
 import LexicalEditor from "../../components/LexicalEditor/LexicalEditor";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
-import { findProjectBySlug, slugify } from "../../utils/slug";
+import { findProjectBySlug } from "../../utils/slug";
 
 // Debounce utility function
 function debounce<T extends (...args: any[]) => void>(func: T, wait: number): T {
@@ -104,20 +104,20 @@ const EditorPage: React.FC = () => {
   }, [activeProject?.projectId, updateProjectFields]);
 
   useEffect(() => {
-    setActiveProject(initialActiveProject);
-  }, [initialActiveProject]);
-
-  useEffect(() => {
-    if (!initialActiveProject) return;
-    if (slugify(initialActiveProject.title) !== projectSlug) {
-      const proj = findProjectBySlug(projects, projectSlug);
-      if (proj) {
-        fetchProjectDetails(proj.projectId);
-      } else {
-        navigate(`/dashboard/projects/${slugify(initialActiveProject.title)}`);
-      }
+    const proj = findProjectBySlug(projects, projectSlug);
+    if (proj) {
+      setActiveProject(proj);
+      fetchProjectDetails(proj.projectId); // Optional: rehydrate from DB
+    } else {
+      setActiveProject(null);
     }
-  }, [projectSlug, projects, initialActiveProject, navigate, fetchProjectDetails]);
+  }, [projects, projectSlug, fetchProjectDetails]);
+
+  // Optional Debugging Tip
+  useEffect(() => {
+    console.log("projectSlug:", projectSlug);
+    console.log("activeProject.projectId:", activeProject?.projectId);
+  }, [projectSlug, activeProject]);
 
   useEffect(() => {
     if (!ws || !activeProject?.projectId) return;
