@@ -46,17 +46,62 @@ const EditorPage: React.FC = () => {
   const [briefToolbarActions, setBriefToolbarActions] = useState<Record<string, any>>({});
   const quickLinksRef = useRef<any>(null);
   const designerRef = useRef<any>(null);
+  const editorRef = useRef<any>(null);
 
-  // Debounced save function for description changes
-  const debouncedSaveDescription = useMemo(
-    () => debounce((json: string) => {
-      if (activeProject?.projectId) {
-        console.log("[EditorPage] Saving description to DB:", json.substring(0, 100) + "...");
-        updateProjectFields(activeProject.projectId, { description: json });
+  // Manual save function for explicit saves
+  const handleManualSave = useCallback(() => {
+    // Access the manual save function exposed by YjsIdleSavePlugin
+    if (editorRef.current?.manualSave) {
+      editorRef.current.manualSave();
+    }
+  }, []);
+
+  // Save on blur (when user leaves the editor)
+  const handleEditorBlur = useCallback(() => {
+    console.log("[EditorPage] Editor blurred, triggering save");
+    handleManualSave();
+  }, [handleManualSave]);
+
+  // Save before navigation
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Trigger manual save before page unload
+      handleManualSave();
+      // Note: We don't prevent navigation, just ensure save is triggered
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [handleManualSave]);
+  const saveDescription = useCallback(async (json: string) => {
+    if (activeProject?.projectId) {
+      console.log("[EditorPage] Saving description to DB (idle save):", json.substring(0, 100) + "...");
+      try {
+        // Add a timestamp or version to help with conflict detection
+        const savePayload = { 
+          description: json,
+          lastModified: new Date().toISOString(),
+          // Could add Yjs state vector here for more sophisticated conflict resolution
+        };
+        
+        await updateProjectFields(activeProject.projectId, savePayload);
+        console.log("[EditorPage] Description saved successfully");
+      } catch (error) {
+        console.error("[EditorPage] Failed to save description:", error);
+        
+        // Check if it's a conflict/concurrent modification error
+        if (error instanceof Error && error.message.includes('concurrent')) {
+          console.warn("[EditorPage] Concurrent modification detected, skipping save to prevent overwrite");
+          // In a production app, you might want to notify the user or retry with merge strategy
+        } else {
+          // Could add user notification here for other errors
+          console.error("[EditorPage] Save failed with error:", error);
+        }
       }
-    }, 2000), // 2 second debounce
-    [activeProject?.projectId, updateProjectFields]
-  );
+    }
+  }, [activeProject?.projectId, updateProjectFields]);
 
   useEffect(() => {
     setActiveProject(initialActiveProject);
@@ -127,7 +172,13 @@ const EditorPage: React.FC = () => {
   const handlePaste = () => designerRef.current?.handlePaste();
   const handleDelete = () => designerRef.current?.handleDelete();
   const handleClearCanvas = () => designerRef.current?.handleClear();
-  const handleSave = () => designerRef.current?.handleSave();
+  const handleSave = () => {
+    if (activeTab === "brief") {
+      handleManualSave();
+    } else {
+      designerRef.current?.handleSave();
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -206,9 +257,11 @@ const EditorPage: React.FC = () => {
                     >
                       <div className="dashboard-layout" style={{ paddingBottom: "5px" }}>
                         <LexicalEditor
+                          ref={editorRef}
                           key={activeProject?.projectId}
-                          initialContent={activeProject.description || undefined}
-                          onChange={debouncedSaveDescription}
+                          initialContent={typeof activeProject.description === 'string' ? activeProject.description : undefined}
+                          onSave={saveDescription}
+                          onBlur={handleEditorBlur}
                           registerToolbar={setBriefToolbarActions}
                         />
                       </div>

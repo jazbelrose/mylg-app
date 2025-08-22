@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useImperativeHandle,
 } from "react";
 import { useData } from "../../app/contexts/DataProvider";
 import { useAuth } from "../../app/contexts/AuthContext";
@@ -27,6 +28,7 @@ import DeleteImagePlugin from "./plugins/DeleteImagePlugin";
 import ImageLockPlugin from "./plugins/ImageLockPlugin";
 import ImageCopyPastePlugin from "./plugins/ImageCopyPastePlugin";
 import YjsSyncPlugin from "./plugins/YjsSyncPlugin";
+import YjsIdleSavePlugin from "./plugins/YjsIdleSavePlugin";
 
 import { WebsocketProvider } from "y-websocket";
 import { IndexeddbPersistence } from "y-indexeddb";
@@ -53,9 +55,13 @@ import SpeechToTextPlugin from "./plugins/SpeechToTextPlugin";
 import ToolbarActionsPlugin from "./plugins/ToolbarActionsPlugin";
 
 type LexicalEditorProps = {
-  onChange: (json: string) => void;
+  onChange?: (json: string) => void; // Made optional since we're moving to idle save
+  onSave?: (json: string) => Promise<void>; // New prop for save strategy
+  onBlur?: () => void; // Callback for when editor loses focus
   initialContent?: string; // stringified Lexical JSON from DB
   registerToolbar?: (api: unknown) => void;
+  idleTimeMs?: number; // Configurable idle time for saves
+  ref?: React.RefObject<any>; // Allow ref forwarding
 };
 
 type ProviderWithExtras = WebsocketProvider & {
@@ -63,11 +69,14 @@ type ProviderWithExtras = WebsocketProvider & {
   sharedType: Y.Text;
 };
 
-const LexicalEditor: React.FC<LexicalEditorProps> = ({
+const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
   onChange,
+  onSave,
+  onBlur,
   initialContent,
   registerToolbar,
-}) => {
+  idleTimeMs = 25000, // Default 25 seconds
+}, ref) => {
   const { userName, activeProject } = useData();
   const { userId } = useAuth();
   const editorRef = useRef<HTMLDivElement | null>(null);
@@ -75,6 +84,13 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
   const contentRef = useRef<HTMLDivElement | null>(null);
   const providerRef = useRef<ProviderWithExtras | null>(null);
   const persistenceRef = useRef<IndexeddbPersistence | null>(null);
+  const manualSaveRef = useRef<(() => Promise<void>) | null>(null);
+
+  // Expose manual save function via ref
+  useImperativeHandle(ref, () => ({
+    manualSave: () => manualSaveRef.current?.(),
+    _manualSave: () => manualSaveRef.current?.(), // For backward compatibility
+  }), []);
 
   // Keep initial content in a ref and sync when prop changes (handles async load & project switch)
   const initialContentRef = useRef<string | undefined>(initialContent);
@@ -89,7 +105,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     if (activeProject && typeof activeProject === "object") {
       return (activeProject as any).projectId ?? "default-project";
     }
-    return (activeProject as string) ?? "default-project";
+    return "default-project";
   }, [activeProject]);
 
   // Clear prior IndexedDB when project changes
@@ -285,6 +301,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
                     <ContentEditable
                       className="editor-input"
                       style={{ position: "relative", minHeight: "100%" }}
+                      onBlur={onBlur}
                     />
                   }
                   ErrorBoundary={LexicalErrorBoundary}
@@ -292,14 +309,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
                 <CollaborationPlugin
                   id={projectId}
-                  providerFactory={
-                    getProvider as unknown as (
-                      id: string,
-                      yjsDocMap: Map<string, Y.Doc>,
-                      // Allow extra args without breaking types
-                      ..._rest: unknown[]
-                    ) => WebsocketProvider
-                  }
+                  providerFactory={getProvider as any}
                   /**
                    * IMPORTANT: Provide a function that sets editor state ONLY when the Yjs doc is empty.
                    * The CollaborationPlugin handles the “seed when empty” logic; we just supply the seed.
@@ -317,7 +327,22 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
                 <RemoveEmptyLayoutItemsOnBackspacePlugin />
                 {providerRef.current && (
-                  <YjsSyncPlugin provider={providerRef.current} />
+                  <>
+                    <YjsSyncPlugin provider={providerRef.current} />
+                    {onSave && (
+                      <YjsIdleSavePlugin 
+                        provider={providerRef.current}
+                        onSave={onSave}
+                        idleTimeMs={idleTimeMs}
+                        onActivity={() => {
+                          // Optional: track activity for UI feedback
+                        }}
+                        onManualSaveReady={(saveFunc) => {
+                          manualSaveRef.current = saveFunc;
+                        }}
+                      />
+                    )}
+                  </>
                 )}
                 <ListPlugin />
                 <LinkPlugin />
@@ -333,17 +358,19 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
                 <AutoScrollToBottomPlugin contentRef={contentRef} />
 
-                <OnChangePlugin
-                  onChange={useCallback(
-                    (editorState: EditorState) => {
-                      // Serialize to Lexical JSON string and bubble up
-                      const json = JSON.stringify(editorState.toJSON());
-                      // console.log("[Editor State] Updated:", json);
-                      onChange(json);
-                    },
-                    [onChange]
-                  )}
-                />
+                {/* Keep onChange for backward compatibility if provided */}
+                {onChange && (
+                  <OnChangePlugin
+                    onChange={useCallback(
+                      (editorState: EditorState) => {
+                        // Serialize to Lexical JSON string and bubble up
+                        const json = JSON.stringify(editorState.toJSON());
+                        onChange(json);
+                      },
+                      [onChange]
+                    )}
+                  />
+                )}
               </div>
             </div>
           </ImageLockPlugin>
@@ -351,6 +378,8 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
       </LexicalComposer>
     </div>
   );
-};
+});
+
+LexicalEditor.displayName = 'LexicalEditor';
 
 export default LexicalEditor;
