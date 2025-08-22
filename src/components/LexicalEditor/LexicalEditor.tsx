@@ -6,7 +6,10 @@ import React, {
   useMemo,
 } from "react";
 import { useData } from "../../app/contexts/DataProvider";
-import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import {
+  LexicalComposer,
+  type InitialConfigType,
+} from "@lexical/react/LexicalComposer";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -34,7 +37,10 @@ import * as Y from "yjs";
 import "./LexicalEditor.css";
 
 import { ListNode, ListItemNode } from "@lexical/list";
-import { ParagraphNode, type EditorState } from "lexical";
+import {
+  ParagraphNode,
+  type EditorState as LexicalEditorState,
+} from "lexical";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 
@@ -53,78 +59,79 @@ import ToolbarActionsPlugin from "./plugins/ToolbarActionsPlugin";
 
 type LexicalEditorProps = {
   onChange: (json: string) => void;
-  initialContent?: string; // stringified Lexical JSON from DB
-  registerToolbar?: (api: unknown) => void;
+  initialContent?: unknown | null;
+  registerToolbar?: (actions: unknown) => void;
 };
 
-type ProviderWithExtras = WebsocketProvider & {
-  doc: Y.Doc;
-  sharedType: Y.Text;
-};
+type ActiveProjectLike = { projectId?: string } | string | null | undefined;
+
+// Extend to allow us to stash helper props safely
+interface ExtendedWebsocketProvider extends WebsocketProvider {
+  sharedType?: Y.Text;
+}
 
 const LexicalEditor: React.FC<LexicalEditorProps> = ({
   onChange,
   initialContent,
   registerToolbar,
 }) => {
-  const { userName, activeProject } = useData();
+  const { userName, activeProject } = useData() as {
+    userName?: string;
+    activeProject?: ActiveProjectLike;
+  };
+
   const editorRef = useRef<HTMLDivElement | null>(null);
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const providerRef = useRef<ProviderWithExtras | null>(null);
+
+  const providerRef = useRef<ExtendedWebsocketProvider | null>(null);
   const persistenceRef = useRef<IndexeddbPersistence | null>(null);
 
-  // Keep initial content in a ref and sync when prop changes (handles async load & project switch)
-  const initialContentRef = useRef<string | undefined>(initialContent);
-  useEffect(() => {
-    initialContentRef.current = initialContent;
-  }, [initialContent]);
+  const initialContentRef = useRef<unknown | null>(initialContent ?? null);
+  const hasScrolledToBottom = useRef<boolean>(false);
 
-  const hasScrolledToBottom = useRef(false);
-
-  // Memoize project id
-  const projectId = useMemo(() => {
-    if (activeProject && typeof activeProject === "object") {
-      return (activeProject as any).projectId ?? "default-project";
+  // Memoize the project ID so it isn’t recalculated unnecessarily.
+  const projectId = useMemo<string>(() => {
+    const ap = activeProject;
+    if (ap && typeof ap === "object" && "projectId" in ap) {
+      return (ap?.projectId as string) || "default-project";
     }
-    return (activeProject as string) ?? "default-project";
+    return (ap as string) || "default-project";
   }, [activeProject]);
 
-  // Clear prior IndexedDB when project changes
   useEffect(() => {
-    if (persistenceRef.current) {
-      persistenceRef.current
+    const persistence = persistenceRef.current;
+    if (persistence) {
+      persistence
         .destroy()
         .then(() => {
           console.log("IndexedDB cleared for project:", projectId);
         })
-        .catch((err) => {
+        .catch((err: unknown) => {
           console.error("Error clearing IndexedDB:", err);
-        })
-        .finally(() => {
-          persistenceRef.current = null;
         });
     }
   }, [projectId]);
 
-  // Reset autoscroll flag on project change
+  // If needed, you can set up the anchor element for plugins (like draggable blocks)
+  useEffect(() => {
+    if (editorContainerRef.current) {
+      // Anchor setup (if required by plugins) could go here.
+    }
+  }, []);
+
   useEffect(() => {
     hasScrolledToBottom.current = false;
   }, [projectId]);
 
-  const [, setYjsProvider] = useState<WebsocketProvider | null>(null);
+  // Only to trigger re-renders if you want; not otherwise used.
+  // (Keep for parity with original; can be removed if truly unused.)
+  const [, setYjsProvider] = useState<ExtendedWebsocketProvider | null>(null);
 
-  // Build same-origin WS endpoint so HTTPS → WSS, HTTP → WS (Fx/Safari safe)
-  const WS_ENDPOINT = useMemo(() => {
-    const scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    return `${scheme}://${window.location.host}/yjs`;
-  }, []);
-
-  // Create or reuse the provider for this room
   const getProvider = useCallback(
-    (id: string, yjsDocMap: Map<string, Y.Doc>) => {
+    (id: string, yjsDocMap: Map<string, Y.Doc>): ExtendedWebsocketProvider => {
       if (providerRef.current) {
-        return providerRef.current as WebsocketProvider;
+        return providerRef.current;
       }
 
       let doc = yjsDocMap.get(id);
@@ -133,37 +140,31 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
         yjsDocMap.set(id, doc);
       }
 
-      // Persistence per-room
+      // Create and store the persistence instance.
       const persistence = new IndexeddbPersistence(id, doc);
       persistence.on("synced", () => {
         console.log("IndexedDB synced for project:", id);
       });
       persistenceRef.current = persistence;
 
-      const provider = new WebsocketProvider(WS_ENDPOINT, id, doc) as ProviderWithExtras;
-      const sharedType = doc.getText("lexical");
+      const provider = new WebsocketProvider(
+        "ws://35.165.113.63:1234",
+        id,
+        doc
+      ) as ExtendedWebsocketProvider;
 
-      provider.doc = doc;
-      provider.sharedType = sharedType;
+      // Expose a shared text type for convenience (handy for custom plugins).
+      provider.sharedType = doc.getText("lexical");
 
       providerRef.current = provider;
       setYjsProvider(provider);
-
-      // Helpful logs
-      provider.on("status", (event: { status: string }) => {
-        console.log("[y-websocket] status:", event.status, "room:", id);
-      });
-      provider.on("sync", (isSynced: boolean) => {
-        console.log("[y-websocket] sync:", isSynced, "room:", id);
-      });
-
-      return provider as WebsocketProvider;
+      return provider;
     },
-    [WS_ENDPOINT]
+    []
   );
 
-  // Lexical composer config
-  const initialConfig = useMemo(
+  // Memoize the LexicalComposer configuration so it’s only created once.
+  const initialConfig: InitialConfigType = useMemo(
     () => ({
       namespace: "MyEditor",
       theme: {
@@ -210,24 +211,11 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
         LayoutContainerNode,
         LayoutItemNode,
       ],
-      onError: (error: unknown) =>
-        console.error("Lexical Editor Error:", error),
-      editorState: null as unknown, // we bootstrap via CollaborationPlugin
+      onError: (error: Error) => console.error("Lexical Editor Error:", error),
+      editorState: null,
     }),
     []
   );
-
-  // Safely parse initialContent JSON for initialEditorState seeding (used only if Yjs doc is empty)
-  const parseInitialEditorState = useCallback(() => {
-    const raw = initialContentRef.current;
-    if (!raw) return undefined;
-    try {
-      return JSON.parse(raw);
-    } catch {
-      console.warn("[LexicalEditor] Invalid initialContent JSON");
-      return undefined;
-    }
-  }, []);
 
   return (
     <div
@@ -239,7 +227,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
         minHeight: "800px",
       }}
     >
-      <LexicalComposer initialConfig={initialConfig as any}>
+      <LexicalComposer initialConfig={initialConfig}>
         <DropdownProvider>
           <ImageLockPlugin provider={providerRef.current}>
             <div
@@ -281,37 +269,23 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
                 <CollaborationPlugin
                   id={projectId}
-                  providerFactory={
-                    getProvider as unknown as (
-                      id: string,
-                      yjsDocMap: Map<string, Y.Doc>,
-                      // Allow extra args without breaking types
-                      ..._rest: unknown[]
-                    ) => WebsocketProvider
-                  }
-                  /**
-                   * IMPORTANT: Provide a function that sets editor state ONLY when the Yjs doc is empty.
-                   * The CollaborationPlugin handles the “seed when empty” logic; we just supply the seed.
-                   */
-                  initialEditorState={(editor) => {
-                    const seed = parseInitialEditorState();
-                    if (!seed) return;
-                    // Let Lexical parse the serialized state
-                    const parsed = editor.parseEditorState(seed);
-                    editor.setEditorState(parsed);
-                  }}
+                  providerFactory={getProvider}
+                  initialEditorState={initialContentRef.current as never}
                   shouldBootstrap={true}
-                  username={userName ?? "anonymous"}
+                  username={userName}
                 />
 
                 <RemoveEmptyLayoutItemsOnBackspacePlugin />
+
                 {providerRef.current && (
                   <YjsSyncPlugin provider={providerRef.current} />
                 )}
+
                 <ListPlugin />
                 <LinkPlugin />
                 <ClickableLinkPlugin />
                 <TextStylePlugin />
+
                 {editorContainerRef.current && (
                   <DraggableBlockPlugin anchorElem={editorContainerRef.current} />
                 )}
@@ -324,11 +298,12 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
                 <OnChangePlugin
                   onChange={useCallback(
-                    (editorState: EditorState) => {
-                      // Serialize to Lexical JSON string and bubble up
-                      const json = JSON.stringify(editorState.toJSON());
-                      // console.log("[Editor State] Updated:", json);
-                      onChange(json);
+                    (editorState: LexicalEditorState) => {
+                      editorState.read(() => {
+                        const json = JSON.stringify(editorState.toJSON());
+                        console.log("[Editor State] Updated:", json);
+                        onChange(json);
+                      });
                     },
                     [onChange]
                   )}
