@@ -196,7 +196,7 @@ const WS_ENDPOINT = useMemo(() => {
         connect: true,
         maxBackoffTime: 5000, // Max 5 seconds between reconnection attempts
       }) as ProviderWithExtras;
-      const sharedType = doc.getText("lexical");
+      const sharedType = doc.getText("description");
 
       provider.doc = doc;
       provider.sharedType = sharedType;
@@ -211,9 +211,13 @@ const WS_ENDPOINT = useMemo(() => {
           console.warn("[y-websocket] Disconnected from Yjs server");
         }
       });
-      provider.on("sync", (isSynced: boolean) => {
-        console.log("[y-websocket] sync:", isSynced, "room:", id);
-      });
+     provider.on("sync", (isSynced: boolean) => {
+  console.log("[y-websocket] sync:", isSynced, "room:", id);
+  if (isSynced) {
+    console.log("[y-websocket] current text:", provider.sharedType.toString());
+  }
+});
+
       provider.on("connection-error", (event: any) => {
         console.error("[y-websocket] Connection error:", event);
       });
@@ -377,21 +381,11 @@ const WS_ENDPOINT = useMemo(() => {
                 <CollaborationPlugin
                   id={roomId}
                   providerFactory={memoizedProviderFactory as any}
-                  shouldBootstrap={true}
+                  shouldBootstrap={false}
                   username={stableUserName}
               
-                  initialEditorState={(editor) => {
-                    // Only bootstrap if Yjs document is empty and we have initial content
-                    const seed = parseInitialEditorState();
-                    if (!seed) return;
-                    try {
-                      const parsed = editor.parseEditorState(seed);
-                      editor.setEditorState(parsed);
-                      console.log("[LexicalEditor] Initial content bootstrapped from Yjs");
-                    } catch (error) {
-                      console.warn("[LexicalEditor] Failed to bootstrap initial content:", error);
-                    }
-                  }}
+                 
+                 
                 />
 
                 <RemoveEmptyLayoutItemsOnBackspacePlugin />

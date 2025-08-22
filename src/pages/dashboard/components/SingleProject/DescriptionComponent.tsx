@@ -23,12 +23,9 @@ const DescriptionComponent: React.FC<DescriptionComponentProps> = ({
 
   return (
     <LexicalEditor
-      key={activeProject.projectId}          // force a clean mount per room
-      // If your LexicalEditor expects a room/doc prop, pass it here:
-      // roomId={activeProject.projectId}
-      // docName={activeProject.projectId}
-      initialContent=""                      // let Yjs seed from the server
-      onChange={() => setIsDirty(true)}      // UI-only; no client saves
+      key={activeProject.projectId}          
+      initialContent=""                     
+      onChange={() => setIsDirty(true)}      
       registerToolbar={registerToolbar}
     />
   );
