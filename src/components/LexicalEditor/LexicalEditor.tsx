@@ -100,12 +100,13 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
 
   const hasScrolledToBottom = useRef(false);
 
-  // Memoize project id
+  // Memoize project id - only return valid projectId, no fallback
   const projectId = useMemo(() => {
     if (activeProject && typeof activeProject === "object") {
-      return (activeProject as any).projectId ?? "default-project";
+      const id = (activeProject as any).projectId;
+      return id && typeof id === "string" && id.trim() !== "" ? id : null;
     }
-    return "default-project";
+    return null; // Return null instead of fallback to prevent wrong room connections
   }, [activeProject]);
 
   // Clear prior IndexedDB when project changes
@@ -122,6 +123,14 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
         .finally(() => {
           persistenceRef.current = null;
         });
+    }
+    
+    // Also cleanup WebSocket provider when projectId becomes null
+    if (!projectId && providerRef.current) {
+      console.log("Cleaning up WebSocket provider due to null projectId");
+      providerRef.current.destroy();
+      providerRef.current = null;
+      setYjsProvider(null);
     }
   }, [projectId]);
 
@@ -307,8 +316,10 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
                   ErrorBoundary={LexicalErrorBoundary}
                 />
 
-                <CollaborationPlugin
-                  id={projectId}
+                {/* Only render CollaborationPlugin when we have a valid projectId */}
+                {projectId && (
+                  <CollaborationPlugin
+                    id={projectId}
                   providerFactory={getProvider as any}
                   /**
                    * IMPORTANT: Provide a function that sets editor state ONLY when the Yjs doc is empty.
@@ -324,9 +335,10 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
                   shouldBootstrap={true}
                   username={userName ?? "anonymous"}
                 />
+                )}
 
                 <RemoveEmptyLayoutItemsOnBackspacePlugin />
-                {providerRef.current && (
+                {projectId && providerRef.current && (
                   <>
                     <YjsSyncPlugin provider={providerRef.current} />
                     {onSave && (
