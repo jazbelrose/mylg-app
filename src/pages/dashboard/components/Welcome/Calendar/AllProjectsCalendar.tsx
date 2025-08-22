@@ -221,7 +221,7 @@ const AllProjectsCalendar: React.FC = () => {
     }
 
     if (offset !== tooltipOffset) setTooltipOffset(offset);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [hoverDate, tooltipOffset]);
 
   // Recalc tooltip on resize

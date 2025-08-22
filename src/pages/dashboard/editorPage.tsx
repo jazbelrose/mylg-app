@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import ProjectPageLayout from "./components/SingleProject/ProjectPageLayout";
@@ -13,6 +13,15 @@ import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { findProjectBySlug, slugify } from "../../utils/slug";
 
+// Debounce utility function
+function debounce<T extends (...args: any[]) => void>(func: T, wait: number): T {
+  let timeout: NodeJS.Timeout;
+  return ((...args: any[]) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  }) as T;
+}
+
 const EditorPage: React.FC = () => {
   const { projectSlug } = useParams<{ projectSlug: string }>();
   const navigate = useNavigate();
@@ -25,6 +34,7 @@ const EditorPage: React.FC = () => {
     setProjects,
     setSelectedProjects,
     userId,
+    updateProjectFields,
   } = useData();
 
   const { ws } = useSocket();
@@ -36,6 +46,17 @@ const EditorPage: React.FC = () => {
   const [briefToolbarActions, setBriefToolbarActions] = useState<Record<string, any>>({});
   const quickLinksRef = useRef<any>(null);
   const designerRef = useRef<any>(null);
+
+  // Debounced save function for description changes
+  const debouncedSaveDescription = useMemo(
+    () => debounce((json: string) => {
+      if (activeProject?.projectId) {
+        console.log("[EditorPage] Saving description to DB:", json.substring(0, 100) + "...");
+        updateProjectFields(activeProject.projectId, { description: json });
+      }
+    }, 2000), // 2 second debounce
+    [activeProject?.projectId, updateProjectFields]
+  );
 
   useEffect(() => {
     setActiveProject(initialActiveProject);
@@ -187,7 +208,7 @@ const EditorPage: React.FC = () => {
                         <LexicalEditor
                           key={activeProject?.projectId}
                           initialContent={activeProject.description || undefined}
-                          onChange={() => {/* set dirty if you need */}}
+                          onChange={debouncedSaveDescription}
                           registerToolbar={setBriefToolbarActions}
                         />
                       </div>

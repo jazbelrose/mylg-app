@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
   // Debug (keep while migrating; remove later)
   useEffect(() => {
-    // eslint-disable-next-line no-console
+     
     console.log("[AuthContext]", { isAuthenticated, authStatus, user, loading });
   }, [isAuthenticated, authStatus, user, loading]);
 

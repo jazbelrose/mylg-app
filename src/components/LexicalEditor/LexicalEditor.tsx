@@ -6,6 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import { useData } from "../../app/contexts/DataProvider";
+import { useAuth } from "../../app/contexts/AuthContext";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
@@ -68,6 +69,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
   registerToolbar,
 }) => {
   const { userName, activeProject } = useData();
+  const { userId } = useAuth();
   const editorRef = useRef<HTMLDivElement | null>(null);
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -117,8 +119,17 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
   // Build same-origin WS endpoint so HTTPS → WSS, HTTP → WS (Fx/Safari safe)
   const WS_ENDPOINT = useMemo(() => {
     const scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    return `${scheme}://${window.location.host}/yjs`;
-  }, []);
+    const baseUrl = `${scheme}://${window.location.host}/yjs`;
+    
+    // Add authentication parameters to URL
+    if (userId) {
+      const url = new URL(baseUrl);
+      url.searchParams.set('userId', userId);
+      return url.toString();
+    }
+    
+    return baseUrl;
+  }, [userId]);
 
   // Create or reuse the provider for this room
   const getProvider = useCallback(
