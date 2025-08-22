@@ -152,9 +152,10 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
   const currentRoomRef = useRef<string | null>(null);
 
 const WS_BASE = useMemo(() => {
+  // Connect to the dedicated y-websocket server
+  // Use WSS in production (HTTPS) and WS in development
   const scheme = window.location.protocol === "https:" ? "wss" : "ws";
-  
-  return `${scheme}://${window.location.host}/yjs`;
+  return `${scheme}://35.165.113.63:1234`;
 }, []);
   // Create params object for y-websocket
   const wsParams = useMemo(() => {
@@ -197,17 +198,54 @@ const WS_BASE = useMemo(() => {
       });
       persistenceRef.current = persistence;
 
-      // ✅ Pass clean server URL, room, doc, and params for proper URL construction
+      // ✅ Create WebSocket provider with correct URL structure for the y-websocket server
+      // The y-websocket server expects: ws://host:port/roomId?userId=...&userName=...
       const provider = new WebsocketProvider(WS_BASE, roomId, doc, { params: wsParams }) as ProviderWithExtras;
       provider.doc = doc;
       provider.sharedType = doc.getText("lexical");
 
-      provider.on("status", (e: { status: string }) =>
-        console.log("[y-websocket] status:", e.status, "room:", roomId)
-      );
-      provider.on("sync", (isSynced: boolean) =>
-        console.log("[y-websocket] sync:", isSynced, "room:", roomId)
-      );
+      // Configure awareness for presence/cursor display
+      if (provider.awareness) {
+        provider.awareness.setLocalStateField('user', {
+          name: userName ?? "anonymous",
+          color: '#' + Math.floor(Math.random()*16777215).toString(16), // Random color
+        });
+      }
+
+      provider.on("status", (e: { status: string }) => {
+        console.log("[y-websocket] status:", e.status, "room:", roomId);
+        if (e.status === "connected") {
+          console.log("✅ Connected to y-websocket server for room:", roomId);
+        } else if (e.status === "disconnected") {
+          console.log("❌ Disconnected from y-websocket server for room:", roomId);
+        } else if (e.status === "connecting") {
+          console.log("🔄 Connecting to y-websocket server for room:", roomId);
+        }
+      });
+      provider.on("sync", (isSynced: boolean) => {
+        console.log("[y-websocket] sync:", isSynced, "room:", roomId);
+        if (isSynced) {
+          console.log("🔄 Document synchronized for room:", roomId);
+        }
+      });
+
+      // Add connection error handling
+      provider.on("connection-error", (error: any) => {
+        console.error("❌ WebSocket connection error for room:", roomId, error);
+      });
+
+      // Add WebSocket-level event logging for debugging
+      if (provider.ws) {
+        provider.ws.addEventListener('open', () => {
+          console.log("🌐 WebSocket opened for room:", roomId);
+        });
+        provider.ws.addEventListener('close', (event) => {
+          console.log("🌐 WebSocket closed for room:", roomId, "Code:", event.code, "Reason:", event.reason);
+        });
+        provider.ws.addEventListener('error', (error) => {
+          console.error("🌐 WebSocket error for room:", roomId, error);
+        });
+      }
 
       providerRef.current = provider;
       currentRoomRef.current = roomId;
