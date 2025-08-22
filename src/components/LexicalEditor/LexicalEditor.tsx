@@ -99,6 +99,9 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     return (activeProject as unknown as string) ?? "default-project";
   }, [activeProject]);
 
+  // Room id must be project/<id>/lexical to match server validator AND Y.Text key
+  const roomId = useMemo(() => `project/${projectId}/description`, [projectId]);
+
   // Cleanup provider on unmount
   useEffect(() => {
     return () => {
@@ -127,7 +130,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
       persistenceRef.current
         .destroy()
         .then(() => {
-          console.log("IndexedDB cleared for project:", projectId);
+          console.log("IndexedDB cleared for room:", roomId);
         })
         .catch((err) => {
           console.error("Error clearing IndexedDB:", err);
@@ -140,12 +143,12 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     // Reset cached content to prevent stale content from previous project
     initialContentRef.current = initialContent;
     setShouldHydrateContent(false);
-  }, [projectId, initialContent]);
+  }, [roomId, initialContent]);
 
   // Reset autoscroll flag on project change
   useEffect(() => {
     hasScrolledToBottom.current = false;
-  }, [projectId]);
+  }, [roomId]);
 
   // Memoize username to prevent flickering and unnecessary re-renders
   const stableUserName = useMemo(() => {
@@ -159,11 +162,11 @@ const WS_ENDPOINT = useMemo(() => {
     (import.meta as any).env?.VITE_WS_ENDPOINT ||
     (import.meta as any).env?.NEXT_PUBLIC_WS_ENDPOINT;
 
-  // If none set, choose based on page protocol
+  // If none set, choose based on page protocol - ensure /yjs suffix
   const fallback =
     (typeof window !== 'undefined' && window.location.protocol === 'https:')
       ? 'wss://YOUR_DOMAIN/yjs'      // <-- set up nginx/ALB to proxy to 127.0.0.1:1234
-      : 'ws://35.165.113.63:1234';   // EC2 direct (http sites only)
+      : 'ws://35.165.113.63:1234/yjs';   // EC2 direct (http sites only) with /yjs
 
   const val = fromEnv || fallback;
   console.log('[client] WS_ENDPOINT (effective)', val);
@@ -372,7 +375,7 @@ const WS_ENDPOINT = useMemo(() => {
                 <ContentHydrationPlugin />
 
                 <CollaborationPlugin
-                  id={String(projectId)}
+                  id={roomId}
                   providerFactory={memoizedProviderFactory as any}
                   shouldBootstrap={true}
                   username={stableUserName}
