@@ -8,7 +8,7 @@ import { slugify } from '../../utils/slug';
 
 interface Project {
   projectId: string;
-  title: string;
+  title?: string; // <-- make optional
   description?: string;
   status?: string;
   thumbnails?: string[];
@@ -36,7 +36,8 @@ const AllProjects: React.FC = () => {
   const onSelectProject = async (project: Project): Promise<void> => {
     try {
       await fetchProjectDetails(project.projectId);
-      const slug = slugify(project.title);
+  const safeTitle = (project.title && project.title.trim()) || `project-${project.projectId.slice(0,6)}`;
+  const slug = slugify(safeTitle);
       navigate(`/dashboard/projects/${slug}`);
     }
     catch (err) {
@@ -144,12 +145,12 @@ const AllProjects: React.FC = () => {
                 tabIndex={0}
                 onClick={() => handleProjectClick(project)}
                 onKeyDown={(e) => handleKeyDown(e, project)}
-                aria-label={`Open project ${project.title || 'Unknown'}`}
+                aria-label={`Open project ${project.title?.trim() || 'Untitled project'}`}
               >
                 {(!imageErrors[project.projectId] && project.thumbnails && project.thumbnails.length > 0) ? (
                   <img
                     src={project.thumbnails[0]}
-                    alt={`Thumbnail of ${project.title || 'Unknown'}`}
+                    alt={`Thumbnail of ${project.title?.trim() || 'Untitled project'}`}
                     className="project-thumbnail"
                     loading="lazy"
                     decoding="async"
@@ -160,11 +161,11 @@ const AllProjects: React.FC = () => {
                   />
                 ) : (
                   <SVGThumbnail
-                    initial={project.title.charAt(0).toUpperCase()}
+                    initial={(project.title?.trim()?.charAt(0)?.toUpperCase() || '#')}
                     className="project-thumbnail"
                   />
                 )}
-                <h6 className="project-title">{project.title}</h6>
+                <h6 className="project-title">{project.title?.trim() || 'Untitled project'}</h6>
               </div>
             ))
           ) : (
