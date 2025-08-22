@@ -76,7 +76,6 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
   // Keep initial content in a ref and sync when prop changes (handles async load & project switch)
   const initialContentRef = useRef<string | undefined>(initialContent);
-  
   useEffect(() => {
     initialContentRef.current = initialContent;
   }, [initialContent]);
@@ -86,43 +85,18 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
   // Memoize project id
   const projectId = useMemo(() => {
     if (activeProject && typeof activeProject === "object") {
-      return activeProject.projectId ?? "default-project";
+      return (activeProject as any).projectId ?? "default-project";
     }
-    return (activeProject as unknown as string) ?? "default-project";
+    return (activeProject as string) ?? "default-project";
   }, [activeProject]);
 
-  // Room id must be project/<id>/lexical to match server validator AND Y.Text key
-  const roomId = useMemo(() => `project/${projectId}/description`, [projectId]);
-
-  // Cleanup provider on unmount
-  useEffect(() => {
-    return () => {
-      if (providerRef.current) {
-        try {
-          providerRef.current.destroy();
-        } catch (error) {
-          console.warn("[LexicalEditor] Error destroying provider:", error);
-        }
-        providerRef.current = null;
-      }
-      if (persistenceRef.current) {
-        try {
-          persistenceRef.current.destroy();
-        } catch (error) {
-          console.warn("[LexicalEditor] Error destroying persistence:", error);
-        }
-        persistenceRef.current = null;
-      }
-    };
-  }, []);
-
-  // Clear prior IndexedDB when project changes and reset cached content
+  // Clear prior IndexedDB when project changes
   useEffect(() => {
     if (persistenceRef.current) {
       persistenceRef.current
         .destroy()
         .then(() => {
-          console.log("IndexedDB cleared for room:", roomId);
+          console.log("IndexedDB cleared for project:", projectId);
         })
         .catch((err) => {
           console.error("Error clearing IndexedDB:", err);
@@ -131,38 +105,21 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
           persistenceRef.current = null;
         });
     }
-    
-    // Reset cached content to prevent stale content from previous project
-    initialContentRef.current = initialContent;
-  }, [roomId, initialContent]);
+  }, [projectId]);
 
   // Reset autoscroll flag on project change
   useEffect(() => {
     hasScrolledToBottom.current = false;
-  }, [roomId]);
-
-  // Memoize username to prevent flickering and unnecessary re-renders
-  const stableUserName = useMemo(() => {
-    return userName && userName.trim() ? userName.trim() : "anonymous";
-  }, [userName]);
+  }, [projectId]);
 
   const [, setYjsProvider] = useState<WebsocketProvider | null>(null);
-const WS_ENDPOINT = useMemo(() => {
-  // Prefer Vite env; fall back to NEXT_PUBLIC_ only if you also build with Next
-  const fromEnv =
-    (import.meta as any).env?.VITE_WS_ENDPOINT ||
-    (import.meta as any).env?.NEXT_PUBLIC_WS_ENDPOINT;
 
-  // If none set, choose based on page protocol - ensure /yjs suffix
-  const fallback =
-    (typeof window !== 'undefined' && window.location.protocol === 'https:')
-      ? 'wss://YOUR_DOMAIN/yjs'      // <-- set up nginx/ALB to proxy to 127.0.0.1:1234
-      : 'ws://35.165.113.63:1234/yjs';   // EC2 direct (http sites only) with /yjs
+  // Build same-origin WS endpoint so HTTPS → WSS, HTTP → WS (Fx/Safari safe)
+  const WS_ENDPOINT = useMemo(() => {
+    const scheme = window.location.protocol === "https:" ? "wss" : "ws";
+    return `${scheme}://${window.location.host}/yjs`;
+  }, []);
 
-  const val = fromEnv || fallback;
-  console.log('[client] WS_ENDPOINT (effective)', val);
-  return val;
-}, []);
   // Create or reuse the provider for this room
   const getProvider = useCallback(
     (id: string, yjsDocMap: Map<string, Y.Doc>) => {
@@ -183,11 +140,8 @@ const WS_ENDPOINT = useMemo(() => {
       });
       persistenceRef.current = persistence;
 
-      const provider = new WebsocketProvider(WS_ENDPOINT, id, doc, {
-        connect: true,
-        maxBackoffTime: 5000, // Max 5 seconds between reconnection attempts
-      }) as ProviderWithExtras;
-      const sharedType = doc.getText("description");
+      const provider = new WebsocketProvider(WS_ENDPOINT, id, doc) as ProviderWithExtras;
+      const sharedType = doc.getText("lexical");
 
       provider.doc = doc;
       provider.sharedType = sharedType;
@@ -195,22 +149,12 @@ const WS_ENDPOINT = useMemo(() => {
       providerRef.current = provider;
       setYjsProvider(provider);
 
-      // Enhanced connection monitoring and error handling
+      // Helpful logs
       provider.on("status", (event: { status: string }) => {
         console.log("[y-websocket] status:", event.status, "room:", id);
-        if (event.status === "disconnected") {
-          console.warn("[y-websocket] Disconnected from Yjs server");
-        }
       });
-     provider.on("sync", (isSynced: boolean) => {
-  console.log("[y-websocket] sync:", isSynced, "room:", id);
-  if (isSynced) {
-    console.log("[y-websocket] current text:", provider.sharedType.toString());
-  }
-});
-
-      provider.on("connection-error", (event: any) => {
-        console.error("[y-websocket] Connection error:", event);
+      provider.on("sync", (isSynced: boolean) => {
+        console.log("[y-websocket] sync:", isSynced, "room:", id);
       });
 
       return provider as WebsocketProvider;
@@ -273,13 +217,6 @@ const WS_ENDPOINT = useMemo(() => {
     []
   );
 
-  // Memoize provider factory to prevent unnecessary re-creation
-  const memoizedProviderFactory = useCallback(
-    (id: string, yjsDocMap: Map<string, Y.Doc>) => {
-      return getProvider(id, yjsDocMap) as unknown as WebsocketProvider;
-    },
-    [getProvider]
-  );
   // Safely parse initialContent JSON for initialEditorState seeding (used only if Yjs doc is empty)
   const parseInitialEditorState = useCallback(() => {
     const raw = initialContentRef.current;
@@ -343,21 +280,28 @@ const WS_ENDPOINT = useMemo(() => {
                 />
 
                 <CollaborationPlugin
-                  id={roomId}
-                  providerFactory={memoizedProviderFactory as any}
-                  shouldBootstrap={true} // only runs when Y doc is empty
-                  username={stableUserName}
+                  id={projectId}
+                  providerFactory={
+                    getProvider as unknown as (
+                      id: string,
+                      yjsDocMap: Map<string, Y.Doc>,
+                      // Allow extra args without breaking types
+                      ..._rest: unknown[]
+                    ) => WebsocketProvider
+                  }
+                  /**
+                   * IMPORTANT: Provide a function that sets editor state ONLY when the Yjs doc is empty.
+                   * The CollaborationPlugin handles the “seed when empty” logic; we just supply the seed.
+                   */
                   initialEditorState={(editor) => {
                     const seed = parseInitialEditorState();
                     if (!seed) return;
-                    try {
-                      const parsed = editor.parseEditorState(seed);
-                      editor.setEditorState(parsed);
-                      console.log("[LexicalEditor] bootstrapped from DB JSON");
-                    } catch (e) {
-                      console.warn("[LexicalEditor] bootstrap failed:", e);
-                    }
+                    // Let Lexical parse the serialized state
+                    const parsed = editor.parseEditorState(seed);
+                    editor.setEditorState(parsed);
                   }}
+                  shouldBootstrap={true}
+                  username={userName ?? "anonymous"}
                 />
 
                 <RemoveEmptyLayoutItemsOnBackspacePlugin />
