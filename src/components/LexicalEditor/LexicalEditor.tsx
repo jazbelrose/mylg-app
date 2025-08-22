@@ -160,8 +160,10 @@ const WS_BASE = useMemo(() => {
   // Create params object for y-websocket
   const wsParams = useMemo(() => {
     const params: Record<string, string> = {};
-    if (userId) params.userId = userId;
-    if (userName) params.userName = userName;
+    // Ensure we always send a userId (required by server validation)
+    params.userId = userId || 'anonymous';
+    // Ensure we always send a userName (server uses this for logging)
+    params.userName = userName || userId || 'anonymous';
     return params;
   }, [userId, userName]);
 
@@ -200,6 +202,8 @@ const WS_BASE = useMemo(() => {
 
       // ✅ Create WebSocket provider with correct URL structure for the y-websocket server
       // The y-websocket server expects: ws://host:port/roomId?userId=...&userName=...
+      console.log("🔗 Connecting to y-websocket server:", WS_BASE, "room:", roomId, "params:", wsParams);
+      
       const provider = new WebsocketProvider(WS_BASE, roomId, doc, { params: wsParams }) as ProviderWithExtras;
       provider.doc = doc;
       provider.sharedType = doc.getText("lexical");
@@ -234,18 +238,30 @@ const WS_BASE = useMemo(() => {
         console.error("❌ WebSocket connection error for room:", roomId, error);
       });
 
+      // Enhanced connection monitoring for stability
+      provider.on("connection-close", (event: any) => {
+        console.log("🔌 Connection closed for room:", roomId, "Event:", event);
+      });
+
       // Add WebSocket-level event logging for debugging
-      if (provider.ws) {
-        provider.ws.addEventListener('open', () => {
-          console.log("🌐 WebSocket opened for room:", roomId);
-        });
-        provider.ws.addEventListener('close', (event) => {
-          console.log("🌐 WebSocket closed for room:", roomId, "Code:", event.code, "Reason:", event.reason);
-        });
-        provider.ws.addEventListener('error', (error) => {
-          console.error("🌐 WebSocket error for room:", roomId, error);
-        });
-      }
+      // Note: WebSocket might not be immediately available, so we check periodically
+      const setupWebSocketLogging = () => {
+        if (provider.ws) {
+          provider.ws.addEventListener('open', () => {
+            console.log("🌐 WebSocket opened for room:", roomId);
+          });
+          provider.ws.addEventListener('close', (event) => {
+            console.log("🌐 WebSocket closed for room:", roomId, "Code:", event.code, "Reason:", event.reason);
+          });
+          provider.ws.addEventListener('error', (error) => {
+            console.error("🌐 WebSocket error for room:", roomId, error);
+          });
+        } else {
+          // Retry after a short delay if WebSocket is not ready yet
+          setTimeout(setupWebSocketLogging, 100);
+        }
+      };
+      setupWebSocketLogging();
 
       providerRef.current = provider;
       currentRoomRef.current = roomId;
