@@ -848,7 +848,7 @@ const ProjectTabs = ({ projectSlug }) => {
             return 1;
         if (location.pathname.startsWith(`${base}/calendar`))
             return 2;
-        if (location.pathname.startsWith(`${base}/designer`))
+        if (location.pathname.startsWith(`${base}/editor`))
             return 3;
         return 0;
     }, [location.pathname, projectSlug]);
@@ -908,10 +908,10 @@ const ProjectTabs = ({ projectSlug }) => {
                     state: { fromTab: getActiveIndex() },
                 }), className: location.pathname.startsWith(`/dashboard/projects/${projectSlug}/calendar`)
                     ? "active"
-                    : "", "aria-pressed": location.pathname.startsWith(`/dashboard/projects/${projectSlug}/calendar`), children: [_jsx(CalendarIcon, { size: 16 }), _jsx("span", { children: "Calendar" })] })), showEditorTab && (_jsxs("button", { type: "button", ref: (el) => (tabRefs.current[3] = el), onClick: () => navigate(`/dashboard/projects/${projectSlug}/designer`, {
+                    : "", "aria-pressed": location.pathname.startsWith(`/dashboard/projects/${projectSlug}/calendar`), children: [_jsx(CalendarIcon, { size: 16 }), _jsx("span", { children: "Calendar" })] })), showEditorTab && (_jsxs("button", { type: "button", ref: (el) => (tabRefs.current[3] = el), onClick: () => navigate(`/dashboard/projects/${projectSlug}/editor`, {
                     state: { fromTab: getActiveIndex() },
-                }), className: location.pathname.startsWith(`/dashboard/projects/${projectSlug}/designer`)
+                }), className: location.pathname.startsWith(`/dashboard/projects/${projectSlug}/editor`)
                     ? "active"
-                    : "", "aria-pressed": location.pathname.startsWith(`/dashboard/projects/${projectSlug}/designer`), children: [_jsx(PenTool, { size: 16 }), _jsx("span", { children: "Editor" })] }))] }));
+                    : "", "aria-pressed": location.pathname.startsWith(`/dashboard/projects/${projectSlug}/editor`), children: [_jsx(PenTool, { size: 16 }), _jsx("span", { children: "Editor" })] }))] }));
 };
 export default React.memo(ProjectHeader);

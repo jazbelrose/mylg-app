@@ -13,7 +13,7 @@ import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { findProjectBySlug, slugify } from "../../utils/slug";
 
-const DesignerPage: React.FC = () => {
+const EditorPage: React.FC = () => {
   const { projectSlug } = useParams<{ projectSlug: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -230,4 +230,4 @@ const DesignerPage: React.FC = () => {
   );
 };
 
-export default DesignerPage;
+export default EditorPage;
