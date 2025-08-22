@@ -151,12 +151,17 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
   // Track which room the current provider belongs to
   const currentRoomRef = useRef<string | null>(null);
 
-  // Build base WS endpoint (no room in the URL, only auth params)
+  // Build base WS endpoint (clean base URL, y-websocket will append room and params)
   const WS_BASE = useMemo(() => {
     const scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const url = new URL(`${scheme}://${window.location.host}/yjs`);
-    if (userId) url.searchParams.set("userId", userId);
-    return url.toString();
+    return `${scheme}://${window.location.host}`;
+  }, []);
+
+  // Create params object for y-websocket
+  const wsParams = useMemo(() => {
+    const params: Record<string, string> = {};
+    if (userId) params.userId = userId;
+    return params;
   }, [userId]);
 
 
@@ -192,8 +197,8 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
       });
       persistenceRef.current = persistence;
 
-      // ✅ Pass the room as the SECOND ARG (canonical y-websocket usage)
-      const provider = new WebsocketProvider(WS_BASE, roomId, doc) as ProviderWithExtras;
+      // ✅ Pass clean server URL, room, doc, and params for proper URL construction
+      const provider = new WebsocketProvider(WS_BASE, roomId, doc, { params: wsParams }) as ProviderWithExtras;
       provider.doc = doc;
       provider.sharedType = doc.getText("lexical");
 
@@ -209,7 +214,7 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
       setYjsProvider(provider);
       return provider as WebsocketProvider;
     },
-    [WS_BASE]
+    [WS_BASE, wsParams]
   );
 
   // Lexical composer config

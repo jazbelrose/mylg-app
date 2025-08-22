@@ -2,7 +2,7 @@
 
 const WebSocket = require('ws');
 const http = require('http');
-const { setupWSConnection, setPersistence } = require('y-websocket/bin/utils');
+const { setupWSConnection, setPersistence } = require('./utils.cjs');
 const Y = require('yjs');
 
 // Simple JWT validation (replace with actual JWT library in production)
@@ -31,15 +31,15 @@ function getYDoc(roomId) {
 }
 
 wss.on('connection', (ws, req) => {
-  // Parse room ID from URL; "http://dummy" is just a dummy base URL for parsing
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  const roomId = url.searchParams.get("room") || "default-room";
+  // Extract room ID from URL path (standard y-websocket approach)
+  // URL format: /roomId?userId=123 or /roomId (roomId becomes the docName)
+  const roomId = (req.url || '').slice(1).split('?')[0] || 'default-room';
 
   // Reuse or create the Y.Doc for this room
   const doc = getYDoc(roomId);
 
-  // Setup the connection with the shared Y.Doc
-  setupWSConnection(ws, req, { doc });
+  // Setup the connection with the shared Y.Doc - pass the doc explicitly
+  setupWSConnection(ws, req, { docName: roomId, doc });
 
   // Add heartbeat
   ws.isAlive = true;
@@ -62,19 +62,22 @@ const heartbeat = setInterval(() => {
 }, 30000); // Check every 30 seconds
 
 server.on('upgrade', (req, socket, head) => {
+  // Extract room ID from URL path (standard y-websocket approach)
+  const roomId = (req.url || '').slice(1).split('?')[0] || 'default-room';
+  
   // Parse URL parameters for authentication
   const url = new URL(req.url, `http://${req.headers.host}`);
   const userId = url.searchParams.get('userId');
-  const roomId = url.searchParams.get('room') || 'default-room';
 
   // Validate authentication
   if (!validateUser(userId)) {
-    console.log('❌ Authentication failed for room:', roomId);
+    console.log('❌ Authentication failed for user:', userId, 'room:', roomId);
     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
     socket.destroy();
     return;
   }
 
+  // Log with cleaner format - show username (we'll improve this to show actual username later)
   console.log('✅ User authenticated:', userId, 'for room:', roomId);
 
   const handleAuth = ws => {
