@@ -151,13 +151,11 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
   // Track which room the current provider belongs to
   const currentRoomRef = useRef<string | null>(null);
 
-  // Build base WS endpoint (clean base URL, y-websocket will append room and params)
 const WS_BASE = useMemo(() => {
-    const scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const url = new URL(`${scheme}://${window.location.host}/yjs`);
-    if (userId) url.searchParams.set("userId", userId);
-    return url.toString();
-  }, [userId]);
+  const scheme = window.location.protocol === "https:" ? "wss" : "ws";
+  
+  return `${scheme}://${window.location.host}/yjs`;
+}, []);
   // Create params object for y-websocket
   const wsParams = useMemo(() => {
     const params: Record<string, string> = {};
