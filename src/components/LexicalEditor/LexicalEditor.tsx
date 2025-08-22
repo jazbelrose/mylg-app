@@ -142,19 +142,14 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
   const [, setYjsProvider] = useState<WebsocketProvider | null>(null);
 
   // Build same-origin WS endpoint so HTTPS → WSS, HTTP → WS (Fx/Safari safe)
-  const WS_ENDPOINT = useMemo(() => {
-    const scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const baseUrl = `${scheme}://${window.location.host}/yjs`;
-    
-    // Add authentication parameters to URL
-    if (userId) {
-      const url = new URL(baseUrl);
-      url.searchParams.set('userId', userId);
-      return url.toString();
-    }
-    
-    return baseUrl;
-  }, [userId]);
+const WS_ENDPOINT = useMemo(() => {
+  const scheme = window.location.protocol === "https:" ? "wss" : "ws";
+  const url = new URL(`${scheme}://${window.location.host}/yjs`);
+  if (userId) url.searchParams.set("userId", userId);
+  if (projectId) url.searchParams.set("room", projectId); // ✅ Add this
+  return url.toString();
+}, [userId, projectId]);
+
 
   // Create or reuse the provider for this room
   const getProvider = useCallback(
@@ -176,7 +171,7 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
       });
       persistenceRef.current = persistence;
 
-      const provider = new WebsocketProvider(WS_ENDPOINT, id, doc) as ProviderWithExtras;
+      const provider = new WebsocketProvider(WS_ENDPOINT, '', doc) as ProviderWithExtras; // ✅ Room only here
       const sharedType = doc.getText("lexical");
 
       provider.doc = doc;
