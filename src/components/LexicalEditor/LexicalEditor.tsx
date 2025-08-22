@@ -333,6 +333,7 @@ const LexicalEditor = React.forwardRef<any, LexicalEditorProps>(({
                 {/* Only render CollaborationPlugin when we have a valid projectId */}
                 {projectId && (
                   <CollaborationPlugin
+                    // @ts-ignore - key prop is always valid in React components
                     key={projectId}         // ← forces new binding per room
                     id={projectId}
                     providerFactory={getProvider as any}
