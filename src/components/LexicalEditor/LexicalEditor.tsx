@@ -140,15 +140,13 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
   }, [userName]);
 
   const [, setYjsProvider] = useState<WebsocketProvider | null>(null);
-  const WS_ENDPOINT = useMemo(() => {
-    // For testing purposes, use localhost if in development
-    if (import.meta.env.DEV) {
-      return "ws://localhost:1234";
-    }
-    // Use EC2 instance for production
-    return "ws://35.165.113.63:1234";
-  }, []);
-
+const WS_ENDPOINT = useMemo(() => {
+  const val =
+    import.meta.env?.NEXT_PUBLIC_WS_ENDPOINT ??
+    (import.meta.env?.PROD ? 'ws://35.165.113.63:1234' : 'ws://localhost:1234');
+  console.log('[client] WS_ENDPOINT (effective)', val);
+  return val;
+}, []);
   // Create or reuse the provider for this room
   const getProvider = useCallback(
     (id: string, yjsDocMap: Map<string, Y.Doc>) => {
@@ -329,10 +327,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
                   providerFactory={
                     memoizedProviderFactory as any
                   }
-                  /**
-                   * IMPORTANT: Provide a function that sets editor state ONLY when the Yjs doc is empty.
-                   * The CollaborationPlugin handles the “seed when empty” logic; we just supply the seed.
-                   */
+              
                   initialEditorState={(editor) => {
                     const seed = parseInitialEditorState();
                     if (!seed) return;
