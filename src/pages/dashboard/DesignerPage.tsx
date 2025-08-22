@@ -3,12 +3,12 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import ProjectPageLayout from "./components/SingleProject/ProjectPageLayout";
 import ProjectHeader from "./components/SingleProject/ProjectHeader";
-import DescriptionComponent from "./components/SingleProject/DescriptionComponent";
 import DesignerComponent from "./components/SingleProject/DesignerComponent";
 import QuickLinksComponent from "./components/SingleProject/QuickLinksComponent";
 import FileManagerComponent from "./components/SingleProject/FileManager";
 import PreviewDrawer from "./components/SingleProject/PreviewDrawer";
 import UnifiedToolbar from "../../components/UnifiedToolbar";
+import LexicalEditor from "../../components/LexicalEditor/LexicalEditor";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { findProjectBySlug, slugify } from "../../utils/slug";
@@ -184,8 +184,9 @@ const DesignerPage: React.FC = () => {
                       transition={{ duration: 0.3 }}
                     >
                       <div className="dashboard-layout" style={{ paddingBottom: "5px" }}>
-                        <DescriptionComponent
-                          activeProject={activeProject}
+                        <LexicalEditor
+                          key={activeProject?.projectId}
+                          onChange={() => {/* set dirty if you need */}}
                           registerToolbar={setBriefToolbarActions}
                         />
                       </div>
