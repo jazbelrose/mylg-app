@@ -154,9 +154,18 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
   const [, setYjsProvider] = useState<WebsocketProvider | null>(null);
 const WS_ENDPOINT = useMemo(() => {
-  const val =
-    import.meta.env?.NEXT_PUBLIC_WS_ENDPOINT ??
-    (import.meta.env?.PROD ? 'ws://35.165.113.63:1234' : 'ws://localhost:1234');
+  // Prefer Vite env; fall back to NEXT_PUBLIC_ only if you also build with Next
+  const fromEnv =
+    (import.meta as any).env?.VITE_WS_ENDPOINT ||
+    (import.meta as any).env?.NEXT_PUBLIC_WS_ENDPOINT;
+
+  // If none set, choose based on page protocol
+  const fallback =
+    (typeof window !== 'undefined' && window.location.protocol === 'https:')
+      ? 'wss://YOUR_DOMAIN/yjs'      // <-- set up nginx/ALB to proxy to 127.0.0.1:1234
+      : 'ws://35.165.113.63:1234';   // EC2 direct (http sites only)
+
+  const val = fromEnv || fallback;
   console.log('[client] WS_ENDPOINT (effective)', val);
   return val;
 }, []);
@@ -363,8 +372,10 @@ const WS_ENDPOINT = useMemo(() => {
                 <ContentHydrationPlugin />
 
                 <CollaborationPlugin
-                  id={projectId}
+                  id={String(projectId)}
                   providerFactory={memoizedProviderFactory as any}
+                  shouldBootstrap={true}
+                  username={stableUserName}
               
                   initialEditorState={(editor) => {
                     // Only bootstrap if Yjs document is empty and we have initial content
@@ -378,8 +389,6 @@ const WS_ENDPOINT = useMemo(() => {
                       console.warn("[LexicalEditor] Failed to bootstrap initial content:", error);
                     }
                   }}
-                  shouldBootstrap={true}
-                  username={stableUserName}
                 />
 
                 <RemoveEmptyLayoutItemsOnBackspacePlugin />
