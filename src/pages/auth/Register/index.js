@@ -2,7 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useState } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { EmailVerification } from '../Email-verification';
+import EmailVerification from '../Email-verification';
 import { signUp, resendSignUpCode } from '@aws-amplify/auth';
 import { useData } from '../../../app/contexts/DataProvider';
 import { REGISTERED_USER_TEAM_NOTIFICATION_API_URL, updateUserProfilePending, } from '../../../utils/api';
