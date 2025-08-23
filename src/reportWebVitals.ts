@@ -1,5 +1,7 @@
-const reportWebVitals = onPerfEntry => {
-  if (onPerfEntry && onPerfEntry instanceof Function) {
+export type ReportHandler = (metric: unknown) => void;
+
+const reportWebVitals = (onPerfEntry?: ReportHandler): void => {
+  if (onPerfEntry && typeof onPerfEntry === 'function') {
     import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
       getCLS(onPerfEntry);
       getFID(onPerfEntry);

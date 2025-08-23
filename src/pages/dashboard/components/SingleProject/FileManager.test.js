@@ -36,7 +36,7 @@ jest.mock('../../../../utils/api', () => ({
 const { useData } = require('../../../../app/contexts/DataProvider');
 const { apiFetch } = require('../../../../utils/api');
 const FileManagerComponent = require('./FileManager.jsx').default;
-const { NotificationContainer } = require('../../../../components/ToastNotifications.jsx');
+const { NotificationContainer } = require('../../../../components/ToastNotifications');
 beforeEach(() => {
     useData.mockReturnValue({
         activeProject: {

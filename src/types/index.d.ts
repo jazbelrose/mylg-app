@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Type declarations for modules without TypeScript support
 
 declare module 'react-modal' {
@@ -32,7 +33,6 @@ declare module 'react-modal' {
 }
 
 declare module './aws-exports' {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const awsConfig: any;
   export default awsConfig;
 }
@@ -65,14 +65,12 @@ declare module './app/App' {
 }
 
 declare module './app/bootstrapDevErrorHooks' {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const bootstrapDevErrorHooks: any;
   export default bootstrapDevErrorHooks;
 }
 
 declare module 'scramble-text' {
   export default class ScrambleText {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     constructor(element: HTMLElement, options?: any);
     start(): ScrambleText;
     play(): void;
@@ -83,3 +81,11 @@ declare module 'scramble-text' {
 declare module 'fabric' {
   export * from 'fabric/fabric-impl';
 }
+
+// Allow importing CSS modules and plain CSS files
+declare module '*.module.css' {
+  const classes: { [key: string]: string };
+  export default classes;
+}
+
+declare module '*.css';
