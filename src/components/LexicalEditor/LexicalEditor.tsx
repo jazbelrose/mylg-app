@@ -34,6 +34,7 @@ import YjsSyncPlugin from "./plugins/YjsSyncPlugin";
 import { WebsocketProvider } from "y-websocket";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
+import { EditorConnectionManager } from "../../utils/editorConfig";
 
 import "./LexicalEditor.css";
 
@@ -90,6 +91,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
   const providerRef = useRef<ExtendedWebsocketProvider | null>(null);
   const persistenceRef = useRef<IndexeddbPersistence | null>(null);
+  const connectionManagerRef = useRef<EditorConnectionManager | null>(null);
 
   const initialContentRef = useRef<unknown | null>(initialContent ?? null);
   const hasScrolledToBottom = useRef<boolean>(false);
@@ -115,6 +117,13 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
           console.error("Error clearing IndexedDB:", err);
         });
     }
+
+    // Cleanup connection manager when project changes
+    const connectionManager = connectionManagerRef.current;
+    if (connectionManager) {
+      connectionManager.destroy();
+      connectionManagerRef.current = null;
+    }
   }, [projectId]);
 
   // If needed, you can set up the anchor element for plugins (like draggable blocks)
@@ -138,6 +147,11 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
         return providerRef.current;
       }
 
+      // Initialize connection manager if not already created
+      if (!connectionManagerRef.current) {
+        connectionManagerRef.current = new EditorConnectionManager();
+      }
+
       let doc = yjsDocMap.get(id);
       if (!doc) {
         doc = new Y.Doc();
@@ -151,11 +165,48 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
       });
       persistenceRef.current = persistence;
 
+      const websocketUrl = connectionManagerRef.current.getWebSocketUrl();
+      console.log(`[LexicalEditor] Connecting to WebSocket: ${websocketUrl}`);
+
       const provider = new WebsocketProvider(
-        "ws://35.165.113.63:1234",
+        websocketUrl,
         id,
         doc
       ) as ExtendedWebsocketProvider;
+
+      // Add connection event handlers with proper error handling
+      const handleConnectionStatus = (event: { status: string }) => {
+        console.log(`[LexicalEditor] WebSocket status: ${event.status}`);
+        try {
+          if (event.status === 'connected') {
+            connectionManagerRef.current?.handleConnectionOpen();
+          } else if (event.status === 'disconnected') {
+            connectionManagerRef.current?.handleConnectionClose();
+          }
+        } catch (error) {
+          console.error('[LexicalEditor] Error handling connection status:', error);
+        }
+      };
+
+      const handleConnectionError = () => {
+        try {
+          connectionManagerRef.current?.handleConnectionError(new Error('WebSocket connection error'));
+        } catch (error) {
+          console.error('[LexicalEditor] Error handling connection error:', error);
+        }
+      };
+
+      const handleConnectionClose = () => {
+        try {
+          connectionManagerRef.current?.handleConnectionClose();
+        } catch (error) {
+          console.error('[LexicalEditor] Error handling connection close:', error);
+        }
+      };
+
+      provider.on('status', handleConnectionStatus);
+      provider.on('connection-error', handleConnectionError);
+      provider.on('connection-close', handleConnectionClose);
 
       // Expose a shared text type for convenience (handy for custom plugins).
       provider.sharedType = doc.getText("lexical");
@@ -273,7 +324,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
                 <CollaborationPlugin
                   id={projectId}
-                  providerFactory={getProvider}
+                  providerFactory={getProvider as any}
                   initialEditorState={initialContentRef.current as never}
                   shouldBootstrap={true}
                   username={userName}

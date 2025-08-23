@@ -12,6 +12,7 @@ import LexicalEditor from "../../components/LexicalEditor/LexicalEditor";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { findProjectBySlug, slugify } from "../../utils/slug";
+import { getEditorConfig } from "../../utils/editorConfig";
 
 // Debounce utility function
 function debounce<T extends (...args: any[]) => void>(func: T, wait: number): T {
@@ -49,12 +50,15 @@ const EditorPage: React.FC = () => {
 
   // Debounced save function for description changes
   const debouncedSaveDescription = useMemo(
-    () => debounce((json: string) => {
-      if (activeProject?.projectId) {
-        console.log("[EditorPage] Saving description to DB:", json.substring(0, 100) + "...");
-        updateProjectFields(activeProject.projectId, { description: json });
-      }
-    }, 2000), // 2 second debounce
+    () => {
+      const editorConfig = getEditorConfig();
+      return debounce((json: string) => {
+        if (activeProject?.projectId) {
+          console.log("[EditorPage] Saving description to DB:", json.substring(0, 100) + "...");
+          updateProjectFields(activeProject.projectId, { description: json });
+        }
+      }, editorConfig.debounceMs);
+    },
     [activeProject?.projectId, updateProjectFields]
   );
 
