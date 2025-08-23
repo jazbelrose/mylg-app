@@ -1,7 +1,6 @@
 // Secure WebSocket provider for Yjs with authentication
 import { WebsocketProvider } from "y-websocket";
 import * as Y from "yjs";
-import { createSecureWebSocketConnection } from "./secureWebSocketAuth";
 import { logSecurityEvent } from "./securityUtils";
 
 export interface SecureWebsocketProviderOptions {
@@ -15,26 +14,46 @@ export interface SecureWebsocketProviderOptions {
   disableBc?: boolean;
 }
 
+// Simple authenticated WebSocket factory
+function createAuthenticatedWebSocket(url: string, jwtToken: string, sessionId: string): WebSocket {
+  try {
+    // Use Sec-WebSocket-Protocol for authentication
+    const subprotocols = [jwtToken, sessionId];
+    
+    logSecurityEvent('secure_websocket_connection_initiated', { 
+      url: url,
+      sessionId: sessionId?.substring(0, 8) + '...'
+    });
+
+    return new WebSocket(url, subprotocols);
+  } catch (error) {
+    logSecurityEvent('secure_websocket_connection_failed', { 
+      error: (error as Error).message,
+      url: url 
+    });
+    throw error;
+  }
+}
+
 // Factory function to create authenticated Yjs WebSocket provider
-export const createSecureYjsProvider = async (
+export function createSecureYjsProvider(
   serverUrl: string,
   roomname: string,
   doc: Y.Doc,
   jwtToken: string,
   sessionId: string,
   options: SecureWebsocketProviderOptions = {}
-): Promise<WebsocketProvider> => {
+): WebsocketProvider {
   try {
     // Create a custom WebSocket constructor that uses our secure connection
-    const SecureWebSocket = function(url: string, protocols?: string | string[]) {
-      // Use our secure WebSocket connection method
-      return createSecureWebSocketConnection(url, jwtToken, sessionId);
+    const AuthenticatedWebSocket = function(url: string, protocols?: string | string[]) {
+      return createAuthenticatedWebSocket(url, jwtToken, sessionId);
     } as any;
 
     // Create provider with secure WebSocket
     const provider = new WebsocketProvider(serverUrl, roomname, doc, {
       ...options,
-      WebSocketPolyfill: SecureWebSocket
+      WebSocketPolyfill: AuthenticatedWebSocket
     });
 
     logSecurityEvent('secure_yjs_provider_created', {
@@ -52,4 +71,4 @@ export const createSecureYjsProvider = async (
     });
     throw error;
   }
-};
+}

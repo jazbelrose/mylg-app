@@ -98,15 +98,12 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
   const hasScrolledToBottom = useRef<boolean>(false);
 
   // Session ID for WebSocket authentication
-  const sessionIdRef = useRef<string>(() => {
+  const sessionId = useMemo(() => {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
       return crypto.randomUUID();
     }
     return 'session-' + Math.random().toString(36).substr(2, 9);
-  }());
-
-  // Store the session ID value immediately
-  const sessionId = useMemo(() => sessionIdRef.current, []);
+  }, []);
 
   // Memoize the project ID so it isn’t recalculated unnecessarily.
   const projectId = useMemo<string>(() => {
@@ -147,7 +144,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
   const [, setYjsProvider] = useState<ExtendedWebsocketProvider | null>(null);
 
   const getProvider = useCallback(
-    async (id: string, yjsDocMap: Map<string, Y.Doc>): Promise<ExtendedWebsocketProvider> => {
+    (id: string, yjsDocMap: Map<string, Y.Doc>): ExtendedWebsocketProvider => {
       if (providerRef.current) {
         return providerRef.current;
       }
@@ -155,11 +152,6 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
       // Check authentication before creating provider
       if (!isAuthenticated) {
         throw new Error('User must be authenticated to access collaborative editor');
-      }
-
-      const tokens = await getAuthTokens();
-      if (!tokens?.idToken) {
-        throw new Error('No authentication token available');
       }
 
       let doc = yjsDocMap.get(id);
@@ -175,41 +167,49 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
       });
       persistenceRef.current = persistence;
 
-      try {
-        // Create secure WebSocket provider with authentication
-        const provider = await createSecureYjsProvider(
-          "ws://35.165.113.63:1234/yjs/project",
-          id + "/lexical", // Use lexical subdoc for editor content
-          doc,
-          tokens.idToken,
-          sessionId,
-          {
-            connect: true,
-            resyncInterval: 5000, // Resync every 5 seconds
-          }
-        ) as ExtendedWebsocketProvider;
+      // For now, create a regular WebSocket provider and enhance it later
+      // This maintains compatibility with the existing CollaborationPlugin
+      const provider = new WebsocketProvider(
+        "ws://35.165.113.63:1234/yjs/project",
+        id + "/lexical",
+        doc,
+        {
+          connect: false, // Don't connect yet
+          resyncInterval: 5000,
+        }
+      ) as ExtendedWebsocketProvider;
 
-        // Expose a shared text type for convenience (handy for custom plugins).
-        provider.sharedType = doc.getText("lexical");
+      // Enhance with authentication when tokens are available
+      getAuthTokens().then((tokens) => {
+        if (tokens?.idToken && isAuthenticated) {
+          // Override the WebSocket constructor to use authentication
+          const originalWS = provider._WS;
+          provider._WS = function(url: string, protocols?: string | string[]) {
+            // Use authentication protocols
+            const authProtocols = [tokens.idToken, sessionId];
+            logSecurityEvent('lexical_editor_websocket_connecting', {
+              projectId: id,
+              sessionId: sessionId?.substring(0, 8) + '...'
+            });
+            return new originalWS(url, authProtocols);
+          } as any;
 
-        providerRef.current = provider;
-        setYjsProvider(provider);
+          // Now connect with authentication
+          provider.connect();
+        }
+      }).catch((error) => {
+        console.error('Failed to get auth tokens for WebSocket:', error);
+      });
 
-        logSecurityEvent('lexical_editor_provider_created', {
-          projectId: id,
-          sessionId: sessionId?.substring(0, 8) + '...'
-        });
+      // Expose a shared text type for convenience (handy for custom plugins).
+      provider.sharedType = doc.getText("lexical");
 
-        return provider;
-      } catch (error) {
-        logSecurityEvent('lexical_editor_provider_creation_failed', {
-          projectId: id,
-          error: (error as Error).message
-        });
-        throw error;
-      }
+      providerRef.current = provider;
+      setYjsProvider(provider);
+
+      return provider;
     },
-    [isAuthenticated, getAuthTokens]
+    [isAuthenticated, getAuthTokens, sessionId]
   );
 
   // Memoize the LexicalComposer configuration so it’s only created once.
