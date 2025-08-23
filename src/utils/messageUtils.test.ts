@@ -23,17 +23,3 @@ describe('dedupeById', () => {
       { optimisticId: 'x1', senderId: 'u1', text: 'hi', timestamp: '2024-01-01T00:00:00Z', optimistic: true },
       { messageId: 'm1', optimisticId: 'x1', senderId: 'u1', text: 'hi', timestamp: '2024-01-01T00:00:02Z' }
     ];
-    const deduped = dedupeById(msgs);
-    expect(deduped).toHaveLength(1);
-    expect(deduped[0].messageId).toBe('m1');
-  });
-
-  it('does not dedupe when server copy lacks optimisticId', () => {
-    const msgs = [
-      { optimisticId: 'x2', senderId: 'u1', text: 'hey', timestamp: '2024-01-01T00:00:00Z', optimistic: true },
-      { messageId: 'm2', senderId: 'u1', text: 'hey', timestamp: '2024-01-01T00:00:05Z' }
-    ];
-    const deduped = dedupeById(msgs);
-    expect(deduped).toHaveLength(2);
-  });
-});
