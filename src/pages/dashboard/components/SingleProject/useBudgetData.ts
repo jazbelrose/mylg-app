@@ -1,19 +1,27 @@
 import { useState, useEffect, useCallback } from "react";
 import { fetchBudgetHeader, fetchBudgetItems } from "../../../../utils/api";
 
-// In-memory cache and in-flight trackers keyed by projectId
-const budgetCache = new Map();
-const inflight = new Map();
+type BudgetHeader = Record<string, unknown>;
+type BudgetItem = Record<string, unknown>;
 
-async function fetchData(projectId, force = false) {
+interface BudgetData {
+  header: BudgetHeader | null;
+  items: BudgetItem[];
+}
+
+// In-memory cache and in-flight trackers keyed by projectId
+const budgetCache = new Map<string, BudgetData>();
+const inflight = new Map<string, Promise<BudgetData>>();
+
+async function fetchData(projectId: string, force = false): Promise<BudgetData> {
   if (!projectId) return { header: null, items: [] };
 
   if (!force && budgetCache.has(projectId)) {
-    return budgetCache.get(projectId);
+    return budgetCache.get(projectId)!;
   }
 
   if (inflight.has(projectId)) {
-    return inflight.get(projectId);
+    return inflight.get(projectId)!;
   }
 
   const promise = (async () => {
@@ -24,15 +32,15 @@ async function fetchData(projectId, force = false) {
     while (true) {
       try {
         const header = await fetchBudgetHeader(projectId);
-        let items = [];
+        let items: BudgetItem[] = [];
         if (header?.budgetId) {
           items = await fetchBudgetItems(header.budgetId, header.revision);
         }
-        const result = { header, items };
+        const result: BudgetData = { header, items };
         budgetCache.set(projectId, result);
         return result;
-      } catch (err) {
-        const msg = String(err?.message || "");
+      } catch (err: unknown) {
+        const msg = String((err as { message?: string })?.message || "");
         if (msg.includes("429") && attempt < maxAttempts) {
           await new Promise((resolve) => setTimeout(resolve, delay));
           attempt += 1;
@@ -57,7 +65,7 @@ async function fetchData(projectId, force = false) {
  * component state. This allows subsequent calls to the hook to render
  * immediately with cached data.
  */
-export async function prefetchBudgetData(projectId) {
+export async function prefetchBudgetData(projectId: string): Promise<void> {
   if (!projectId || budgetCache.has(projectId)) return;
   try {
     await fetchData(projectId);
@@ -66,13 +74,13 @@ export async function prefetchBudgetData(projectId) {
   }
 }
 
-export default function useBudgetData(projectId) {
+export default function useBudgetData(projectId: string | undefined) {
   const cached = projectId ? budgetCache.get(projectId) : null;
-  const [budgetHeader, setBudgetHeader] = useState(
-    cached ? cached.header : null
+  const [budgetHeader, setBudgetHeader] = useState<BudgetHeader | null>(
+    cached ? cached.header : null,
   );
-  const [budgetItems, setBudgetItemsState] = useState(
-    cached ? cached.items : []
+  const [budgetItems, setBudgetItemsState] = useState<BudgetItem[]>(
+    cached ? cached.items : [],
   );
   const [loading, setLoading] = useState(!cached);
 
@@ -126,35 +134,35 @@ export default function useBudgetData(projectId) {
   }, [projectId]);
 
   const setBudgetItems = useCallback(
-    (items) => {
+    (items: BudgetItem[]) => {
       if (!projectId) return;
       setBudgetItemsState(items);
       const cached = budgetCache.get(projectId) || {
         header: null,
-        items: []
+        items: [] as BudgetItem[],
       };
       budgetCache.set(projectId, { header: cached.header, items });
     },
-    [projectId]
+    [projectId],
   );
 
   const updateBudgetHeader = useCallback(
-    (headerOrUpdater) => {
+    (headerOrUpdater: BudgetHeader | ((prev: BudgetHeader | null) => BudgetHeader)) => {
       if (!projectId) return;
       setBudgetHeader((prev) => {
         const next =
           typeof headerOrUpdater === "function"
-            ? headerOrUpdater(prev)
+            ? (headerOrUpdater as (p: BudgetHeader | null) => BudgetHeader)(prev)
             : headerOrUpdater;
         const cached = budgetCache.get(projectId) || {
           header: null,
-          items: []
+          items: [] as BudgetItem[],
         };
         budgetCache.set(projectId, { header: next, items: cached.items });
         return next;
       });
     },
-    [projectId]
+    [projectId],
   );
 
   return {
@@ -163,6 +171,7 @@ export default function useBudgetData(projectId) {
     setBudgetHeader: updateBudgetHeader,
     setBudgetItems,
     refresh,
-    loading
+    loading,
   };
 }
+
