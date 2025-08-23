@@ -2,7 +2,7 @@ import { jsx as _jsx } from "react/jsx-runtime";
 import React, { useEffect } from 'react';
 import gsap from 'gsap';
 import "./style.css";
-import tickerData from '../typewriter/sentences.json';
+import tickerData from '../typewriter/sentences';
 const SingleTicker = () => {
     useEffect(() => {
         gsap.set(".single-ticker-text", { x: "0%" }); // This sets the starting position
