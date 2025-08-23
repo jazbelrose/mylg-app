@@ -1,4 +1,3 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useEffect, useRef } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { dataabout, meta, } from "../../content_option";
@@ -127,5 +126,48 @@ export const About = () => {
     }, []);
     const randomQuote = dataAbout.dataAbout &&
         dataAbout.dataAbout[Math.floor(Math.random() * dataAbout.dataAbout.length)];
-    return (_jsxs(HelmetProvider, { children: [_jsxs(Helmet, { children: [_jsx("meta", { charSet: "utf-8" }), _jsx("title", { children: " About | *MYLG!* " }), _jsx("meta", { name: "robots", content: "noindex, nofollow" })] }), _jsx("div", { className: "svg-overlay", children: _jsx("svg", { viewBox: "0 0 1000 1000", preserveAspectRatio: "none", children: _jsx("path", { id: "revealPath", d: "M0,1005S175,995,500,995s500,5,500,5V0H0Z" }) }) }), _jsx("div", { className: "studio-subtitle", children: _jsx("div", { className: "content-limit", children: _jsx(Studiosubtitle, { id: "studio-subtitle" }) }) }), _jsx(Tagline, { id: "tagline" }), _jsxs("div", { className: "cards-container", children: [_jsx("div", { className: "card-item", children: _jsx(InlineSvg, { src: "https://d2qb21tb4meex0.cloudfront.net/svg/designcard.svg" }) }), _jsx("div", { className: "card-item", children: _jsx(InlineSvg, { src: "https://d2qb21tb4meex0.cloudfront.net/svg/experientialcard.svg" }) }), _jsx("div", { className: "card-item", children: _jsx(InlineSvg, { src: "https://d2qb21tb4meex0.cloudfront.net/svg/techcard.svg", className: "techcard" }) }), _jsx("div", { className: "card-item", children: _jsx(Brandingcard, { className: "brandingcard" }) })] }), _jsx("div", { className: "tagline", children: _jsx("p", { className: "services-description", children: "MYLG is here to make you look good in any digital landscape. As a premier design agency, we focus on delivering tailored digital solutions that elevate your brand\u2019s presence. From 3D environment design, 3D modeling and comprehensive web design to advanced back-end and front-end development, we are dedicated to setting industry standards. Our work doesn\u2019t just aim for aesthetics; we ensure it communicates the essence of your brand. If you\u2019re seeking immersive digital campaigns, strategic brand narratives, or high-end commercial content, MYLG is equipped to drive your vision into the future of digital innovation." }) })] }));
+    return (
+        <HelmetProvider>
+            <Helmet>
+                <meta charSet="utf-8" />
+                <title> About | *MYLG!* </title>
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
+            
+            <div className="svg-overlay">
+                <svg viewBox="0 0 1000 1000" preserveAspectRatio="none">
+                    <path id="revealPath" d="M0,1005S175,995,500,995s500,5,500,5V0H0Z" />
+                </svg>
+            </div>
+            
+            <div className="studio-subtitle">
+                <div className="content-limit">
+                    <Studiosubtitle id="studio-subtitle" />
+                </div>
+            </div>
+            
+            <Tagline id="tagline" />
+            
+            <div className="cards-container">
+                <div className="card-item">
+                    <InlineSvg src="https://d2qb21tb4meex0.cloudfront.net/svg/designcard.svg" />
+                </div>
+                <div className="card-item">
+                    <InlineSvg src="https://d2qb21tb4meex0.cloudfront.net/svg/experientialcard.svg" />
+                </div>
+                <div className="card-item">
+                    <InlineSvg src="https://d2qb21tb4meex0.cloudfront.net/svg/techcard.svg" className="techcard" />
+                </div>
+                <div className="card-item">
+                    <Brandingcard className="brandingcard" />
+                </div>
+            </div>
+            
+            <div className="tagline">
+                <p className="services-description">
+                    MYLG is here to make you look good in any digital landscape. As a premier design agency, we focus on delivering tailored digital solutions that elevate your brand's presence. From 3D environment design, 3D modeling and comprehensive web design to advanced back-end and front-end development, we are dedicated to setting industry standards. Our work doesn't just aim for aesthetics; we ensure it communicates the essence of your brand. If you're seeking immersive digital campaigns, strategic brand narratives, or high-end commercial content, MYLG is equipped to drive your vision into the future of digital innovation.
+                </p>
+            </div>
+        </HelmetProvider>
+    );
 };

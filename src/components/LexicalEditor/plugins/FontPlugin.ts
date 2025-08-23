@@ -1,19 +1,20 @@
 // @ts-nocheck
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import React, { ChangeEvent } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect, useState } from "react";
 import { $getSelection, $isRangeSelection, COMMAND_PRIORITY_EDITOR } from "lexical";
 import { $patchStyleText } from "@lexical/selection";
 import { SET_FONT_FAMILY_COMMAND, SET_FONT_SIZE_COMMAND } from "../commands";
-const FONT_FAMILIES = [
+const FONT_FAMILIES: readonly string[] = [
     "Helvetica Special",
     "Helvetica Black",
     "Helvetica Light",
     "Helvetica Neue",
     "Helvetica Medium",
     "mylg-serif",
-];
-const FONT_SIZES = [
+] as const;
+
+const FONT_SIZES: readonly string[] = [
     "12px",
     "14px",
     "16px",
@@ -21,11 +22,16 @@ const FONT_SIZES = [
     "24px",
     "32px",
     "48px",
-];
-export default function FontPlugin({ showToolbar = true }) {
+] as const;
+
+interface FontPluginProps {
+    showToolbar?: boolean;
+}
+
+export default function FontPlugin({ showToolbar = true }: FontPluginProps) {
     const [editor] = useLexicalComposerContext();
-    const [fontFamily, setFontFamily] = useState(FONT_FAMILIES[0]);
-    const [fontSize, setFontSize] = useState("16px");
+    const [fontFamily, setFontFamily] = useState<string>(FONT_FAMILIES[0]);
+    const [fontSize, setFontSize] = useState<string>("16px");
     // Register commands for font family and size
     useEffect(() => {
         const unregisterFontFamily = editor.registerCommand(SET_FONT_FAMILY_COMMAND, (family) => {
@@ -51,15 +57,40 @@ export default function FontPlugin({ showToolbar = true }) {
             unregisterFontSize();
         };
     }, [editor]);
-    const onFontFamilyChange = (e) => {
+    const onFontFamilyChange = (e: ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
         setFontFamily(value);
         editor.dispatchCommand(SET_FONT_FAMILY_COMMAND, value);
     };
-    const onFontSizeChange = (e) => {
+    
+    const onFontSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
         setFontSize(value);
         editor.dispatchCommand(SET_FONT_SIZE_COMMAND, value);
     };
-    return (showToolbar && (_jsxs("div", { className: "toolbar", children: [_jsx("select", { className: "toolbar-item font-family", value: fontFamily, onChange: onFontFamilyChange, "aria-label": "Font Family", children: FONT_FAMILIES.map((f) => (_jsx("option", { value: f, children: f }, f))) }), _jsx("select", { className: "toolbar-item font-size", value: fontSize, onChange: onFontSizeChange, "aria-label": "Font Size", children: FONT_SIZES.map((s) => (_jsx("option", { value: s, children: s }, s))) })] })));
+    
+    return (showToolbar && (
+        <div className="toolbar">
+            <select
+                className="toolbar-item font-family"
+                value={fontFamily}
+                onChange={onFontFamilyChange}
+                aria-label="Font Family"
+            >
+                {FONT_FAMILIES.map((f) => (
+                    <option key={f} value={f}>{f}</option>
+                ))}
+            </select>
+            <select
+                className="toolbar-item font-size"
+                value={fontSize}
+                onChange={onFontSizeChange}
+                aria-label="Font Size"
+            >
+                {FONT_SIZES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                ))}
+            </select>
+        </div>
+    ));
 }

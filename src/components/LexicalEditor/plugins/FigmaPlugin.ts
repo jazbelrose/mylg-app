@@ -1,6 +1,5 @@
 // @ts-nocheck
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, ChangeEvent } from "react";
 import ReactModal from "react-modal";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $insertNodes, $getSelection, $isRangeSelection, COMMAND_PRIORITY_EDITOR } from "lexical";
@@ -10,10 +9,15 @@ import { OPEN_FIGMA_COMMAND } from "../commands";
 if (typeof document !== 'undefined') {
     ReactModal.setAppElement("#root");
 }
-export default function FigmaPlugin({ showToolbarButton = true }) {
+
+interface FigmaPluginProps {
+    showToolbarButton?: boolean;
+}
+
+export default function FigmaPlugin({ showToolbarButton = true }: FigmaPluginProps) {
     const [editor] = useLexicalComposerContext();
-    const [isOpen, setIsOpen] = useState(false);
-    const [url, setURL] = useState("");
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [url, setURL] = useState<string>("");
     useEffect(() => {
         return editor.registerCommand(OPEN_FIGMA_COMMAND, () => {
             setIsOpen(true);
@@ -36,7 +40,22 @@ export default function FigmaPlugin({ showToolbarButton = true }) {
         setURL("");
         setIsOpen(false);
     };
-    return (_jsxs("div", { style: { display: "inline-block" }, children: [showToolbarButton && (_jsx("button", { "aria-label": "Add Figma Document", onClick: () => setIsOpen(true), className: "toolbar-item", style: { background: "none", border: "none", cursor: "pointer" }, children: _jsx(SiFigma, { size: 18, color: "#777" }) })), _jsxs(ReactModal, { isOpen: isOpen, onRequestClose: () => setIsOpen(false), style: {
+    return (
+        <div style={{ display: "inline-block" }}>
+            {showToolbarButton && (
+                <button
+                    aria-label="Add Figma Document"
+                    onClick={() => setIsOpen(true)}
+                    className="toolbar-item"
+                    style={{ background: "none", border: "none", cursor: "pointer" }}
+                >
+                    <SiFigma size={18} color="#777" />
+                </button>
+            )}
+            <ReactModal
+                isOpen={isOpen}
+                onRequestClose={() => setIsOpen(false)}
+                style={{
                     overlay: {
                         backgroundColor: "rgba(0,0,0,0.6)",
                         display: "flex",
@@ -55,30 +74,58 @@ export default function FigmaPlugin({ showToolbarButton = true }) {
                         inset: "unset",
                         color: "white",
                     },
-                }, children: [_jsx("div", { style: { marginBottom: "15px" }, children: _jsx("input", { type: "text", value: url, onChange: (e) => setURL(e.target.value), placeholder: "Figma file URL", style: {
-                                width: "100%",
-                                padding: "10px",
-                                border: "1px solid white",
-                                borderRadius: "5px",
-                                background: "#1b1b1b",
-                                color: "white",
-                                marginBottom: "10px",
-                            } }) }), _jsxs("div", { style: { display: "flex", justifyContent: "space-between" }, children: [_jsx("button", { onClick: onAdd, disabled: !url.trim(), style: {
-                                    flex: 1,
-                                    padding: "10px",
-                                    background: url.trim() ? "#FA3356" : "#555",
-                                    color: "white",
-                                    border: "none",
-                                    borderRadius: "5px",
-                                    cursor: url.trim() ? "pointer" : "not-allowed",
-                                    marginRight: "10px",
-                                }, children: "Add" }), _jsx("button", { onClick: () => setIsOpen(false), style: {
-                                    flex: 1,
-                                    padding: "10px",
-                                    background: "transparent",
-                                    border: "1px solid white",
-                                    borderRadius: "5px",
-                                    color: "white",
-                                    cursor: "pointer",
-                                }, children: "Cancel" })] })] })] }));
+                }}
+            >
+                <div style={{ marginBottom: "15px" }}>
+                    <input
+                        type="text"
+                        value={url}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setURL(e.target.value)}
+                        placeholder="Figma file URL"
+                        style={{
+                            width: "100%",
+                            padding: "10px",
+                            border: "1px solid white",
+                            borderRadius: "5px",
+                            background: "#1b1b1b",
+                            color: "white",
+                            marginBottom: "10px",
+                        }}
+                    />
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <button
+                        onClick={onAdd}
+                        disabled={!url.trim()}
+                        style={{
+                            flex: 1,
+                            padding: "10px",
+                            background: url.trim() ? "#FA3356" : "#555",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "5px",
+                            cursor: url.trim() ? "pointer" : "not-allowed",
+                            marginRight: "10px",
+                        }}
+                    >
+                        Add
+                    </button>
+                    <button
+                        onClick={() => setIsOpen(false)}
+                        style={{
+                            flex: 1,
+                            padding: "10px",
+                            background: "transparent",
+                            border: "1px solid white",
+                            borderRadius: "5px",
+                            color: "white",
+                            cursor: "pointer",
+                        }}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </ReactModal>
+        </div>
+    );
 }
