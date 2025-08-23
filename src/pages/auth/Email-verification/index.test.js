@@ -1,7 +1,7 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
-import { EmailVerification } from './index';
+import EmailVerification from './index';
 import { confirmSignUp, fetchAuthSession, signIn } from 'aws-amplify/auth';
 import { updateUserProfile } from '../../../utils/api';
 jest.mock('aws-amplify/auth', () => ({

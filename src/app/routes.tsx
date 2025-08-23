@@ -1,10 +1,10 @@
 import React, { useState, useLayoutEffect, Suspense, useContext } from "react";
 import { Routes, Route, Navigate, useLocation, Location } from "react-router-dom";
-import { Login } from "../pages/auth/Login";
-import { Register } from "../pages/auth/Register";
-import { EmailVerification } from "../pages/auth/Email-verification";
-import { EmailChangeVerification } from "../pages/auth/Email-verification/email-change";
-import { Forgotpassword } from "../pages/auth/Forgot-password";
+import Login from "../pages/auth/Login";
+import Register from "../pages/auth/Register";
+import EmailVerification from "../pages/auth/Email-verification";
+import EmailChangeVerification from "../pages/auth/Email-verification/email-change";
+import ForgotPassword from "../pages/auth/Forgot-password";
 import WorkPost from "../pages/works/workpage/WorkPost";
 import GalleryPage from "../pages/gallery/GalleryPage";
 import { AnimatePresence, motion, Variants } from "framer-motion";
@@ -269,7 +269,7 @@ const ActualRoutes: React.FC<ActualRoutesProps> = ({ location }) => {
               variants={pageVariants}
               transition={pageTransition}
             >
-              <Forgotpassword />
+              <ForgotPassword />
             </motion.div>
           } 
         />

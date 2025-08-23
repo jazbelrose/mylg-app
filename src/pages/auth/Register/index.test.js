@@ -7,7 +7,8 @@ jest.mock('@aws-amplify/auth', () => ({
     resendSignUpCode: jest.fn(),
 }));
 jest.mock('../Email-verification', () => ({
-    EmailVerification: () => _jsx("div", { "data-testid": "email-verification", children: "verification" }),
+    __esModule: true,
+    default: () => _jsx("div", { "data-testid": "email-verification", children: "verification" }),
 }));
 jest.mock('../../../app/contexts/DataProvider', () => ({
     useData: () => ({ opacity: 1 }),
