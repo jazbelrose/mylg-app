@@ -6,6 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import { useData } from "../../app/contexts/DataProvider";
+import { useAuth } from "../../app/contexts/AuthContext";
 import {
   LexicalComposer,
   type InitialConfigType,
@@ -56,6 +57,7 @@ import ImagePlugin from "./plugins/ImagePlugin";
 import FigmaPlugin from "./plugins/FigmaPlugin";
 import SpeechToTextPlugin from "./plugins/SpeechToTextPlugin";
 import ToolbarActionsPlugin from "./plugins/ToolbarActionsPlugin";
+import syncCursorPositionsWithAvatars from "./utils/syncCursorAvatars";
 
 type LexicalEditorProps = {
   onChange: (json: string) => void;
@@ -79,6 +81,8 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     userName?: string;
     activeProject?: ActiveProjectLike;
   };
+  const { userId, user } = useAuth();
+  const avatarUrl = user?.thumbnail as string | undefined;
 
   const editorRef = useRef<HTMLDivElement | null>(null);
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
@@ -273,6 +277,8 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
                   initialEditorState={initialContentRef.current as never}
                   shouldBootstrap={true}
                   username={userName}
+                  awarenessData={avatarUrl ? { avatar: avatarUrl } : undefined}
+                  syncCursorPositionsFn={syncCursorPositionsWithAvatars}
                 />
 
                 <RemoveEmptyLayoutItemsOnBackspacePlugin />
@@ -301,7 +307,7 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
                     (editorState: LexicalEditorState) => {
                       editorState.read(() => {
                         const json = JSON.stringify(editorState.toJSON());
-                        console.log("[Editor State] Updated:", json);
+                        // console.log("[Editor State] Updated:", json);
                         onChange(json);
                       });
                     },
