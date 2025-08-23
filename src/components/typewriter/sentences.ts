@@ -1,4 +1,4 @@
-{
+export default {
   "sentences": [
     "Beyond Boundaries, Within Spaces.",
     "Designing Dimensions, Crafting Experiences.",
@@ -193,4 +193,5 @@
     "Visualizing the unseen, in full HD",
     "We're the craftmasters, you're the crowd-pleaser"
   ]
-}
+} as const;
+

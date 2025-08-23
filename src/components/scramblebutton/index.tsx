@@ -4,7 +4,7 @@ import ScrambleText from "scramble-text";
 import "./style.css";
 
 export interface ScrambleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  text: string;
+  text: React.ReactNode;
   to?: string;
   className?: string;
   submitMode?: boolean;
