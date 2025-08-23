@@ -1,14 +1,17 @@
 interface MessageObject {
   action?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
-export function normalizeMessage(message: any = {}, defaultAction = 'unknown'): MessageObject {
+export function normalizeMessage(
+  message: Record<string, unknown> | null = {},
+  defaultAction = 'unknown'
+): MessageObject {
   if (!message || typeof message !== 'object') {
     return { action: defaultAction };
   }
   if (!Object.prototype.hasOwnProperty.call(message, 'action')) {
-    return { ...message, action: defaultAction };
+    return { ...message, action: defaultAction } as MessageObject;
   }
-  return message;
+  return message as MessageObject;
 }
