@@ -1,5 +1,4 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import React, { useState } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import EmailVerification from '../Email-verification';
@@ -9,7 +8,15 @@ import { REGISTERED_USER_TEAM_NOTIFICATION_API_URL, updateUserProfilePending, } 
 import { Eye, EyeOff } from 'lucide-react';
 import styles from '../auth.module.css';
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
-const sendNotification = async (profileData) => {
+
+interface ProfileData {
+    email: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+}
+
+const sendNotification = async (profileData: ProfileData): Promise<void> => {
     const apiEndpoint = REGISTERED_USER_TEAM_NOTIFICATION_API_URL;
     const requestOptions = {
         method: 'POST',
@@ -22,25 +29,44 @@ const sendNotification = async (profileData) => {
     }
     return response.json();
 };
+interface FormErrors {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    password?: string;
+    repeatPassword?: string;
+    phoneNumber?: string;
+    company?: string;
+    occupation?: string;
+}
+
+interface RegistrationDetails {
+    email: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+}
+
 export function Register() {
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [company, setCompany] = useState('');
-    const [occupation, setOccupation] = useState('');
-    const [repeatPassword, setRepeatPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [showRepeatPassword, setShowRepeatPassword] = useState(false);
-    const [isRegistered, setIsRegistered] = useState(false);
-    const [registrationDetails, setRegistrationDetails] = useState(null);
-    const [signUpError, setSignUpError] = useState('');
+    const [firstName, setFirstName] = useState<string>('');
+    const [lastName, setLastName] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [phoneNumber, setPhoneNumber] = useState<string>('');
+    const [company, setCompany] = useState<string>('');
+    const [occupation, setOccupation] = useState<string>('');
+    const [repeatPassword, setRepeatPassword] = useState<string>('');
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showRepeatPassword, setShowRepeatPassword] = useState<boolean>(false);
+    const [isRegistered, setIsRegistered] = useState<boolean>(false);
+    const [registrationDetails, setRegistrationDetails] = useState<RegistrationDetails | null>(null);
+    const [signUpError, setSignUpError] = useState<string>('');
     const { opacity } = useData();
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<FormErrors>({});
     const opacityClass = opacity === 1 ? 'opacity-high' : 'opacity-low';
-    const validate = () => {
-        const formErrors = {};
+    
+    const validate = (): boolean => {
+        const formErrors: FormErrors = {};
         if (!firstName)
             formErrors.firstName = 'First name is required';
         if (!lastName)

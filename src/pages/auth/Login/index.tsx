@@ -142,37 +142,176 @@ export function Login() {
         }
     }, [isAuthenticated, navigate]);
     const isFormValid = username.trim() && password.trim();
-    return (_jsxs(HelmetProvider, { children: [_jsxs(Helmet, { children: [_jsx("title", { children: "Login | *MYLG!*" }), _jsx("meta", { name: "description", content: "Log in to your *MYLG!* account to manage creative projects effortlessly." }), _jsx("meta", { name: "robots", content: "noindex, nofollow" })] }), _jsxs("div", { className: `${opacityClass} ${styles.authPage}`, children: [isLoading && _jsx(SpinnerOverlay, {}), _jsxs("div", { className: styles.authCard, children: [_jsx("div", { className: styles.wordmark, children: "*MYLG!*" }), _jsx("h1", { className: styles.authTitle, children: "Sign in" }), _jsx("p", { className: styles.authSubtitle, children: "Please enter your login and password" }), pending && (_jsx(Alert, { type: "warning", message: "We sent you a code", description: _jsxs("div", { style: { display: 'flex', gap: 8 }, children: [_jsx(AntButton, { type: "link", onClick: () => openVerificationModal({
-                                                flow: pending.authFlow,
-                                                username: pending.username,
-                                                onResendMfa: async () => resendMfa(pending.username, password),
-                                            }), children: "Enter code" }), _jsx(AntButton, { type: "link", onClick: () => resendMfa(pending.username, password), children: "Resend" })] }), showIcon: true, closable: true, onClose: clearPending, style: { marginBottom: 16 } })), _jsxs("form", { className: styles.authForm, onSubmit: (e) => {
-                                    e.preventDefault();
-                                    if (pendingForUser) {
-                                        openVerificationModal({
+    
+    const handleFormSubmit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (pendingForUser) {
+            openVerificationModal({
+                flow: pending.authFlow,
+                username: pending.username,
+                onResendMfa: async () => resendMfa(pending.username, password),
+            });
+        } else {
+            handleSubmit();
+        }
+    };
+    
+    return (
+        <HelmetProvider>
+            <Helmet>
+                <title>Login | *MYLG!*</title>
+                <meta name="description" content="Log in to your *MYLG!* account to manage creative projects effortlessly." />
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
+            <div className={`${opacityClass} ${styles.authPage}`}>
+                {isLoading && <SpinnerOverlay />}
+                <div className={styles.authCard}>
+                    <div className={styles.wordmark}>*MYLG!*</div>
+                    <h1 className={styles.authTitle}>Sign in</h1>
+                    <p className={styles.authSubtitle}>Please enter your login and password</p>
+                    
+                    {pending && (
+                        <Alert
+                            type="warning"
+                            message="We sent you a code"
+                            description={
+                                <div style={{ display: 'flex', gap: 8 }}>
+                                    <AntButton 
+                                        type="link"
+                                        onClick={() => openVerificationModal({
                                             flow: pending.authFlow,
                                             username: pending.username,
                                             onResendMfa: async () => resendMfa(pending.username, password),
-                                        });
-                                    }
-                                    else {
-                                        handleSubmit();
-                                    }
-                                }, children: [_jsxs("div", { className: styles.field, children: [_jsx("label", { htmlFor: "email", className: styles.label, children: "Email" }), _jsx("input", { id: "email", "aria-label": "Email", type: "email", autoComplete: "email", className: styles.input, value: username, onChange: (e) => setUsername(e.target.value), required: true })] }), _jsxs("div", { className: styles.field, children: [_jsx("label", { htmlFor: "password", className: styles.label, children: "Password" }), _jsxs("div", { className: styles.passwordWrapper, children: [_jsx("input", { id: "password", "aria-label": "Password", type: showPassword ? 'text' : 'password', autoComplete: "current-password", className: `${styles.input} ${error ? styles.invalid : ''}`, value: password, onChange: (e) => setPassword(e.target.value), required: true }), _jsx("button", { type: "button", className: styles.toggle, "aria-label": showPassword ? 'Hide password' : 'Show password', onClick: () => setShowPassword((v) => !v), children: showPassword ? _jsx(EyeOff, { size: 16 }) : _jsx(Eye, { size: 16 }) })] }), error && _jsx("p", { className: styles.helper, children: error }), error?.toLowerCase().includes('already a signed in') && (_jsx("button", { type: "button", className: styles.linkBtn, onClick: async () => { await signOut(); clearPending(); setError(''); }, children: "Not you? Switch account" }))] }), pendingForUser ? (_jsx("button", { type: "button", className: `${styles.button} ${styles.primary}`, onClick: () => openVerificationModal({
-                                            flow: pending.authFlow,
-                                            username: pending.username,
-                                            onResendMfa: async () => resendMfa(pending.username, password),
-                                        }), children: "Enter code" })) : (_jsx("button", { type: "submit", className: `${styles.button} ${styles.primary}`, disabled: !isFormValid, children: "Login" }))] }), _jsxs("div", { className: styles.actions, children: [_jsx(Link, { to: "/forgot-password", state: { email: username }, className: styles.forgot, children: "Forgot password?" }), _jsx(Link, { to: "/register", state: { email: username }, className: `${styles.button} ${styles.secondary}`, children: "Create an account" })] })] }), _jsx(VerificationCodeModal, { open: modal.open, flow: modal.flow, username: modal.username, clearPending: clearPending, onResendMfa: modal.onResendMfa, onCancel: () => closeVerificationModal(), onSuccess: async () => {
-                            closeVerificationModal();
-                            if (modal.flow === 'CONFIRM_SIGN_UP') {
-                                if (password) {
-                                    setIsLoading(true);
-                                    await handleSignIn({ email: username, password });
-                                }
+                                        })}
+                                    >
+                                        Enter code
+                                    </AntButton>
+                                    <AntButton 
+                                        type="link"
+                                        onClick={() => resendMfa(pending.username, password)}
+                                    >
+                                        Resend
+                                    </AntButton>
+                                </div>
                             }
-                            else {
-                                await finalizeSession();
+                            showIcon
+                            closable
+                            onClose={clearPending}
+                            style={{ marginBottom: 16 }}
+                        />
+                    )}
+                    
+                    <form className={styles.authForm} onSubmit={handleFormSubmit}>
+                        <div className={styles.field}>
+                            <label htmlFor="email" className={styles.label}>Email</label>
+                            <input
+                                id="email"
+                                aria-label="Email"
+                                type="email"
+                                autoComplete="email"
+                                className={styles.input}
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                required
+                            />
+                        </div>
+                        
+                        <div className={styles.field}>
+                            <label htmlFor="password" className={styles.label}>Password</label>
+                            <div className={styles.passwordWrapper}>
+                                <input
+                                    id="password"
+                                    aria-label="Password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    autoComplete="current-password"
+                                    className={`${styles.input} ${error ? styles.invalid : ''}`}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    className={styles.toggle}
+                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    onClick={() => setShowPassword((v) => !v)}
+                                >
+                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
+                            {error && <p className={styles.helper}>{error}</p>}
+                            {error?.toLowerCase().includes('already a signed in') && (
+                                <button
+                                    type="button"
+                                    className={styles.linkBtn}
+                                    onClick={async () => {
+                                        await signOut();
+                                        clearPending();
+                                        setError('');
+                                    }}
+                                >
+                                    Not you? Switch account
+                                </button>
+                            )}
+                        </div>
+                        
+                        {pendingForUser ? (
+                            <button
+                                type="button"
+                                className={`${styles.button} ${styles.primary}`}
+                                onClick={() => openVerificationModal({
+                                    flow: pending.authFlow,
+                                    username: pending.username,
+                                    onResendMfa: async () => resendMfa(pending.username, password),
+                                })}
+                            >
+                                Enter code
+                            </button>
+                        ) : (
+                            <button
+                                type="submit"
+                                className={`${styles.button} ${styles.primary}`}
+                                disabled={!isFormValid}
+                            >
+                                Login
+                            </button>
+                        )}
+                    </form>
+                    
+                    <div className={styles.actions}>
+                        <Link to="/forgot-password" state={{ email: username }} className={styles.forgot}>
+                            Forgot password?
+                        </Link>
+                        <Link 
+                            to="/register" 
+                            state={{ email: username }} 
+                            className={`${styles.button} ${styles.secondary}`}
+                        >
+                            Create an account
+                        </Link>
+                    </div>
+                </div>
+                
+                <VerificationCodeModal
+                    open={modal.open}
+                    flow={modal.flow}
+                    username={modal.username}
+                    clearPending={clearPending}
+                    onResendMfa={modal.onResendMfa}
+                    onCancel={() => closeVerificationModal()}
+                    onSuccess={async () => {
+                        closeVerificationModal();
+                        if (modal.flow === 'CONFIRM_SIGN_UP') {
+                            if (password) {
+                                setIsLoading(true);
+                                await handleSignIn({ email: username, password });
                             }
-                        } })] })] }));
+                        } else {
+                            await finalizeSession();
+                        }
+                    }}
+                />
+            </div>
+        </HelmetProvider>
+    );
 }
 export default Login;
