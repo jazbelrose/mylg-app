@@ -130,12 +130,14 @@ describe('Security Headers Validation', () => {
 // Package vulnerability validation
 describe('Package Security', () => {
   test('verifies xlsx is not in dependencies', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
     const packageJson = require('../../package.json');
     expect(packageJson.dependencies.xlsx).toBeUndefined();
     expect(packageJson.dependencies.exceljs).toBeDefined();
   });
 
   test('verifies pdfjs-dist is updated', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const packageJson = require('../../package.json');
     const pdfVersion = packageJson.dependencies['pdfjs-dist'] || packageJson.devDependencies['pdfjs-dist'];
     expect(pdfVersion).toMatch(/^\^?4\./); // Should be version 4.x or higher
