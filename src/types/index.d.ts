@@ -32,10 +32,6 @@ declare module 'react-modal' {
   }
 }
 
-declare module './aws-exports' {
-  const awsConfig: any;
-  export default awsConfig;
-}
 
 declare module './app/contexts/AuthContext' {
   interface AuthContextType {
