@@ -18,7 +18,7 @@ jest.mock('../../utils/api', () => ({
     apiFetch: jest.fn(() => Promise.resolve({})),
     S3_PUBLIC_BASE: 'https://mock-s3.com/public',
 }));
-import GalleryComponent from '../dashboard/components/SingleProject/GalleryComponent.jsx';
+import GalleryComponent from '../dashboard/components/SingleProject/GalleryComponent';
 import { ToastContainer } from 'react-toastify';
 import { MemoryRouter } from 'react-router-dom';
 import Modal from 'react-modal';
