@@ -22,7 +22,7 @@ jest.mock('aws-amplify/storage', () => ({
     list: jest.fn().mockResolvedValue({ items: [] }),
     uploadData: jest.fn(),
 }));
-jest.mock('./PDFPreview.jsx', () => ({ title }) => _jsx("canvas", { title: title }));
+jest.mock('./PDFPreview', () => ({ title }) => _jsx("canvas", { title: title }));
 jest.mock('../../../../utils/api', () => ({
     API_BASE_URL: 'base',
     ZIP_FILES_URL: 'zip',
@@ -35,7 +35,7 @@ jest.mock('../../../../utils/api', () => ({
 }));
 const { useData } = require('../../../../app/contexts/DataProvider');
 const { apiFetch } = require('../../../../utils/api');
-const FileManagerComponent = require('./FileManager.jsx').default;
+const FileManagerComponent = require('./FileManager').default;
 const { NotificationContainer } = require('../../../../components/ToastNotifications');
 beforeEach(() => {
     useData.mockReturnValue({

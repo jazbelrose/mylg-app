@@ -1,5 +1,5 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-// app/components/Inbox.jsx
+// app/components/Inbox.ts
 import React, { useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useData } from "../../../../app/contexts/DataProvider";

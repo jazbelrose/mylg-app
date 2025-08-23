@@ -26,7 +26,7 @@ jest.mock('../useBudgetData', () => ({
     __esModule: true,
     default: mockUseBudgetData,
 }));
-const BudgetComponent = require('../BudgetComponent.jsx').default;
+const BudgetComponent = require('../BudgetComponent').default;
 beforeEach(() => {
     mockBudgetHeader = { headerBallPark: 5000, headerFinalTotalCost: 0 };
     mockBudgetItems = [];
