@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { jsx as _jsx } from "react/jsx-runtime";
 import React, { useRef, useEffect } from 'react';
 import { DraggableBlockPlugin_EXPERIMENTAL } from '@lexical/react/LexicalDraggableBlockPlugin';

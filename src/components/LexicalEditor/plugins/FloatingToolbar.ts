@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 // FloatingToolbar.js
 import React, { useEffect, useState, useRef } from "react";

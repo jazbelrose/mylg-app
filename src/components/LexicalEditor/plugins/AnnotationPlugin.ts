@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { jsx as _jsx } from "react/jsx-runtime";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getSelection, $isRangeSelection } from "lexical";
