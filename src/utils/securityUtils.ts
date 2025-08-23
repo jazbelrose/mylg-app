@@ -3,20 +3,18 @@ import { v4 as uuidv4 } from 'uuid';
 
 // CSRF Token Management
 class CSRFProtection {
-  constructor() {
-    this.tokenKey = 'csrf_token';
-    this.headerName = 'X-CSRF-Token';
-  }
+  private tokenKey = 'csrf_token';
+  private headerName = 'X-CSRF-Token';
 
   // Generate a new CSRF token
-  generateToken() {
+  generateToken(): string {
     const token = uuidv4();
     sessionStorage.setItem(this.tokenKey, token);
     return token;
   }
 
   // Get the current CSRF token
-  getToken() {
+  getToken(): string {
     let token = sessionStorage.getItem(this.tokenKey);
     if (!token) {
       token = this.generateToken();
@@ -25,92 +23,94 @@ class CSRFProtection {
   }
 
   // Validate CSRF token (for form submissions)
-  validateToken(submittedToken) {
+  validateToken(submittedToken: string): boolean {
     const storedToken = sessionStorage.getItem(this.tokenKey);
-    return storedToken && storedToken === submittedToken;
+    return !!storedToken && storedToken === submittedToken;
   }
 
   // Add CSRF token to request headers
-  addToHeaders(headers = {}) {
+  addToHeaders(headers: Record<string, string> = {}): Record<string, string> {
     return {
       ...headers,
-      [this.headerName]: this.getToken()
+      [this.headerName]: this.getToken(),
     };
   }
 
   // Add CSRF token to fetch requests
-  addToFetchOptions(options = {}) {
+  addToFetchOptions(options: RequestInit = {}): RequestInit {
     return {
       ...options,
-      headers: this.addToHeaders(options.headers)
+      headers: this.addToHeaders(options.headers as Record<string, string>),
     };
   }
 
   // Clear the CSRF token (on logout)
-  clearToken() {
+  clearToken(): void {
     sessionStorage.removeItem(this.tokenKey);
   }
 }
 
 // Rate Limiting for Client-Side Protection
 class RateLimiter {
+  private requests: Map<string, number[]>;
+
   constructor() {
     this.requests = new Map();
   }
 
   // Check if request is allowed (returns true if allowed)
-  isAllowed(key, maxRequests = 10, windowMs = 60000) {
+  isAllowed(key: string, maxRequests = 10, windowMs = 60000): boolean {
     const now = Date.now();
     const windowStart = now - windowMs;
-    
+
     if (!this.requests.has(key)) {
       this.requests.set(key, []);
     }
-    
-    const requestTimes = this.requests.get(key);
-    
+
+    const requestTimes = this.requests.get(key)!;
+
     // Remove old requests outside the window
-    const validRequests = requestTimes.filter(time => time > windowStart);
-    
+    const validRequests = requestTimes.filter((time) => time > windowStart);
+
     if (validRequests.length >= maxRequests) {
       return false;
     }
-    
+
     // Add current request
     validRequests.push(now);
     this.requests.set(key, validRequests);
-    
+
     return true;
   }
 
   // Get remaining requests in current window
-  getRemainingRequests(key, maxRequests = 10, windowMs = 60000) {
+  getRemainingRequests(key: string, maxRequests = 10, windowMs = 60000): number {
     const now = Date.now();
     const windowStart = now - windowMs;
-    
+
     if (!this.requests.has(key)) {
       return maxRequests;
     }
-    
-    const requestTimes = this.requests.get(key);
-    const validRequests = requestTimes.filter(time => time > windowStart);
-    
+
+    const requestTimes = this.requests.get(key)!;
+    const validRequests = requestTimes.filter((time) => time > windowStart);
+
     return Math.max(0, maxRequests - validRequests.length);
   }
 
   // Clear rate limiting data for a key
-  clear(key) {
+  clear(key: string): void {
     this.requests.delete(key);
   }
 
   // Clear all rate limiting data
-  clearAll() {
+  clearAll(): void {
     this.requests.clear();
   }
 }
 
 // Input Sanitization
-export const sanitizeInput = (input) => {
+export const sanitizeInput = (input: unknown): unknown => {
   if (typeof input !== 'string') return input;
   
   // Basic XSS prevention - encode HTML entities
@@ -124,7 +124,7 @@ export const sanitizeInput = (input) => {
 };
 
 // Secure API request wrapper
-export const secureApiRequest = async (url, options = {}) => {
+export const secureApiRequest = async (url: string, options: RequestInit = {}): Promise<Response> => {
   const csrf = new CSRFProtection();
   const rateLimiter = new RateLimiter();
   
@@ -164,13 +164,13 @@ export const csrfProtection = new CSRFProtection();
 export const rateLimiter = new RateLimiter();
 
 // Security event logging
-export const logSecurityEvent = (event, details = {}) => {
+export const logSecurityEvent = (event: string, details: Record<string, unknown> = {}): void => {
   const logEntry = {
     timestamp: new Date().toISOString(),
     event,
     details,
     userAgent: navigator.userAgent,
-    url: window.location.href
+    url: window.location.href,
   };
   
   // In production, this should be sent to a security monitoring service
