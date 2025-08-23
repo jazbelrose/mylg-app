@@ -1,6 +1,6 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { render, fireEvent, waitFor } from '@testing-library/react';
-import { Register } from './index';
+import Register from './index';
 import { signUp, resendSignUpCode } from '@aws-amplify/auth';
 jest.mock('@aws-amplify/auth', () => ({
     signUp: jest.fn(),
