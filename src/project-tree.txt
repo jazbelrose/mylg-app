@@ -368,7 +368,7 @@
 │   │   ├── components
 │   │   │   ├── AllProjects
 │   │   │   │   ├── AllProjectsHeader.jsx
-│   │   │   │   └── SVGThumbnail.jsx
+│   │   │   │   └── SVGThumbnail.tsx
 │   │   │   ├── NewProject
 │   │   │   │   ├── NewProjectAddress.jsx
 │   │   │   │   ├── NewProjectBudget.jsx
