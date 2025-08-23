@@ -10,8 +10,10 @@ import PreviewDrawer from "./components/SingleProject/PreviewDrawer";
 import UnifiedToolbar from "../../components/UnifiedToolbar";
 import LexicalEditor from "../../components/LexicalEditor/LexicalEditor";
 import { useData } from "../../app/contexts/DataProvider";
+import { useAuth } from "../../app/contexts/AuthContext";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { findProjectBySlug, slugify } from "../../utils/slug";
+import { logSecurityEvent } from "../../utils/securityUtils";
 
 // Debounce utility function
 function debounce<T extends (...args: any[]) => void>(func: T, wait: number): T {
@@ -37,6 +39,7 @@ const EditorPage: React.FC = () => {
     updateProjectFields,
   } = useData();
 
+  const { isAuthenticated, authStatus, loading: authLoading } = useAuth();
   const { ws } = useSocket();
 
   const [activeProject, setActiveProject] = useState(initialActiveProject);
@@ -46,6 +49,63 @@ const EditorPage: React.FC = () => {
   const [briefToolbarActions, setBriefToolbarActions] = useState<Record<string, any>>({});
   const quickLinksRef = useRef<any>(null);
   const designerRef = useRef<any>(null);
+
+  // Authentication guard - redirect if not authenticated
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      logSecurityEvent('unauthorized_editor_access_attempt', {
+        projectSlug,
+        authStatus
+      });
+      navigate('/auth/signin');
+      return;
+    }
+  }, [isAuthenticated, authLoading, authStatus, navigate, projectSlug]);
+
+  // Don't render anything while authentication is loading
+  if (authLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' 
+      }}>
+        <div>Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render editor if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        backgroundColor: '#f5f5f5'
+      }}>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <h2>Authentication Required</h2>
+          <p>You must be logged in to access the editor.</p>
+          <button 
+            onClick={() => navigate('/auth/signin')}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Debounced save function for description changes
   const debouncedSaveDescription = useMemo(

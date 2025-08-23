@@ -6,6 +6,7 @@ import React, {
   useMemo,
 } from "react";
 import { useData } from "../../app/contexts/DataProvider";
+import { useAuth } from "../../app/contexts/AuthContext";
 import {
   LexicalComposer,
   type InitialConfigType,
@@ -30,7 +31,6 @@ import ImageLockPlugin from "./plugins/ImageLockPlugin";
 import ImageCopyPastePlugin from "./plugins/ImageCopyPastePlugin";
 import YjsSyncPlugin from "./plugins/YjsSyncPlugin";
 
-import { WebsocketProvider } from "y-websocket";
 import { IndexeddbPersistence } from "y-indexeddb";
 import * as Y from "yjs";
 
@@ -57,6 +57,11 @@ import FigmaPlugin from "./plugins/FigmaPlugin";
 import SpeechToTextPlugin from "./plugins/SpeechToTextPlugin";
 import ToolbarActionsPlugin from "./plugins/ToolbarActionsPlugin";
 
+// Import secure WebSocket utilities
+import { createSecureYjsProvider } from "../../utils/secureYjsWebSocket";
+import { logSecurityEvent } from "../../utils/securityUtils";
+import { WebsocketProvider } from "y-websocket";
+
 type LexicalEditorProps = {
   onChange: (json: string) => void;
   initialContent?: unknown | null;
@@ -79,6 +84,8 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     userName?: string;
     activeProject?: ActiveProjectLike;
   };
+  
+  const { getAuthTokens, isAuthenticated } = useAuth();
 
   const editorRef = useRef<HTMLDivElement | null>(null);
   const editorContainerRef = useRef<HTMLDivElement | null>(null);
@@ -89,6 +96,17 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
 
   const initialContentRef = useRef<unknown | null>(initialContent ?? null);
   const hasScrolledToBottom = useRef<boolean>(false);
+
+  // Session ID for WebSocket authentication
+  const sessionIdRef = useRef<string>(() => {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    return 'session-' + Math.random().toString(36).substr(2, 9);
+  }());
+
+  // Store the session ID value immediately
+  const sessionId = useMemo(() => sessionIdRef.current, []);
 
   // Memoize the project ID so it isn’t recalculated unnecessarily.
   const projectId = useMemo<string>(() => {
@@ -129,9 +147,19 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
   const [, setYjsProvider] = useState<ExtendedWebsocketProvider | null>(null);
 
   const getProvider = useCallback(
-    (id: string, yjsDocMap: Map<string, Y.Doc>): ExtendedWebsocketProvider => {
+    async (id: string, yjsDocMap: Map<string, Y.Doc>): Promise<ExtendedWebsocketProvider> => {
       if (providerRef.current) {
         return providerRef.current;
+      }
+
+      // Check authentication before creating provider
+      if (!isAuthenticated) {
+        throw new Error('User must be authenticated to access collaborative editor');
+      }
+
+      const tokens = await getAuthTokens();
+      if (!tokens?.idToken) {
+        throw new Error('No authentication token available');
       }
 
       let doc = yjsDocMap.get(id);
@@ -147,20 +175,41 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
       });
       persistenceRef.current = persistence;
 
-      const provider = new WebsocketProvider(
-        "ws://35.165.113.63:1234",
-        id,
-        doc
-      ) as ExtendedWebsocketProvider;
+      try {
+        // Create secure WebSocket provider with authentication
+        const provider = await createSecureYjsProvider(
+          "ws://35.165.113.63:1234/yjs/project",
+          id + "/lexical", // Use lexical subdoc for editor content
+          doc,
+          tokens.idToken,
+          sessionId,
+          {
+            connect: true,
+            resyncInterval: 5000, // Resync every 5 seconds
+          }
+        ) as ExtendedWebsocketProvider;
 
-      // Expose a shared text type for convenience (handy for custom plugins).
-      provider.sharedType = doc.getText("lexical");
+        // Expose a shared text type for convenience (handy for custom plugins).
+        provider.sharedType = doc.getText("lexical");
 
-      providerRef.current = provider;
-      setYjsProvider(provider);
-      return provider;
+        providerRef.current = provider;
+        setYjsProvider(provider);
+
+        logSecurityEvent('lexical_editor_provider_created', {
+          projectId: id,
+          sessionId: sessionId?.substring(0, 8) + '...'
+        });
+
+        return provider;
+      } catch (error) {
+        logSecurityEvent('lexical_editor_provider_creation_failed', {
+          projectId: id,
+          error: (error as Error).message
+        });
+        throw error;
+      }
     },
-    []
+    [isAuthenticated, getAuthTokens]
   );
 
   // Memoize the LexicalComposer configuration so it’s only created once.
@@ -216,6 +265,30 @@ const LexicalEditor: React.FC<LexicalEditorProps> = ({
     }),
     []
   );
+
+  // Don't render editor if user is not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div
+        ref={editorRef}
+        style={{
+          maxWidth: "1920px",
+          width: "100%",
+          height: "100vh",
+          minHeight: "800px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#f5f5f5",
+        }}
+      >
+        <div style={{ textAlign: "center", padding: "2rem" }}>
+          <h2>Authentication Required</h2>
+          <p>You must be logged in to access the collaborative editor.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
