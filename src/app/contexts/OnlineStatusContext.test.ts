@@ -1,4 +1,3 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import { OnlineStatusProvider, useOnlineStatus } from './OnlineStatusContext';
@@ -10,27 +9,40 @@ jest.mock('./SocketContext', () => ({
 jest.mock('./DataProvider', () => ({
     useData: jest.fn(),
 }));
-const { useSocket } = require('./SocketContext');
-const { useData } = require('./DataProvider');
-class MockWebSocket {
+
+const { useSocket } = require('./SocketContext') as { useSocket: jest.MockedFunction<any> };
+const { useData } = require('./DataProvider') as { useData: jest.MockedFunction<any> };
+
+interface MockWebSocketOptions {
+    listeners: Record<string, (event: any) => void>;
+    send: jest.MockedFunction<any>;
+}
+
+class MockWebSocket implements MockWebSocketOptions {
+    listeners: Record<string, (event: any) => void>;
+    send: jest.MockedFunction<any>;
+    
     constructor() {
         this.listeners = {};
         this.send = jest.fn();
     }
-    addEventListener(event, cb) {
+    
+    addEventListener(event: string, cb: (event: any) => void) {
         this.listeners[event] = cb;
     }
-    removeEventListener(event) {
+    
+    removeEventListener(event: string) {
         delete this.listeners[event];
     }
-    fireMessage(data) {
+    
+    fireMessage(data: any) {
         if (this.listeners['message']) {
             this.listeners['message']({ data });
         }
     }
 }
 describe('OnlineStatusContext', () => {
-    let ws;
+    let ws: MockWebSocket;
     beforeEach(() => {
         ws = new MockWebSocket();
         useSocket.mockReturnValue({ ws, onlineUsers: [] });
@@ -43,18 +55,27 @@ describe('OnlineStatusContext', () => {
         useSocket.mockReturnValue({ ws, onlineUsers: ['a', 'b', 'current'] });
         const TestComponent = () => {
             const { onlineUsers } = useOnlineStatus();
-            return _jsx("div", { "data-testid": "users", children: onlineUsers.join(',') });
+            return <div data-testid="users">{onlineUsers.join(',')}</div>;
         };
-        render(_jsx(OnlineStatusProvider, { children: _jsx(TestComponent, {}) }));
+        render(<OnlineStatusProvider><TestComponent /></OnlineStatusProvider>);
         expect(screen.getByTestId('users')).toHaveTextContent('a,b,current');
     });
     it('child components show indicator when user is online', () => {
         useSocket.mockReturnValue({ ws, onlineUsers: ['user1'] });
-        const Indicator = ({ id }) => {
+        const Indicator = ({ id }: { id: string }) => {
             const { onlineUsers } = useOnlineStatus();
-            return onlineUsers.includes(id) ? (_jsx("span", { "data-testid": `ind-${id}`, className: "online-indicator" })) : (_jsx("span", { "data-testid": `ind-${id}`, children: "offline" }));
+            return onlineUsers.includes(id) ? (
+                <span data-testid={`ind-${id}`} className="online-indicator" />
+            ) : (
+                <span data-testid={`ind-${id}`}>offline</span>
+            );
         };
-        render(_jsxs(OnlineStatusProvider, { children: [_jsx(Indicator, { id: "user1" }), _jsx(Indicator, { id: "user2" })] }));
+        render(
+            <OnlineStatusProvider>
+                <Indicator id="user1" />
+                <Indicator id="user2" />
+            </OnlineStatusProvider>
+        );
         expect(screen.getByTestId('ind-user1')).toHaveClass('online-indicator');
         expect(screen.getByTestId('ind-user2')).toHaveTextContent('offline');
     });
