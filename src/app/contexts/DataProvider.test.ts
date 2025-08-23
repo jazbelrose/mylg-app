@@ -6,6 +6,12 @@ jest.mock('./AuthContext', () => ({
     useAuth: jest.fn(),
 }));
 
+jest.mock('../../utils/storageWithTTL', () => ({
+    getWithTTL: jest.fn(() => null),
+    setWithTTL: jest.fn(),
+    DEFAULT_TTL: 3600000,
+}));
+
 jest.mock('../../utils/api', () => ({
     THREADS_URL: 'threads',
     fetchAllUsers: jest.fn(() => Promise.resolve([])),
@@ -15,6 +21,7 @@ jest.mock('../../utils/api', () => ({
     fetchBudgetHeader: jest.fn(),
     updateTimelineEvents: jest.fn(),
     updateProjectFields: jest.fn(),
+    updateUserProfile: jest.fn(),
     apiFetch: jest.fn().mockResolvedValue({
         json: jest.fn().mockResolvedValue([]),
     }),
@@ -40,7 +47,16 @@ const TestComponent: React.FC = () => {
 
 describe('DataProvider', () => {
     beforeEach(() => {
-        useAuth.mockReturnValue({ user: null });
+        useAuth.mockReturnValue({ 
+            user: null, 
+            userId: undefined,
+            userName: 'Guest',
+            isAdmin: false,
+            isDesigner: false,
+            isBuilder: false,
+            isVendor: false,
+            isClient: false,
+        });
         api.fetchProjectsFromApi.mockRejectedValue(new Error('fail'));
         api.fetchEvents.mockResolvedValue([]);
     });
@@ -57,7 +73,16 @@ describe('DataProvider', () => {
     });
 
     it('does not hydrate projects with budget data', async () => {
-        useAuth.mockReturnValue({ user: { userId: 'u1', role: 'admin', projects: [] } });
+        useAuth.mockReturnValue({ 
+            user: { userId: 'u1', role: 'admin', projects: [] },
+            userId: 'u1',
+            userName: 'Test User',
+            isAdmin: true,
+            isDesigner: false,
+            isBuilder: false,
+            isVendor: false,
+            isClient: false,
+        });
         api.fetchProjectsFromApi.mockResolvedValue([{ projectId: 'p1' }]);
         api.fetchEvents.mockResolvedValue([]);
         
