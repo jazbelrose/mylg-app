@@ -54,8 +54,7 @@ interface MessagesContextValue {
     reactorId: string,
     conversationId: string,
     conversationType: "dm" | "project",
-    ws?: WebSocket,
-    updateUserData?: (updater: (prev: any) => any) => void
+    ws?: WebSocket
   ) => void;
 }
 
@@ -92,8 +91,7 @@ export const MessagesProvider: React.FC<PropsWithChildren> = ({ children }) => {
     reactorId: string,
     conversationId: string,
     conversationType: "dm" | "project",
-    ws?: WebSocket,
-    updateUserData?: (updater: (prev: any) => any) => void
+    ws?: WebSocket
   ) => {
     if (!msgId || !emoji || !reactorId) return;
 
@@ -103,19 +101,14 @@ export const MessagesProvider: React.FC<PropsWithChildren> = ({ children }) => {
         if (id !== msgId) return m;
         const reactions = { ...(m.reactions || {}) };
         const users = new Set(reactions[emoji] || []);
-        users.has(reactorId) ? users.delete(reactorId) : users.add(reactorId);
+        if (users.has(reactorId)) {
+          users.delete(reactorId);
+        } else {
+          users.add(reactorId);
+        }
         reactions[emoji] = Array.from(users);
         return { ...m, reactions };
       });
-
-    // Update userData messages (for DM conversations) if callback provided
-    if (updateUserData) {
-      updateUserData((prev: any) => {
-        if (!prev) return prev;
-        const msgs = Array.isArray(prev.messages) ? prev.messages : [];
-        return { ...prev, messages: updateArr(msgs) };
-      });
-    }
 
     // Update project messages
     setProjectMessages((prev) => {

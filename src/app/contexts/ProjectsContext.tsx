@@ -371,7 +371,7 @@ export const ProjectsProvider: React.FC<PropsWithChildren> = ({ children }) => {
             updated.thumbnails = Array.from(new Set([...(value as string[]), ...prevThumbs]));
           } else {
             // Dynamic assignment is ok for flexible Project shape
-            (updated as any)[key] = value as never;
+            (updated as Record<string, unknown>)[key] = value as never;
           }
         });
         return updated;

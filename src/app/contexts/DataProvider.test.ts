@@ -35,14 +35,34 @@ jest.mock('../../utils/api', () => ({
 
 const { useAuth } = require('./AuthContext');
 const api = require('../../utils/api');
-const { DataProvider, useData } = require('./DataProvider');
+const { DataProvider, useData, useAuthData, useProjects, useMessages } = require('./DataProvider');
 
 const TestComponent: React.FC = () => {
-    const { projectsError, fetchProjects } = useData();
+    const { projectsError, fetchProjects, userName, dmThreads } = useData();
     React.useEffect(() => {
         fetchProjects();
     }, [fetchProjects]);
-    return <span data-testid="err">{projectsError ? 'true' : 'false'}</span>;
+    return (
+        <div>
+            <span data-testid="err">{projectsError ? 'true' : 'false'}</span>
+            <span data-testid="username">{userName}</span>
+            <span data-testid="threads">{dmThreads.length}</span>
+        </div>
+    );
+};
+
+const IndividualContextTestComponent: React.FC = () => {
+    const { userName } = useAuthData();
+    const { projects } = useProjects();
+    const { dmThreads } = useMessages();
+    
+    return (
+        <div>
+            <span data-testid="individual-username">{userName}</span>
+            <span data-testid="individual-projects">{projects.length}</span>
+            <span data-testid="individual-threads">{dmThreads.length}</span>
+        </div>
+    );
 };
 
 describe('DataProvider', () => {
@@ -70,6 +90,19 @@ describe('DataProvider', () => {
         await waitFor(() => {
             expect(screen.getByTestId('err')).toHaveTextContent('true');
         });
+    });
+
+    it('provides merged context data via useData hook', async () => {
+        render(<DataProvider><TestComponent /></DataProvider>);
+        expect(screen.getByTestId('username')).toHaveTextContent('Guest');
+        expect(screen.getByTestId('threads')).toHaveTextContent('0');
+    });
+
+    it('provides individual context hooks', async () => {
+        render(<DataProvider><IndividualContextTestComponent /></DataProvider>);
+        expect(screen.getByTestId('individual-username')).toHaveTextContent('Guest');
+        expect(screen.getByTestId('individual-projects')).toHaveTextContent('0');
+        expect(screen.getByTestId('individual-threads')).toHaveTextContent('0');
     });
 
     it('does not hydrate projects with budget data', async () => {

@@ -89,6 +89,7 @@ interface UserContextValue {
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   loadingProfile: boolean;
+  updateUserDataMessages: (updater: (messages: Message[]) => Message[]) => void;
 }
 
 // ---------- Context + Hook ----------
@@ -176,6 +177,15 @@ export const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
     fetchUserProfile();
   }, [userId]);
 
+  const updateUserDataMessages = (updater: (messages: Message[]) => Message[]) => {
+    setUserData((prev) => {
+      if (!prev) return prev;
+      const currentMessages = Array.isArray(prev.messages) ? prev.messages : [];
+      const updatedMessages = updater(currentMessages);
+      return { ...prev, messages: updatedMessages };
+    });
+  };
+
   // ---------- Memoized context value ----------
   const value = useMemo<UserContextValue>(
     () => ({
@@ -196,6 +206,7 @@ export const UserProvider: React.FC<PropsWithChildren> = ({ children }) => {
       isLoading,
       setIsLoading,
       loadingProfile,
+      updateUserDataMessages,
     }),
     [
       user,

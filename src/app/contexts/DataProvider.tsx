@@ -1,6 +1,6 @@
 // src/app/contexts/DataProvider.tsx
 import React, { PropsWithChildren } from "react";
-import { UserProvider, useUserContext } from "./UserContext";
+import { UserProvider, useUserContext, UserLite, Message } from "./UserContext";
 import { ProjectsProvider, useProjectsContext } from "./ProjectsContext";
 import { MessagesProvider, useMessagesContext } from "./MessagesContext";
 
@@ -27,15 +27,28 @@ export const useData = () => {
     conversationType: "dm" | "project",
     ws?: WebSocket
   ) => {
-    messagesContext.toggleReaction(
-      msgId,
-      emoji,
-      reactorId,
-      conversationId,
-      conversationType,
-      ws,
-      userContext.setUserData
-    );
+    if (!msgId || !emoji || !reactorId) return;
+
+    const updateArr = (arr: Message[] = []) =>
+      arr.map((m) => {
+        const id = m.messageId || m.optimisticId;
+        if (id !== msgId) return m;
+        const reactions = { ...(m.reactions || {}) };
+        const users = new Set(reactions[emoji] || []);
+        if (users.has(reactorId)) {
+          users.delete(reactorId);
+        } else {
+          users.add(reactorId);
+        }
+        reactions[emoji] = Array.from(users);
+        return { ...m, reactions };
+      });
+
+    // Update userData messages (for DM conversations)
+    userContext.updateUserDataMessages(updateArr);
+    
+    // Update project messages
+    messagesContext.toggleReaction(msgId, emoji, reactorId, conversationId, conversationType, ws);
   };
 
   return {
