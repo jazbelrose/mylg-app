@@ -147,14 +147,3 @@ export const socialprofils: SocialProfiles = {
   twitter: "https://twitter.com",
 };
 
-export {
-  meta,
-  dataabout,
-  skills,
-  services,
-  introdata,
-  contactConfig,
-  socialprofils,
-  logotext,
-};
-
