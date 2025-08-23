@@ -1,12 +1,20 @@
-// @ts-nocheck
-import { jsx as _jsx } from "react/jsx-runtime";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $getSelection, $isRangeSelection } from "lexical";
 import React, { useEffect, useState } from "react";
-const AnnotationPlugin = ({ onAddAnnotation }) => {
+
+interface AnnotationPluginProps {
+    onAddAnnotation?: (annotation: { text: string; selectionText: string }) => void;
+}
+
+interface ButtonPosition {
+    top: number;
+    left: number;
+}
+
+const AnnotationPlugin = ({ onAddAnnotation }: AnnotationPluginProps) => {
     const [editor] = useLexicalComposerContext();
-    const [buttonPos, setButtonPos] = useState(null);
-    const [selectionText, setSelectionText] = useState("");
+    const [buttonPos, setButtonPos] = useState<ButtonPosition | null>(null);
+    const [selectionText, setSelectionText] = useState<string>("");
     useEffect(() => {
         const updateButton = () => {
             const selection = $getSelection();
@@ -31,16 +39,16 @@ const AnnotationPlugin = ({ onAddAnnotation }) => {
         return () => document.removeEventListener("selectionchange", handleSelectionChange);
     }, [editor]);
     useEffect(() => {
-        const handleAnnotationClick = (e) => {
-            const { selectionText } = e.detail || {};
+        const handleAnnotationClick = (e: Event) => {
+            const { selectionText } = (e as CustomEvent<{ selectionText: string }>).detail || {};
             if (!selectionText)
                 return;
             editor.update(() => {
                 const root = editor.getRootElement();
                 const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-                let found = null;
+                let found: { node: Node; idx: number } | null = null;
                 while (walker.nextNode()) {
-                    const node = walker.currentNode;
+                    const node = walker.currentNode as Text;
                     const idx = node.textContent.indexOf(selectionText);
                     if (idx !== -1) {
                         found = { node, idx };
@@ -62,8 +70,8 @@ const AnnotationPlugin = ({ onAddAnnotation }) => {
                 }
             });
         };
-        window.addEventListener("annotation-click", handleAnnotationClick);
-        return () => window.removeEventListener("annotation-click", handleAnnotationClick);
+        window.addEventListener("annotation-click", handleAnnotationClick as EventListener);
+        return () => window.removeEventListener("annotation-click", handleAnnotationClick as EventListener);
     }, [editor]);
     const handleClick = () => {
         const comment = window.prompt("Add comment");
@@ -72,6 +80,14 @@ const AnnotationPlugin = ({ onAddAnnotation }) => {
         onAddAnnotation && onAddAnnotation({ text: comment, selectionText });
         setButtonPos(null);
     };
-    return buttonPos ? (_jsx("button", { style: { position: "absolute", top: buttonPos.top, left: buttonPos.left, zIndex: 50 }, onMouseDown: (e) => e.preventDefault(), onClick: handleClick, children: "Add Comment" })) : null;
+    return buttonPos ? (
+        <button
+            style={{ position: "absolute", top: buttonPos.top, left: buttonPos.left, zIndex: 50 }}
+            onMouseDown={(e: React.MouseEvent<HTMLButtonElement>) => e.preventDefault()}
+            onClick={handleClick}
+        >
+            Add Comment
+        </button>
+    ) : null;
 };
 export default AnnotationPlugin;
