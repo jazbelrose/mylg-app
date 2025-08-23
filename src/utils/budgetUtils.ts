@@ -1,4 +1,4 @@
-export function parseBudget(input) {
+export function parseBudget(input: unknown): number {
   if (input === undefined || input === null) return 0;
   if (typeof input === 'number') return input;
   let str = String(input).trim().toLowerCase();
@@ -17,8 +17,8 @@ export function parseBudget(input) {
   if (isNaN(value)) return 0;
   return value * multiplier;
 }
-export function formatUSD(value) {
-  const num = typeof value === "number" ? value : parseFloat(String(value).replace(/[$,]/g, ""));
+export function formatUSD(value: number | string): string {
+  const num = typeof value === 'number' ? value : parseFloat(String(value).replace(/[$,]/g, ''));
   if (isNaN(num)) return String(value);
-  return `$${num.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+  return `$${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 }

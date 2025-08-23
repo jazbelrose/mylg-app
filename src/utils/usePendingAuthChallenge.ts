@@ -4,10 +4,10 @@ import { setWithTTL, getWithTTL } from './storageWithTTL';
 const KEY = 'pendingAuthChallenge';
 const TTL = 15 * 60 * 1000; // 15 minutes
 
-export default function usePendingAuthChallenge() {
-  const [pending, setPending] = useState(() => getWithTTL(KEY));
+export default function usePendingAuthChallenge<T = unknown>() {
+  const [pending, setPending] = useState<T | null>(() => getWithTTL<T>(KEY));
 
-  const savePending = useCallback((data) => {
+  const savePending = useCallback((data: T) => {
     setWithTTL(KEY, data, TTL);
     setPending(data);
   }, []);
@@ -20,7 +20,7 @@ export default function usePendingAuthChallenge() {
   }, []);
 
   useEffect(() => {
-    const data = getWithTTL(KEY);
+    const data = getWithTTL<T>(KEY);
     if (data) setPending(data);
   }, []);
 

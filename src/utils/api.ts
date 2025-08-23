@@ -108,7 +108,10 @@ export const {
  * Wrapper around fetch that attaches the current user's access token if
  * available and throws for non-OK responses.
  */
-export async function apiFetch(url, options = {}) {
+export async function apiFetch(
+  url: string,
+  options: RequestInit & { retryCount?: number; retryDelay?: number; skipRateLimit?: boolean } = {},
+): Promise<Response> {
   const { retryCount = 3, retryDelay = 500, skipRateLimit = false, ...fetchOptions } = options;
   
   // Rate limiting check (unless explicitly skipped)
