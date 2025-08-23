@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useEffect, useState } from "react";

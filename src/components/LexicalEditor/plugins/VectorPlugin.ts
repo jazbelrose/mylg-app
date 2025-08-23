@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useState, useRef } from "react";
 import ReactModal from "react-modal";

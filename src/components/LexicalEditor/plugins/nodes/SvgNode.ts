@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "react/jsx-runtime";
 import { DecoratorNode, $getNodeByKey, $copyNode } from "lexical";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";

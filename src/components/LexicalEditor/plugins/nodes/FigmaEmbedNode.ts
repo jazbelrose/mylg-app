@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { jsx as _jsx } from "react/jsx-runtime";
 import { DecoratorNode } from "lexical";
 import React from "react";

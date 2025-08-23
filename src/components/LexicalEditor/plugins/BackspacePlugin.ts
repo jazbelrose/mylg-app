@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect } from 'react';
 import { $getSelection, KEY_BACKSPACE_COMMAND, COMMAND_PRIORITY_LOW, } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';

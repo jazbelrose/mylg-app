@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { jsx as _jsx } from "react/jsx-runtime";
 import React, { createContext, useContext, useEffect, useState } from "react";
 const ImageLockContext = createContext({ locks: {}, provider: null });

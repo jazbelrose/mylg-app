@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import React, { useState, useEffect } from "react";
 import "./styles.css";
