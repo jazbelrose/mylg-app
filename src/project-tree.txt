@@ -9,7 +9,7 @@
 │   │   ├── NavigationDirectionProvider.js
 │   │   ├── ProtectedRoute.js
 │   │   ├── ScrollContext.js
-│   │   └── useInactivityLogout.js
+│   │   └── useInactivityLogout.ts
 │   └── routes.js
 ├── assets
 │   ├── fonts
@@ -265,7 +265,7 @@
 ├── aws-exports.js
 ├── components
 │   ├── blogcard
-│   │   ├── index.js
+│   │   ├── index.tsx
 │   │   └── style.css
 │   ├── blogentry
 │   │   ├── index.js
@@ -325,7 +325,7 @@
 │   │   ├── sentences.json
 │   │   └── style.css
 │   └── videoplayer
-├── content_option.js
+├── content_option.ts
 ├── counter.jsx
 ├── fonts
 │   ├── Helvetica-Black.woff2
