@@ -1,5 +1,4 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { useNavigate, Link } from 'react-router-dom';
 import { signIn, signOut, fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
@@ -13,9 +12,17 @@ import styles from '../auth.module.css';
 import VerificationCodeModal from '../../../components/VerificationCodeModal';
 import usePendingAuthChallenge from '../../../utils/usePendingAuthChallenge';
 import normalizeCognitoError from '../../../utils/normalizeCognitoError';
+
+interface ModalState {
+    open: boolean;
+    flow: string | null;
+    username: string;
+    onResendMfa: (() => Promise<void>) | null;
+}
+
 export function Login() {
     // Auth cleaner utility
-    async function ensureCleanAuthState(targetUsername) {
+    async function ensureCleanAuthState(targetUsername: string): Promise<string> {
         try {
             const current = await getCurrentUser();
             if (!targetUsername || current.username === targetUsername) {
@@ -32,20 +39,26 @@ export function Login() {
         }
     }
     const { isAuthenticated, validateAndSetUserSession } = useAuth();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [modal, setModal] = useState({ open: false, flow: null, username: '', onResendMfa: null });
+    const [username, setUsername] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [modal, setModal] = useState<ModalState>({ open: false, flow: null, username: '', onResendMfa: null });
     const navigate = useNavigate();
     const { opacity } = useData();
     const { pending, savePending, clearPending } = usePendingAuthChallenge();
     const opacityClass = opacity === 1 ? 'opacity-high' : 'opacity-low';
     const pendingForUser = pending && pending.username === username;
-    const openVerificationModal = ({ flow, username: name, onResendMfa }) => {
+    
+    const openVerificationModal = ({ flow, username: name, onResendMfa }: { 
+        flow: string; 
+        username: string; 
+        onResendMfa: () => Promise<void>; 
+    }) => {
         setModal({ open: true, flow, username: name, onResendMfa });
     };
+    
     const closeVerificationModal = () => setModal((m) => ({ ...m, open: false }));
     const finalizeSession = async () => {
         Cookies.set('myCookie', 'newValue', {
@@ -57,7 +70,7 @@ export function Login() {
         await validateAndSetUserSession();
         navigate('/dashboard', { replace: true });
     };
-    const resendMfa = async (user = pending?.username, pass = password) => {
+    const resendMfa = async (user: string = pending?.username || '', pass: string = password) => {
         if (!user || !pass)
             return;
         setError('');
@@ -77,7 +90,7 @@ export function Login() {
             setIsLoading(false);
         }
     };
-    const handleSignIn = async ({ email, password: pass }) => {
+    const handleSignIn = async ({ email, password: pass }: { email: string; password: string }) => {
         setError('');
         setIsLoading(true);
         try {
