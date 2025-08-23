@@ -8,21 +8,12 @@ import React, {
 } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ParentSize } from "@visx/responsive";
-import { scaleBand, scaleLinear } from "@visx/scale";
-import { Bar } from "@visx/shape";
-import { AxisBottom, AxisLeft } from "@visx/axis";
-import { Group } from "@visx/group";
-import { Table, Segmented, Tooltip as AntTooltip } from "antd";
-import { CHART_COLORS } from "../../utils/colorUtils";
+import { Table, Tooltip as AntTooltip } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faTrash,
   faClone,
   faClock,
-  faUndo,
-  faRedo,
-  faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import ConfirmModal from "../../components/ConfirmModal";
 import * as XLSX from "xlsx";
@@ -38,6 +29,8 @@ import BudgetFileModal from "./components/SingleProject/BudgetFileModal";
 import CreateLineItemModal from "./components/SingleProject/CreateLineItemModal";
 import EventEditModal from "./components/SingleProject/EventEditModal";
 import RevisionModal from "./components/SingleProject/RevisionModal";
+import BudgetChart from "./components/SingleProject/BudgetChart";
+import BudgetToolbar from "./components/SingleProject/BudgetToolbar";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { normalizeMessage } from "../../utils/websocketUtils";
@@ -83,54 +76,6 @@ const BudgetPage = () => {
   const [tableHeight, setTableHeight] = useState(0);
   const [saving, setSaving] = useState(false);
 
-  const renderBudgetChart = (data) => (
-    <div style={{ width: "100%", height: "200px", marginTop: "20px" }}>
-      <ParentSize>
-        {({ width, height }) => {
-          const margin = { top: 20, right: 30, bottom: 20, left: 40 };
-          const xMax = width - margin.left - margin.right;
-          const yMax = height - margin.top - margin.bottom;
-          const xScale = scaleBand({
-            range: [0, xMax],
-            domain: data.map((d) => d.category),
-            padding: 0.4,
-          });
-          const max = Math.max(...data.map((d) => d.amount), 0);
-          const yScale = scaleLinear({ range: [yMax, 0], domain: [0, max] });
-          return (
-            <svg width={width} height={height}>
-              <Group left={margin.left} top={margin.top}>
-                {data.map((d) => {
-                  const x = xScale(d.category);
-                  const y = yScale(d.amount);
-                  const barHeight = yMax - y;
-                  return (
-                    <Bar
-                      key={d.category}
-                      x={x}
-                      y={y}
-                      width={xScale.bandwidth()}
-                      height={barHeight}
-                      fill={CHART_COLORS[0]}
-                    />
-                  );
-                })}
-                <AxisBottom
-                  top={yMax}
-                  scale={xScale}
-                  tickLabelProps={() => ({ fontSize: 12, textAnchor: "middle" })}
-                />
-                <AxisLeft
-                  scale={yScale}
-                  tickFormat={(v) => formatUSD(v)}
-                />
-              </Group>
-            </svg>
-          );
-        }}
-      </ParentSize>
-    </div>
-  );
 
   useLayoutEffect(() => {
     const updateTableHeight = () => {
@@ -1704,7 +1649,7 @@ const BudgetPage = () => {
               Error: {error}
             </div>
           )}
-          {budgetData.length > 0 && renderBudgetChart(budgetData)}
+          {budgetData.length > 0 && <BudgetChart data={budgetData} />}
           <div
             style={{
               width: "100%",
@@ -1714,93 +1659,18 @@ const BudgetPage = () => {
               alignItems: "flex-start",
             }}
           >
-            <div
-              style={{
-                marginBottom: "10px",
-                color: "white",
-                width: "100%",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Segmented
-                size="small"
-                options={[
-                  { label: "None", value: "none" },
-                  { label: "Area Group", value: "areaGroup" },
-                  { label: "Invoice Group", value: "invoiceGroup" },
-                  { label: "Category", value: "category" },
-                ]}
-                value={groupBy}
-                onChange={(val) => setGroupBy(val)}
-              />
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-
-                
-                       {selectedRowKeys.length > 0 && (
-                  <>
-                    <AntTooltip title="Duplicate Selected">
-                      <button
-                        type="button"
-                        className="modal-button secondary"
-                        style={{ borderRadius: "10px" }}
-                        onClick={handleDuplicateSelected}
-                        aria-label="Duplicate selected"
-                      >
-                        <FontAwesomeIcon icon={faClone} />
-                      </button>
-                    </AntTooltip>
-                    <AntTooltip title="Delete Selected">
-                      <button
-                        type="button"
-                        className="modal-button secondary"
-                        style={{ borderRadius: "10px" }}
-                        onClick={() => openDeleteModal(selectedRowKeys)}
-                        aria-label="Delete selected"
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </AntTooltip>
-                  </>
-                )}
-                <AntTooltip title="Undo">
-                  <button
-                    type="button"
-                    className="modal-button secondary"
-                    style={{ borderRadius: "10px" }}
-                    onClick={handleUndo}
-                    disabled={undoStack.length === 0}
-                    aria-label="Undo"
-                  >
-                    <FontAwesomeIcon icon={faUndo} />
-                  </button>
-                </AntTooltip>
-                <AntTooltip title="Redo">
-                  <button
-                    type="button"
-                    className="modal-button secondary"
-                    style={{ borderRadius: "10px" }}
-                    onClick={handleRedo}
-                    disabled={redoStack.length === 0}
-                    aria-label="Redo"
-                  >
-                    <FontAwesomeIcon icon={faRedo} />
-                  </button>
-                </AntTooltip>
-                <AntTooltip title="Create Line Item">
-                  <button
-                    type="button"
-                    className="modal-button primary"
-                    style={{ borderRadius: "10px" }}
-                    onClick={openCreateModal}
-                    aria-label="Create line item"
-                  >
-                    <FontAwesomeIcon icon={faPlus} />
-                  </button>
-                </AntTooltip>
-              </div>
-            </div>
+            <BudgetToolbar
+              groupBy={groupBy}
+              onGroupChange={(val) => setGroupBy(val as string)}
+              selectedRowKeys={selectedRowKeys}
+              handleDuplicateSelected={handleDuplicateSelected}
+              openDeleteModal={openDeleteModal}
+              undoStackLength={undoStack.length}
+              redoStackLength={redoStack.length}
+              handleUndo={handleUndo}
+              handleRedo={handleRedo}
+              openCreateModal={openCreateModal}
+            />
             <div ref={tableRef} style={{ width: "100%", fontSize: '10px' }}>
               <Table
                 dataSource={budgetItems.length > 0 ? groupedTableData : []}
