@@ -1,5 +1,4 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import { useData } from '../../app/contexts/DataProvider';
 import { uploadData } from 'aws-amplify/storage';
 import { useAuth } from '../../app/contexts/AuthContext';
@@ -11,10 +10,20 @@ import PaymentsSection from './components/PaymentsSection';
 import EditableTextField from '../../components/EditableTextField';
 import UserProfilePicture from '../../components/UserProfilePicture';
 import { HelpCircle } from 'lucide-react';
-const Settings = () => {
+interface FormData {
+    firstName: string;
+    lastName: string;
+    company: string;
+    email: string;
+    phoneNumber: string;
+    thumbnail: string;
+    occupation: string;
+}
+
+const Settings: React.FC = () => {
     const { refreshUser } = useAuth();
     const { userData, setUserData, toggleSettingsUpdated, projects } = useData();
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         firstName: userData.firstName || '',
         lastName: userData.lastName || '',
         company: userData.company || '',
@@ -24,11 +33,11 @@ const Settings = () => {
         occupation: userData.occupation || '',
     });
     const { firstName, lastName, company, email, phoneNumber, occupation, thumbnail } = formData;
-    const [oldPassword, setOldPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmNewPassword, setConfirmNewPassword] = useState('');
-    const [passwordChangeStatus, setPasswordChangeStatus] = useState('');
-    const [showPasswordFields, setShowPasswordFields] = useState(false);
+    const [oldPassword, setOldPassword] = useState<string>('');
+    const [newPassword, setNewPassword] = useState<string>('');
+    const [confirmNewPassword, setConfirmNewPassword] = useState<string>('');
+    const [passwordChangeStatus, setPasswordChangeStatus] = useState<string>('');
+    const [showPasswordFields, setShowPasswordFields] = useState<boolean>(false);
     const [showSavedWindow, setShowSavedWindow] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isFormDirty, setIsFormDirty] = useState(false);
