@@ -21,8 +21,19 @@ import {
   mergeAndDedupeMessages,
 } from "../../../../utils/messageUtils";
 import { getWithTTL, setWithTTL } from "../../../../utils/storageWithTTL";
-import { FaFilePdf, FaFileExcel, FaFileAlt, FaDraftingCompass, FaCube } from "react-icons/fa";
-import { SiAdobe, SiAffinitydesigner, SiAffinitypublisher, SiSvg } from "react-icons/si";
+import {
+  FaFilePdf,
+  FaFileExcel,
+  FaFileAlt,
+  FaDraftingCompass,
+  FaCube,
+} from "react-icons/fa";
+import {
+  SiAdobe,
+  SiAffinitydesigner,
+  SiAffinitypublisher,
+  SiSvg,
+} from "react-icons/si";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faDownload } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../../../../components/ModalWithStack";
@@ -37,6 +48,10 @@ import {
   S3_PUBLIC_BASE,
   apiFetch,
 } from "../../../../utils/api";
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Types
+// ───────────────────────────────────────────────────────────────────────────────
 
 type FileObj = {
   fileName: string;
@@ -62,6 +77,12 @@ type Message = {
   reactions?: Record<string, string[]>; // emoji -> [userId]
 };
 
+type GetProjectMessagesResponse = { Items?: Message[] } | Message[];
+
+type PatchEditMessageResponse = { ok?: boolean; [k: string]: unknown };
+type DeleteMessageResponse = { ok?: boolean; [k: string]: unknown };
+type DeleteS3FilesResponse = { ok?: boolean; [k: string]: unknown };
+
 type ProjectMessagesThreadProps = {
   projectId: string;
   open: boolean;
@@ -71,6 +92,10 @@ type ProjectMessagesThreadProps = {
   startDrag: (e: React.MouseEvent<HTMLDivElement>) => void;
   headerOffset?: number;
 };
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Utils
+// ───────────────────────────────────────────────────────────────────────────────
 
 const pmKey = (pid: string) => `project_messages_${pid}`;
 
@@ -103,7 +128,11 @@ const renderFilePreview = (file: FileObj, folderKey = "chat_uploads") => {
     const thumbnailUrl = getThumbnailUrl(file.url, folderKey);
     const finalUrl = file.finalUrl || file.url;
     return (
-      <OptimisticImage tempUrl={thumbnailUrl} finalUrl={finalUrl} alt={file.fileName} />
+      <OptimisticImage
+        tempUrl={thumbnailUrl}
+        finalUrl={finalUrl}
+        alt={file.fileName}
+      />
     );
   } else if (extension === "pdf") {
     return (
@@ -192,6 +221,10 @@ const renderFilePreview = (file: FileObj, folderKey = "chat_uploads") => {
   }
 };
 
+// ───────────────────────────────────────────────────────────────────────────────
+// Component
+// ───────────────────────────────────────────────────────────────────────────────
+
 const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
   projectId,
   open,
@@ -241,9 +274,8 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
 
   // File preview modal
   const [isPreviewModalOpen, setPreviewModalOpen] = useState(false);
-  const [selectedPreviewFile, setSelectedPreviewFile] = useState<FileObj | null>(
-    null
-  );
+  const [selectedPreviewFile, setSelectedPreviewFile] =
+    useState<FileObj | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Message | null>(null);
   const [editTarget, setEditTarget] = useState<Message | null>(null);
 
@@ -295,7 +327,8 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
           data.conversationType === "project"
         ) {
           const pid =
-            data.projectId || (data.conversationId || "").replace("project#", "");
+            data.projectId ||
+            (data.conversationId || "").replace("project#", "");
           if (pid === projectId) {
             markMessageDeleted(data.messageId || data.optimisticId);
             setProjectMessages((prev: any) => {
@@ -304,7 +337,8 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
                 (m) =>
                   !(
                     (data.messageId && m.messageId === data.messageId) ||
-                    (data.optimisticId && m.optimisticId === data.optimisticId)
+                    (data.optimisticId &&
+                      m.optimisticId === data.optimisticId)
                   )
               );
               setWithTTL(pmKey(pid), updated);
@@ -359,33 +393,34 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
       const maxRetries = 5;
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
-          const res = await apiFetch(
+          const data = await apiFetch<GetProjectMessagesResponse>(
             `${GET_PROJECT_MESSAGES_URL}?projectId=${projectId}`,
             attempt > 0 ? { skipRateLimit: true } : undefined
           );
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            const filtered = data.filter(
-              (m: Message) =>
-                !(
-                  deletedMessageIds.has(m.messageId) ||
-                  deletedMessageIds.has(m.optimisticId)
-                )
-            );
-            const deduped = dedupeById(filtered);
-            setProjectMessages((prev: any) => ({
-              ...prev,
-              [projectId]: deduped,
-            }));
-            setWithTTL(pmKey(projectId), deduped);
-          } else {
-            setProjectMessages((prev: any) => ({ ...prev, [projectId]: [] }));
-            setWithTTL(pmKey(projectId), []);
-          }
+
+          const asArray = Array.isArray(data) ? data : data.Items || [];
+          const filtered = asArray.filter(
+            (m: Message) =>
+              !(
+                deletedMessageIds.has(m.messageId) ||
+                deletedMessageIds.has(m.optimisticId)
+              )
+          );
+          const deduped = dedupeById(filtered);
+
+          setProjectMessages((prev: any) => ({
+            ...prev,
+            [projectId]: deduped,
+          }));
+          setWithTTL(pmKey(projectId), deduped);
+
           setIsLoading(false);
           return;
         } catch (error: any) {
-          if (error.message?.includes("Rate limit exceeded") && attempt < maxRetries) {
+          if (
+            error.message?.includes("Rate limit exceeded") &&
+            attempt < maxRetries
+          ) {
             const delay = Math.pow(2, attempt) * 1000;
             await new Promise((resolve) => setTimeout(resolve, delay));
             continue;
@@ -403,8 +438,15 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
       }
       setIsLoading(false);
     };
+
     fetchMessages();
-  }, [projectId, isAuthenticated, deletedMessageIds, setProjectMessages, projectMessages]);
+  }, [
+    projectId,
+    isAuthenticated,
+    deletedMessageIds,
+    setProjectMessages,
+    projectMessages,
+  ]);
 
   // Scroll handling
   const prevCountRef = useRef(messages.length);
@@ -421,7 +463,8 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
     }
 
     const atBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight < 20;
+      container.scrollHeight - container.scrollTop - container.clientHeight <
+      20;
     const diff = messages.length - prevCountRef.current;
     prevCountRef.current = messages.length;
 
@@ -438,7 +481,8 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
       const container = messagesContainerRef.current;
       if (!container) return;
       const atBottom =
-        container.scrollHeight - container.scrollTop - container.clientHeight < 20;
+        container.scrollHeight - container.scrollTop - container.clientHeight <
+        20;
       if (atBottom) container.scrollTop = container.scrollHeight;
     };
     window.addEventListener("resize", handleResize);
@@ -457,15 +501,16 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
     }
 
     const timestamp = new Date().toISOString();
-    const optimisticId = Date.now() + "-" + Math.random().toString(36).slice(2);
+    const optimisticId =
+      Date.now() + "-" + Math.random().toString(36).slice(2);
 
     const messageData: Message = {
       action: "sendMessage",
       conversationType: "project",
       conversationId: `project#${projectId}`,
       senderId: userData?.userId,
-      username: user?.firstName || "Someone",
-      title: activeProject?.title || projectId,
+      username: (user as any)?.firstName || "Someone",
+      title: (activeProject as any)?.title || projectId,
       text: newMessage,
       timestamp,
       optimisticId,
@@ -476,7 +521,9 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
     const optimisticMessage: Message = { ...messageData, optimistic: true };
 
     setProjectMessages((prev: any) => {
-      const msgs: Message[] = Array.isArray(prev[projectId]) ? prev[projectId] : [];
+      const msgs: Message[] = Array.isArray(prev[projectId])
+        ? prev[projectId]
+        : [];
       const merged = mergeAndDedupeMessages(msgs, [optimisticMessage]);
       setWithTTL(pmKey(projectId), merged);
       return { ...prev, [projectId]: merged };
@@ -509,7 +556,10 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
   };
 
   // Upload helper
-  const handleFileUpload = async (pid: string, file: File): Promise<FileObj | undefined> => {
+  const handleFileUpload = async (
+    pid: string,
+    file: File
+  ): Promise<FileObj | undefined> => {
     const filename = `projects/${pid}/${folderKey}/${file.name}`;
     try {
       await uploadData({
@@ -549,7 +599,9 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
       };
 
       setProjectMessages((prev: any) => {
-        const msgs: Message[] = Array.isArray(prev[projectId]) ? prev[projectId] : [];
+        const msgs: Message[] = Array.isArray(prev[projectId])
+          ? prev[projectId]
+          : [];
         const merged = mergeAndDedupeMessages(msgs, [optimisticMessage]);
         setWithTTL(pmKey(projectId), merged);
         return { ...prev, [projectId]: merged };
@@ -560,13 +612,19 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
         if (!uploadedFile) throw new Error("File upload failed");
 
         setProjectMessages((prev: any) => {
-          const msgs: Message[] = Array.isArray(prev[projectId]) ? prev[projectId] : [];
+          const msgs: Message[] = Array.isArray(prev[projectId])
+            ? prev[projectId]
+            : [];
           const updated = msgs.map((msg) =>
             msg.optimisticId === optimisticId
               ? {
                   ...msg,
                   text: uploadedFile.url,
-                  file: { ...msg.file!, finalUrl: uploadedFile.url, url: uploadedFile.url },
+                  file: {
+                    ...msg.file!,
+                    finalUrl: uploadedFile.url,
+                    url: uploadedFile.url,
+                  },
                   optimistic: false,
                 }
               : msg
@@ -580,20 +638,22 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
             action: "sendMessage",
             conversationType: "project",
             conversationId: `project#${projectId}`,
-            title: activeProject?.title,
+            title: (activeProject as any)?.title,
             senderId: userData?.userId,
             text: uploadedFile.url,
             file: uploadedFile,
             timestamp,
             optimisticId,
-            username: user?.firstName || "Someone",
+            username: (user as any)?.firstName || "Someone",
           };
           ws.send(JSON.stringify(normalizeMessage(messageData, "sendMessage")));
         }
       } catch (error) {
         console.error("Upload failed:", error);
         setProjectMessages((prev: any) => {
-          const msgs: Message[] = Array.isArray(prev[projectId]) ? prev[projectId] : [];
+          const msgs: Message[] = Array.isArray(prev[projectId])
+            ? prev[projectId]
+            : [];
           const updated = msgs.filter((msg) => msg.optimisticId !== optimisticId);
           setWithTTL(pmKey(projectId), updated);
           return { ...prev, [projectId]: updated };
@@ -610,9 +670,10 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
     if (!id) return;
 
     try {
+      // Delete S3 file if present
       if (message.file?.url) {
         const fileUrl = message.file.url;
-        await apiFetch(DELETE_FILE_FROM_S3_URL, {
+        await apiFetch<DeleteS3FilesResponse>(DELETE_FILE_FROM_S3_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -623,22 +684,23 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
         });
       }
 
+      // Delete message from backend (if it has a server id)
       if (message.messageId) {
         const url =
           `${DELETE_PROJECT_MESSAGE_URL}?` +
           `projectId=${encodeURIComponent(projectId)}` +
           `&messageId=${encodeURIComponent(message.messageId)}`;
-        const res = await apiFetch(url, { method: "DELETE" });
-        if (!res.ok) {
-          const err = await res.json();
-          console.error("Delete failed:", err);
-          // fall through; we still optimistically remove below
-        }
+        await apiFetch<DeleteMessageResponse>(url, { method: "DELETE" });
       }
 
+      // Optimistic local removal
       setProjectMessages((prev: any) => {
-        const msgs: Message[] = Array.isArray(prev[projectId]) ? prev[projectId] : [];
-        const updated = msgs.filter((m) => (m.messageId || m.optimisticId) !== id);
+        const msgs: Message[] = Array.isArray(prev[projectId])
+          ? prev[projectId]
+          : [];
+        const updated = msgs.filter(
+          (m) => (m.messageId || m.optimisticId) !== id
+        );
         setWithTTL(pmKey(projectId), updated);
         return { ...prev, [projectId]: updated };
       });
@@ -663,26 +725,24 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
   const editMessage = async (message: Message, newText: string) => {
     if (!message.messageId || !newText) return;
     try {
-      const res = await apiFetch(
+      await apiFetch<PatchEditMessageResponse>(
         `${EDIT_MESSAGE_URL}/project/${encodeURIComponent(message.messageId)}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             content: newText,
-            editedBy: userData.userId,
+            editedBy: (userData as any).userId,
             projectId,
           }),
         }
       );
-      if (!res.ok) {
-        const err = await res.text();
-        console.error("Edit failed:", err);
-        return;
-      }
+
       const ts = new Date().toISOString();
       setProjectMessages((prev: any) => {
-        const msgs: Message[] = Array.isArray(prev[projectId]) ? prev[projectId] : [];
+        const msgs: Message[] = Array.isArray(prev[projectId])
+          ? prev[projectId]
+          : [];
         const updated = msgs.map((m) =>
           m.messageId === message.messageId
             ? { ...m, text: newText, edited: true, editedAt: ts }
@@ -691,6 +751,7 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
         setWithTTL(pmKey(projectId), updated);
         return { ...prev, [projectId]: updated };
       });
+
       if (ws && ws.readyState === WebSocket.OPEN) {
         const editPayload = {
           action: "editMessage",
@@ -701,7 +762,7 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
           text: newText,
           timestamp: message.timestamp,
           editedAt: ts,
-          editedBy: userData.userId,
+          editedBy: (userData as any).userId,
         };
         ws.send(JSON.stringify(normalizeMessage(editPayload, "editMessage")));
       }
@@ -716,7 +777,7 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
     toggleReaction(
       messageId,
       emoji,
-      userData.userId,
+      (userData as any).userId,
       `project#${projectId}`,
       "project",
       ws
@@ -758,9 +819,12 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
         {isLoading && <SpinnerOverlay />}
         {errorMessage && <div className="error-message">{errorMessage}</div>}
 
-        <div className="thread-panel-header chat-panel-header" onMouseDown={startDrag}>
+        <div
+          className="thread-panel-header chat-panel-header"
+          onMouseDown={startDrag}
+        >
           <h3 className="project-thread-title">
-            # {activeProject?.title || projectId} Thread
+            # {(activeProject as any)?.title || projectId} Thread
           </h3>
           <div>
             {floating && (
@@ -801,7 +865,9 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
             }}
           >
             {messages.length === 0 && !isLoading ? (
-              <div style={{ color: "#aaa", fontSize: "16px", textAlign: "center" }}>
+              <div
+                style={{ color: "#aaa", fontSize: "16px", textAlign: "center" }}
+              >
                 No messages yet.
               </div>
             ) : (
@@ -863,11 +929,14 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
           <div className="preview-container">
             {(() => {
               const ext =
-                selectedPreviewFile.fileName.split(".").pop()?.toLowerCase() || "";
+                selectedPreviewFile.fileName.split(".").pop()?.toLowerCase() ||
+                "";
               if (["jpg", "jpeg", "png"].includes(ext)) {
                 return (
                   <img
-                    src={selectedPreviewFile.finalUrl || selectedPreviewFile.url}
+                    src={
+                      selectedPreviewFile.finalUrl || selectedPreviewFile.url
+                    }
                     alt={selectedPreviewFile.fileName}
                     className="preview-image"
                   />
@@ -886,7 +955,10 @@ const ProjectMessagesThread: React.FC<ProjectMessagesThreadProps> = ({
             })()}
 
             <div className="preview-header">
-              <button onClick={closePreviewModal} className="modal-button secondary">
+              <button
+                onClick={closePreviewModal}
+                className="modal-button secondary"
+              >
                 <FontAwesomeIcon icon={faTimes} />
               </button>
               <a
