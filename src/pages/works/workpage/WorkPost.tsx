@@ -9,7 +9,7 @@ const WorkPost: React.FC = () => {
   const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    import(`../allworkposts/${workSlug}.js`)
+    import(`../allworkposts/${workSlug}.tsx`)
       .then((module) => {
         setWorkComponent(() => module.default);
         setIsLoading(false);
