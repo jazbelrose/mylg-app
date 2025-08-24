@@ -76,14 +76,16 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
     const onMessage = (event: MessageEvent) => {
       try {
         const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        console.log("[WebSocket] Received message:", data); // Log all WebSocket messages
+
         if (data?.action === "budgetUpdated" && data.projectId === activeProject?.projectId) {
+          console.log("[WebSocket] budgetUpdated action detected for project:", activeProject?.projectId);
           refresh();
         } else {
-          // Log other messages for debugging but skip refresh
-          console.log("[BudgetComponent] Ignoring websocket message", data);
+          console.log("[WebSocket] Ignoring message:", data);
         }
-      } catch {
-        // Ignore parse errors
+      } catch (error) {
+        console.error("[WebSocket] Error parsing message:", error);
       }
     };
 
