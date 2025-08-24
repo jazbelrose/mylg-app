@@ -13,6 +13,7 @@ import useBudgetData from "./useBudgetData";
 import VisxPieChart from "./VisxPieChart";
 import { generateSequentialPalette, getColor } from "../../../../utils/colorUtils";
 
+
 type Project = {
   projectId?: string;
   title?: string;
@@ -39,13 +40,14 @@ type BudgetItem = {
 type PieDatum = { name: string; value: number };
 
 interface BudgetComponentProps {
-  activeProject?: Project | null;
+  projectId?: string;
 }
 
-const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
+const BudgetComponent: React.FC<BudgetComponentProps> = ({ projectId }) => {
+   const { activeProject, isAdmin } = useData(); 
   console.log("[BudgetComponent] render");
   const { budgetHeader, budgetItems, refresh, loading } = useBudgetData(
-    activeProject?.projectId
+    projectId
   ) as {
     budgetHeader?: BudgetHeader | null;
     budgetItems: BudgetItem[];
@@ -53,34 +55,33 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
     loading: boolean;
   };
 
- const onSocketEvent = useSocketEvents();
+  const onSocketEvent = useSocketEvents();
   const navigate = useNavigate();
 
-  // Pull only what we need; cast to any to avoid coupling with your context’s types
-  const { isAdmin } = useData() as { isAdmin?: boolean };
 
   // Listen for budget updates from BudgetPage via window event
   useEffect(() => {
     const handleBudgetUpdated = (e: Event) => {
       const detail = (e as CustomEvent).detail as { projectId?: string } | undefined;
-      if (detail?.projectId === activeProject?.projectId) {
+      if (detail?.projectId === projectId) {
         refresh();
       }
     };
     window.addEventListener("budgetUpdated", handleBudgetUpdated as EventListener);
     return () => window.removeEventListener("budgetUpdated", handleBudgetUpdated as EventListener);
-  }, [activeProject?.projectId, refresh]);
+  }, [projectId, refresh]);
 
   // Listen for websocket budgetUpdated messages
-useEffect(() => {
-  const unsubscribe = onSocketEvent((data: any) => {
-    if (data?.action === "budgetUpdated" && data.projectId === activeProject?.projectId) {
-      console.log("[BudgetComponent] budgetUpdated for project", activeProject?.projectId);
-      refresh();
-    }
-  });
-  return unsubscribe;
-}, [onSocketEvent, activeProject?.projectId, refresh]);
+  useEffect(() => {
+    const unsubscribe = onSocketEvent((data: any) => {
+      if (data?.action === "budgetUpdated" && data.projectId === projectId) {
+        console.log("[BudgetComponent] budgetUpdated for project", projectId);
+        refresh();
+      }
+    });
+    return unsubscribe;
+  }, [onSocketEvent, activeProject?.projectId, refresh]);
+
   const [groupBy] = useState<"invoiceGroup" | "none">("invoiceGroup");
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
   const [invoiceRevision, setInvoiceRevision] = useState<BudgetHeader | null>(null);
@@ -153,10 +154,13 @@ useEffect(() => {
   );
 
   const colors = useMemo(() => {
-    // Reverse palette so the largest slice uses the darkest color.
-    const base = activeProject?.color || getColor(activeProject?.projectId);
+    const base = activeProject?.color || getColor(projectId);
+    if (typeof base !== "string") {
+      console.error("Invalid color base", base);
+      return [];
+    }
     return generateSequentialPalette(base, pieDataSorted.length).reverse();
-  }, [activeProject?.color, activeProject?.projectId, pieDataSorted.length]);
+  }, [pieDataSorted.length, projectId, activeProject?.color]);
 
   const formatTooltip = useCallback(
     (d: PieDatum) => {
@@ -168,10 +172,10 @@ useEffect(() => {
   );
 
   const openInvoicePreview = async (): Promise<void> => {
-    if (!activeProject?.projectId) return;
+    if (!projectId) return;
     try {
       const data = await refresh();
-      if (data?.header) {
+      if (data && "header" in data && data.header) {
         setInvoiceRevision(data.header);
         setIsInvoicePreviewOpen(true);
       }
@@ -193,12 +197,13 @@ useEffect(() => {
       }
     }, 0);
   };
-
   const openBudgetPage = () => {
     if (!activeProject || !isAdmin) return;
     const slug = slugify(activeProject.title ?? "");
     navigate(`/dashboard/projects/${slug}/budget`);
   };
+
+
 
   return (
     <div
@@ -318,10 +323,12 @@ useEffect(() => {
         isOpen={isInvoicePreviewOpen}
         onRequestClose={closeInvoicePreview}
         revision={invoiceRevision}
-        project={activeProject}
+        project={projectId}
       />
     </div>
   );
 };
 
-export default BudgetComponent;
+export default React.memo(BudgetComponent, (prev, next) =>
+  prev.projectId === next.projectId
+);

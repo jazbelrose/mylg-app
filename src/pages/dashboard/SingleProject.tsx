@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import ProjectHeader from "./components/SingleProject/ProjectHeader";
 import BudgetComponent from "./components/SingleProject/BudgetComponent";
 import GalleryComponent from "./components/SingleProject/GalleryComponent";
@@ -11,8 +11,8 @@ import FileManagerComponent from "./components/SingleProject/FileManager";
 import TasksComponent from "./components/SingleProject/TasksComponent";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { findProjectBySlug, slugify } from "../../utils/slug";
 
 interface Project {
@@ -31,118 +31,136 @@ interface LocationState {
 }
 
 const SingleProject: React.FC = () => {
-  const { 
-    activeProject: initialActiveProject, 
-    userId, 
-    projects, 
-    fetchProjectDetails, 
-    setProjects, 
-    setSelectedProjects, 
-    isAdmin, 
-    isBuilder, 
-    isDesigner, 
-    isClient 
+  const {
+    activeProject,
+    userId,
+    projects,
+    fetchProjectDetails,
+    setProjects,
+    setSelectedProjects,
+    isAdmin,
+    isBuilder,
+    isDesigner,
+    isClient,
   } = useData();
-  
+
   const navigate = useNavigate();
   const location = useLocation();
   const flashDate = (location.state as LocationState)?.flashDate;
-  const [activeProject, setActiveProject] = useState<Project | null>(initialActiveProject);
-  
-  // Keep local activeProject in sync with context updates (e.g., from WebSocket)
-  useEffect(() => {
-    setActiveProject(initialActiveProject);
-  }, [initialActiveProject]);
-  
+
   const { projectSlug } = useParams<{ projectSlug: string }>();
   const [filesOpen, setFilesOpen] = useState<boolean>(false);
   const quickLinksRef = useRef<QuickLinksRef>(null);
   const { ws } = useSocket();
-  
-  useEffect(() => {
-    if (!projectSlug) return;
-    
-    const currentSlug = initialActiveProject
-      ? slugify(initialActiveProject.title)
-      : null;
-    
-    if (currentSlug === projectSlug) return;
-    
-    const proj = findProjectBySlug(projects, projectSlug);
-    if (proj) {
-      fetchProjectDetails(proj.projectId);
-    } else if (currentSlug) {
-      navigate(`/dashboard/projects/${currentSlug}`, { replace: true });
-    }
-  }, [projectSlug]); // eslint-disable-line react-hooks/exhaustive-deps
-  
-  useEffect(() => {
-    if (!activeProject?.projectId) return;
-    if (Array.isArray(activeProject.team)) return;
-    
-    fetchProjectDetails(activeProject.projectId);
-  }, [activeProject?.projectId, activeProject?.team, fetchProjectDetails]);
-  
-  // Ensure this client receives live updates for the active project
-  useEffect(() => {
-    if (!ws || !activeProject?.projectId) return;
-    
-    const payload = JSON.stringify({
-      action: 'setActiveConversation',
-      conversationId: `project#${activeProject.projectId}`,
-    });
-    
-    const sendWhenReady = (): void => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send(payload);
-      } else {
-        const onOpen = (): void => {
-          ws.send(payload);
-          ws.removeEventListener('open', onOpen);
-        };
-        ws.addEventListener('open', onOpen);
-      }
-    };
-    
-    sendWhenReady();
-  }, [ws, activeProject?.projectId]);
-  
-  const parseStatusToNumber = (statusString: any): number => {
-    if (statusString === undefined || statusString === null) {
-      return 0;
-    }
-    const str = typeof statusString === 'string' ? statusString : String(statusString);
-    const num = parseFloat(str.replace('%', ''));
+
+  // Stable helpers
+  const noop = useCallback(() => {}, []);
+
+  const currentSlug = useMemo(
+    () => (activeProject?.title ? slugify(activeProject.title) : null),
+    [activeProject?.title]
+  );
+
+  const parseStatusToNumber = useCallback((status: unknown): number => {
+    if (status === undefined || status === null) return 0;
+    const str = typeof status === "string" ? status : String(status);
+    const num = parseFloat(str.replace("%", ""));
     return Number.isNaN(num) ? 0 : num;
-  };
-  
-  const handleActiveProjectChange = (updatedProject: Project): void => {
-    setActiveProject(updatedProject);
-  };
-  
-  const handleProjectDeleted = (deletedProjectId: string): void => {
-    setProjects((prev: Project[]) => prev.filter(p => p.projectId !== deletedProjectId));
-    setSelectedProjects((prev: Project[]) => prev.filter(p => p.projectId !== deletedProjectId));
-    navigate('/dashboard/projects');
-  };
-  
-  const showWelcome = (): void => {
-    navigate('/dashboard');
-  };
-  
-  const openCalendarPage = (): void => {
+  }, []);
+
+  const showWelcome = useCallback(() => {
+    navigate("/dashboard");
+  }, [navigate]);
+
+  const openCalendarPage = useCallback(() => {
     if (!activeProject) return;
     const slug = slugify(activeProject.title);
     navigate(`/dashboard/projects/${slug}/calendar`);
-  };
-  
-  // The parent router already displays a spinner while this component
-  // lazily loads, so triggering another fade-in here leads to a brief
-  // double render/flicker when navigating from the dashboard welcome
-  // screen. Removing the additional opacity effect keeps the transition
-  // smooth.
+  }, [activeProject, navigate]);
+
+  const handleProjectDeleted = useCallback(
+    (deletedProjectId: string) => {
+      setProjects((prev: Project[]) => prev.filter((p) => p.projectId !== deletedProjectId));
+      setSelectedProjects((prev: Project[]) => prev.filter((p) => p.projectId !== deletedProjectId));
+      navigate("/dashboard/projects");
+    },
+    [navigate, setProjects, setSelectedProjects]
+  );
+
+  const handleActiveProjectChange = useCallback(
+    (updatedProject: Project) => {
+      if (updatedProject?.projectId) {
+        // If child edits metadata and wants to "promote" it to active, ensure details are fresh.
+        fetchProjectDetails(updatedProject.projectId);
+      }
+    },
+    [fetchProjectDetails]
+  );
+
+  // Keep URL and active project in sync with the slug the user visited.
+  useEffect(() => {
+    if (!projectSlug) return;
+
+    // If we're already viewing the right project, nothing to do.
+    if (currentSlug === projectSlug) return;
+
+    // Try to locate the project by slug and load it.
+    const proj = findProjectBySlug(projects, projectSlug);
+    if (proj) {
+      fetchProjectDetails(proj.projectId);
+      return;
+    }
+
+    // Fallback: if we have some active project, normalize URL to it.
+    if (currentSlug) {
+      navigate(`/dashboard/projects/${currentSlug}`, { replace: true });
+    }
+  }, [projectSlug, currentSlug, projects, fetchProjectDetails, navigate]);
+
+  // Ensure team/details are loaded for the current project.
+  useEffect(() => {
+    if (!activeProject?.projectId) return;
+    const hasTeamArray = Array.isArray(activeProject.team);
+    if (!hasTeamArray) {
+      fetchProjectDetails(activeProject.projectId);
+    }
+  }, [activeProject?.projectId, activeProject?.team, fetchProjectDetails]);
+
+  // Subscribe this client to live updates for the active project's "conversation".
+  useEffect(() => {
+    if (!ws || !activeProject?.projectId) return;
+
+    const payload = JSON.stringify({
+      action: "setActiveConversation",
+      conversationId: `project#${activeProject.projectId}`,
+    });
+
+    const onOpen = (): void => {
+      try {
+        ws.send(payload);
+      } catch {
+        /* no-op */
+      }
+    };
+
+    if (ws.readyState === WebSocket.OPEN) {
+      try {
+        ws.send(payload);
+      } catch {
+        /* no-op */
+      }
+    } else {
+      ws.addEventListener("open", onOpen);
+    }
+
+    return () => {
+      ws.removeEventListener("open", onOpen);
+    };
+  }, [ws, activeProject?.projectId]);
+
+  // Render
   return (
-    <ProjectPageLayout 
+    <ProjectPageLayout
       projectId={activeProject?.projectId}
       header={
         <ProjectHeader
@@ -169,21 +187,22 @@ const SingleProject: React.FC = () => {
         >
           <div className="overview-layout">
             <QuickLinksComponent ref={quickLinksRef} {...({ hideTrigger: true } as any)} />
-            
+
             {(FileManagerComponent as any) && (
               <FileManagerComponent
                 {...({
                   isOpen: filesOpen,
                   onRequestClose: () => setFilesOpen(false),
                   showTrigger: false,
-                  folder: "uploads"
+                  folder: "uploads",
                 } as any)}
               />
             )}
-            
+
             <div className="dashboard-layout budget-calendar-layout">
               <div className="budget-column">
-                <BudgetComponent activeProject={activeProject} />
+                <BudgetComponent projectId={activeProject?.projectId} />
+
                 <GalleryComponent />
               </div>
               <div className="calendar-column">
@@ -192,17 +211,17 @@ const SingleProject: React.FC = () => {
                   initialFlashDate={flashDate}
                   showEventList={false}
                   onWrapperClick={openCalendarPage}
-                  onDateSelect={() => {}} // Add required prop
+                  onDateSelect={noop}
                 />
               </div>
             </div>
-            
+
             <Timeline
               activeProject={activeProject}
               parseStatusToNumber={parseStatusToNumber}
               onActiveProjectChange={handleActiveProjectChange}
             />
-            
+
             <div className="dashboard-layout timeline-location-row">
               <div className="location-wrapper">
                 <LocationComponent
