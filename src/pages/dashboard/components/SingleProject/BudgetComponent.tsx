@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useSocketEvents } from "../../../../app/contexts/SocketContext";
+import React, { useState, useMemo, useCallback } from "react";
 
 import { CircleDollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +8,7 @@ import { slugify } from "../../../../utils/slug";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileInvoiceDollar, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import ClientInvoicePreviewModal from "./ClientInvoicePreviewModal";
-import useBudgetData from "./useBudgetData";
+import { useBudget } from "./BudgetDataProvider";
 import VisxPieChart from "./VisxPieChart";
 import { generateSequentialPalette, getColor } from "../../../../utils/colorUtils";
 
@@ -44,43 +43,10 @@ interface BudgetComponentProps {
 }
 
 const BudgetComponent: React.FC<BudgetComponentProps> = ({ projectId }) => {
-   const { activeProject, isAdmin } = useData(); 
+  const { activeProject, isAdmin } = useData();
   console.log("[BudgetComponent] render");
-  const { budgetHeader, budgetItems, refresh, loading } = useBudgetData(
-    projectId
-  ) as {
-    budgetHeader?: BudgetHeader | null;
-    budgetItems: BudgetItem[];
-    refresh: () => Promise<{ header?: BudgetHeader } | void>;
-    loading: boolean;
-  };
-
-  const onSocketEvent = useSocketEvents();
+  const { budgetHeader, budgetItems, refresh, loading } = useBudget();
   const navigate = useNavigate();
-
-
-  // Listen for budget updates from BudgetPage via window event
-  useEffect(() => {
-    const handleBudgetUpdated = (e: Event) => {
-      const detail = (e as CustomEvent).detail as { projectId?: string } | undefined;
-      if (detail?.projectId === projectId) {
-        refresh();
-      }
-    };
-    window.addEventListener("budgetUpdated", handleBudgetUpdated as EventListener);
-    return () => window.removeEventListener("budgetUpdated", handleBudgetUpdated as EventListener);
-  }, [projectId, refresh]);
-
-  // Listen for websocket budgetUpdated messages
-  useEffect(() => {
-    const unsubscribe = onSocketEvent((data: any) => {
-      if (data?.action === "budgetUpdated" && data.projectId === projectId) {
-        console.log("[BudgetComponent] budgetUpdated for project", projectId);
-        refresh();
-      }
-    });
-    return unsubscribe;
-  }, [onSocketEvent, activeProject?.projectId, refresh]);
 
   const [groupBy] = useState<"invoiceGroup" | "none">("invoiceGroup");
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);

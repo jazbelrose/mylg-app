@@ -34,7 +34,7 @@ import {
   deleteTask,
   fetchUserProfilesBatch,
 } from "../../../../utils/api";
-import useBudgetData from "./useBudgetData";
+import { useBudget } from "./BudgetDataProvider";
 import "../../components/SingleProject/tasks-table.css";
 
 /* =========================
@@ -235,7 +235,7 @@ const TasksComponent: React.FC<TasksComponentProps> = ({
     editForm.setFieldsValue({ location: loc, address: s.display_name });
   };
 
-  const { budgetItems } = useBudgetData(projectId);
+  const { budgetItems } = useBudget();
   const [teamProfiles, setTeamProfiles] = useState<TeamMember[]>([]);
 
   // Fetch user profiles for team userIds

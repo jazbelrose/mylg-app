@@ -32,7 +32,7 @@ import ConfirmModal from "../../../../components/ConfirmModal";
 import { toast } from "react-toastify";
 import styles from "./InvoicePreviewModal.module.css";
 import useModalStack from "../../../../utils/useModalStack";
-import useBudgetData from "./useBudgetData";
+import { useBudget } from "./BudgetDataProvider";
 
 // ---------- Types ----------
 interface RevisionLike {
@@ -125,7 +125,7 @@ const InvoicePreviewModal: React.FC<InvoicePreviewModalProps> = ({
   const [groupField, setGroupField] = useState<GroupField>("invoiceGroup");
   const [groupValues, setGroupValues] = useState<string[]>([]);
   const { userData, setUserData } = useData();
-  const { budgetItems } = useBudgetData(project?.projectId);
+  const { budgetItems } = useBudget();
 
   // layout/refs
   const invoiceRef = useRef<HTMLDivElement | null>(null);

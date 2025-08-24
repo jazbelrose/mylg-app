@@ -31,6 +31,7 @@ import EventEditModal from "./components/SingleProject/EventEditModal";
 import RevisionModal from "./components/SingleProject/RevisionModal";
 import BudgetChart from "./components/SingleProject/BudgetChart";
 import BudgetToolbar from "./components/SingleProject/BudgetToolbar";
+import BudgetItemsTable from "./components/SingleProject/BudgetItemsTable";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { normalizeMessage } from "../../utils/websocketUtils";
@@ -1669,90 +1670,33 @@ const BudgetPage = () => {
               handleRedo={handleRedo}
               openCreateModal={openCreateModal}
             />
-            <div ref={tableRef} style={{ width: "100%", fontSize: '10px' }}>
-              <Table
-                dataSource={budgetItems.length > 0 ? groupedTableData : []}
-                columns={tableColumns.map((col) => ({
-                  ...col,
-                  ellipsis: col.key !== 'actions' && col.key !== 'events',
-                }))}
-                    locale={{
-                  emptyText: (
-                    <div className={styles.emptyPlaceholder}>
-                      No budget items to display
-                    </div>
-                  ),
-                }}
-
-                onChange={handleTableChange}
-                rowClassName={(record) =>
-                  `${styles.clickableRow}${
-                    selectedRowKeys.includes(record.budgetItemId)
-                      ? ` ${styles.selectedRow}`
-                      : ''
-                  }${
-                    lockedLines.includes(record.budgetItemId)
-                      ? ` ${styles.lockedRow}`
-                      : ''
-                  }`}
-                onRow={(record) => ({
-                  onClick: () => openEditModal(record),
-                  tabIndex: lockedLines.includes(record.budgetItemId) ? -1 : 0,
-                  onKeyDown: (e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      openEditModal(record);
-                    } else if (e.key === ' ') {
-                      e.preventDefault();
-                      openDeleteModal([record.budgetItemId]);
-                    }
-                  },
-                })}
-                expandable={
-                  budgetItems.length > 0
-                    ? {
-                        expandedRowRender,
-                        // Show the expand icon on the rightmost side of the table
-                        expandIconColumnIndex: tableColumns.length,
-                        expandedRowOffset: groupBy === "none" ? 1 : 2,
-                        expandedRowKeys,
-                        onExpand: (expanded, record) => {
-                          setExpandedRowKeys((prev) =>
-                            expanded
-                              ? [...prev, record.key]
-                              : prev.filter((k) => k !== record.key)
-                          );
-                        },
-                      }
-                    : undefined
-                }
-                pagination={{
-                  pageSize,
-                  current: currentPage,
-                  showSizeChanger: true,
-                  pageSizeOptions: ['10', '20', '50', '100'],
-                  position: ['bottomRight'],
-                  showTotal: (total, range) =>
-                    `Showing ${range[0]}–${range[1]} of ${total} items`,
-                  size: 'small',
-                  onChange: (page, size) => {
-                    setCurrentPage(page);
-                    if (size !== pageSize) setPageSize(size);
-                  },
-                }}
-                scroll={{ y: Math.max(0, tableHeight - TABLE_HEADER_FOOTER) }}
-                className={styles.tableMinHeight}
-                style={{ height: tableHeight }}
-              />
-            </div>
+            <BudgetItemsTable
+              dataSource={budgetItems.length > 0 ? groupedTableData : []}
+              columns={tableColumns}
+              groupBy={groupBy}
+              selectedRowKeys={selectedRowKeys}
+              lockedLines={lockedLines}
+              handleTableChange={handleTableChange}
+              openEditModal={openEditModal}
+              openDeleteModal={openDeleteModal}
+              expandedRowRender={expandedRowRender}
+              expandedRowKeys={expandedRowKeys}
+              setExpandedRowKeys={setExpandedRowKeys}
+              tableRef={tableRef}
+              tableHeight={tableHeight}
+              pageSize={pageSize}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              setPageSize={setPageSize}
+            />
           </div>
         </div>
       </div>
-      </div>
-      </motion.div>
-    </AnimatePresence>
-  </ProjectPageLayout>
-  </>
+    </div>
+    </motion.div>
+  </AnimatePresence>
+</ProjectPageLayout>
+</>
   );
 };
 
