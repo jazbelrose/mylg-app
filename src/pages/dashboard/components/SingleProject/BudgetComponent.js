@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useSocket } from '../../../../app/contexts/SocketContext';
+import { useChannel } from "../../../../utils/channelStore";
 import { CircleDollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useData } from "../../../../app/contexts/DataProvider";
@@ -15,7 +15,7 @@ import { generateSequentialPalette, getColor } from "../../../../utils/colorUtil
 const BudgetComponent = ({ activeProject }) => {
     // ...existing code...
     const { budgetHeader, budgetItems, refresh, loading } = useBudgetData(activeProject?.projectId);
-    const { ws } = useSocket();
+    const budgetUpdate = useChannel(`budget:${activeProject?.projectId}`, null);
     const navigate = useNavigate();
     const { user, isAdmin, isBuilder, isDesigner } = useData(); // keep for potential future use
     // Listen for budget updates from BudgetPage via window event
@@ -28,24 +28,12 @@ const BudgetComponent = ({ activeProject }) => {
         window.addEventListener('budgetUpdated', handleBudgetUpdated);
         return () => window.removeEventListener('budgetUpdated', handleBudgetUpdated);
     }, [activeProject?.projectId, refresh]);
-    // Listen for websocket budgetUpdated messages
+    // Refresh when a budget update is received for this project
     useEffect(() => {
-        if (!ws)
-            return;
-        const onMessage = (event) => {
-            try {
-                const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-                if (data?.action === 'budgetUpdated' && data.projectId === activeProject?.projectId) {
-                    refresh();
-                }
-            }
-            catch (err) {
-                // Ignore parse errors
-            }
-        };
-        ws.addEventListener('message', onMessage);
-        return () => ws.removeEventListener('message', onMessage);
-    }, [ws, activeProject?.projectId, refresh]);
+        if (budgetUpdate && budgetUpdate.action === 'budgetUpdated') {
+            refresh();
+        }
+    }, [budgetUpdate, refresh]);
     const [groupBy] = useState("invoiceGroup");
     const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
     const [invoiceRevision, setInvoiceRevision] = useState(null);

@@ -29,6 +29,7 @@ import { useData } from "../../app/contexts/DataProvider";
 import { useAuth } from "../../app/contexts/AuthContext";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { normalizeMessage } from "../../utils/websocketUtils";
+import { useChannel } from "../../utils/channelStore";
 import { findProjectBySlug, slugify } from "../../utils/slug";
 import { formatUSD } from "../../utils/budgetUtils";
 import { fetchBudgetHeaders, createBudgetItem, updateBudgetItem, fetchBudgetItems, deleteBudgetItem, } from "../../utils/api";
@@ -69,6 +70,7 @@ const BudgetPage = () => {
     const canEdit = isAdmin || isBuilder || isDesigner;
     const { ws } = useSocket();
     const [activeProject, setActiveProject] = useState(initialActiveProject);
+    const budgetMessage = useChannel(`budget:${activeProject?.projectId}`, null);
     const [filesOpen, setFilesOpen] = useState(false);
     const quickLinksRef = useRef(null);
     const tableRef = useRef(null);
@@ -1106,52 +1108,38 @@ const BudgetPage = () => {
         loadRevisions();
     }, [activeProject]);
     useEffect(() => {
-        if (!ws)
+        const data = budgetMessage;
+        if (!data)
             return;
-        const handleMessage = async (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                if (data.projectId !== activeProject?.projectId)
-                    return;
-                if (data.action === 'lineLocked' && data.revision === budgetHeader?.revision) {
-                    if (data.senderId === userId)
-                        return;
-                    setLockedLines((prev) => (prev.includes(data.lineId) ? prev : [...prev, data.lineId]));
-                }
-                else if (data.action === 'lineUnlocked' && data.revision === budgetHeader?.revision) {
-                    if (data.senderId === userId)
-                        return;
-                    setLockedLines((prev) => prev.filter((id) => id !== data.lineId));
-                }
-                else if (data.action === 'projectUpdated' && data.fields && data.fields.lastBudgetUpdate) {
-                    if (data.senderId === userId)
-                        return;
-                    throttledRefresh();
-                }
-                else if (data.action === 'budgetUpdated') {
-                    if (data.senderId === userId)
-                        return;
-                    const sig = {
-                        rev: data.revision ?? null,
-                        total: data.total ?? null,
-                    };
-                    const prev = lastBudgetSigRef.current;
-                    if (prev.rev === sig.rev && prev.total === sig.total)
-                        return;
-                    lastBudgetSigRef.current = sig;
-                    throttledRefresh();
-                }
-            }
-            catch {
-                // ignore parse errors
-            }
-        };
-        if (typeof ws.addEventListener === 'function') {
-            ws.addEventListener('message', handleMessage);
-            return () => ws.removeEventListener('message', handleMessage);
+        if (data.action === 'lineLocked' && data.revision === budgetHeader?.revision) {
+            if (data.senderId === userId)
+                return;
+            setLockedLines((prev) => (prev.includes(data.lineId) ? prev : [...prev, data.lineId]));
         }
-        return undefined;
-    }, [ws, activeProject?.projectId, budgetHeader?.revision, userId, throttledRefresh]);
+        else if (data.action === 'lineUnlocked' && data.revision === budgetHeader?.revision) {
+            if (data.senderId === userId)
+                return;
+            setLockedLines((prev) => prev.filter((id) => id !== data.lineId));
+        }
+        else if (data.action === 'projectUpdated' && data.fields && data.fields.lastBudgetUpdate) {
+            if (data.senderId === userId)
+                return;
+            throttledRefresh();
+        }
+        else if (data.action === 'budgetUpdated') {
+            if (data.senderId === userId)
+                return;
+            const sig = {
+                rev: data.revision ?? null,
+                total: data.total ?? null,
+            };
+            const prev = lastBudgetSigRef.current;
+            if (prev.rev === sig.rev && prev.total === sig.total)
+                return;
+            lastBudgetSigRef.current = sig;
+            throttledRefresh();
+        }
+    }, [budgetMessage, budgetHeader?.revision, userId, throttledRefresh]);
     useEffect(() => {
         return () => {
             if (editingLineId) {

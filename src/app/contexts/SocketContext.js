@@ -8,6 +8,7 @@ import { WEBSOCKET_URL } from '../../utils/api';
 import { mergeAndDedupeMessages } from '../../utils/messageUtils';
 import { createSecureWebSocketConnection, secureWebSocketAuth } from '../../utils/secureWebSocketAuth';
 import { logSecurityEvent } from '../../utils/securityUtils';
+import { channelStore } from '../../utils/channelStore';
 const SocketContext = createContext();
 export const useSocket = () => useContext(SocketContext);
 // Avoid pulling NotificationContext into this provider. SocketProvider mounts
@@ -109,6 +110,22 @@ export const SocketProvider = ({ children }) => {
             socket.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
+
+                    // Derive channel key for interested listeners
+                    let channelKey = null;
+                    if (data && data.projectId) {
+                        if (data.action === 'budgetUpdated' ||
+                            data.action === 'lineLocked' ||
+                            data.action === 'lineUnlocked' ||
+                            (data.action === 'projectUpdated' && data.fields && data.fields.lastBudgetUpdate)) {
+                            channelKey = `budget:${data.projectId}`;
+                        }
+                    }
+                    if (channelKey) {
+                        channelStore.channels.set(channelKey, data);
+                        channelStore.notify(channelKey);
+                    }
+
                     // Avoid flooding the console with frequent presence updates
                     if (data.type !== 'onlineUsers') {
                         // Useful for debugging other events
