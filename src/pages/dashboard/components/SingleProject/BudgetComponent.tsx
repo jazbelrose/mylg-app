@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useSocketEvents } from "../../../../app/contexts/SocketContext";
+import { useChannel } from "../../../../hooks/useChannel";
 
 import { CircleDollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -53,11 +53,14 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
     loading: boolean;
   };
 
- const onSocketEvent = useSocketEvents();
-  const navigate = useNavigate();
+ const navigate = useNavigate();
 
   // Pull only what we need; cast to any to avoid coupling with your context’s types
   const { isAdmin } = useData() as { isAdmin?: boolean };
+
+  // Use channel-specific WebSocket updates instead of listening to all messages
+  const budgetChannelKey = `budget:${activeProject?.projectId}`;
+  const budgetUpdate = useChannel(budgetChannelKey, null);
 
   // Listen for budget updates from BudgetPage via window event
   useEffect(() => {
@@ -71,16 +74,13 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
     return () => window.removeEventListener("budgetUpdated", handleBudgetUpdated as EventListener);
   }, [activeProject?.projectId, refresh]);
 
-  // Listen for websocket budgetUpdated messages
-useEffect(() => {
-  const unsubscribe = onSocketEvent((data: any) => {
-    if (data?.action === "budgetUpdated" && data.projectId === activeProject?.projectId) {
+  // React to budget channel updates
+  useEffect(() => {
+    if (budgetUpdate) {
       console.log("[BudgetComponent] budgetUpdated for project", activeProject?.projectId);
       refresh();
     }
-  });
-  return unsubscribe;
-}, [onSocketEvent, activeProject?.projectId, refresh]);
+  }, [budgetUpdate, refresh, activeProject?.projectId]);
   const [groupBy] = useState<"invoiceGroup" | "none">("invoiceGroup");
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
   const [invoiceRevision, setInvoiceRevision] = useState<BudgetHeader | null>(null);

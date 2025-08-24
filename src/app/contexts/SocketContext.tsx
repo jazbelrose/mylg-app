@@ -16,6 +16,7 @@ import { WEBSOCKET_URL } from "../../utils/api";
 import { mergeAndDedupeMessages } from "../../utils/messageUtils";
 import { createSecureWebSocketConnection } from "../../utils/secureWebSocketAuth";
 import { logSecurityEvent } from "../../utils/securityUtils";
+import { channelStore } from "../../utils/channelStore";
 
 // ----- Types -----
 interface ExtendedWebSocket extends WebSocket {
@@ -229,6 +230,23 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             console.warn("[WS] Backend error:", id);
           }
           return;
+        }
+
+        // Parse incoming messages and update channelStore for specific channels
+        if (data && typeof data === 'object' && 'action' in data) {
+          const message = data as any;
+          
+          // Budget updates: channel key "budget:{projectId}"
+          if (message.action === 'budgetUpdated' && message.projectId) {
+            const channelKey = `budget:${message.projectId}`;
+            channelStore.update(channelKey, message);
+          }
+          
+          // Line locking: channel key "lineLock:{projectId}"
+          else if ((message.action === 'lineLocked' || message.action === 'lineUnlocked') && message.projectId) {
+            const channelKey = `lineLock:${message.projectId}`;
+            channelStore.update(channelKey, message);
+          }
         }
 
         // Fan out to subscribers WITHOUT changing provider value

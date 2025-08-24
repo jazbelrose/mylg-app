@@ -33,6 +33,7 @@ import BudgetChart from "./components/SingleProject/BudgetChart";
 import BudgetToolbar from "./components/SingleProject/BudgetToolbar";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
+import { useChannel } from "../../hooks/useChannel";
 import { normalizeMessage } from "../../utils/websocketUtils";
 import { findProjectBySlug, slugify } from "../../utils/slug";
 import { formatUSD } from "../../utils/budgetUtils";
@@ -1299,6 +1300,17 @@ const BudgetPage = () => {
     refresh();
   }, [refresh]);
 
+  // Use channel-specific budget updates instead of listening to all WebSocket messages
+  const budgetChannelKey = `budget:${activeProject?.projectId}`;
+  const budgetUpdate = useChannel(budgetChannelKey, null);
+
+  useEffect(() => {
+    if (budgetUpdate && budgetUpdate.senderId !== userId) {
+      console.log('[BudgetPage] budgetUpdated via channel for project', activeProject?.projectId);
+      refresh();
+    }
+  }, [budgetUpdate, userId, refresh, activeProject?.projectId]);
+
   useEffect(() => {
     if (!ws) return;
     const handleMessage = async (event) => {
@@ -1318,12 +1330,6 @@ const BudgetPage = () => {
         ) {
           if (data.senderId === userId) return;
           setLockedLines((prev) => prev.filter((id) => id !== data.lineId));
-        } else if (
-          data.action === 'budgetUpdated' &&
-          data.projectId === activeProject?.projectId
-        ) {
-          if (data.senderId === userId) return;
-          await refresh();
         } else {
           console.log('[BudgetPage] Ignoring websocket message', data);
         }
@@ -1333,7 +1339,7 @@ const BudgetPage = () => {
     };
     ws.addEventListener('message', handleMessage);
     return () => ws.removeEventListener('message', handleMessage);
-  }, [ws, activeProject?.projectId, budgetHeader?.revision, userId, refresh]);
+  }, [ws, activeProject?.projectId, budgetHeader?.revision, userId]);
 
   useEffect(() => {
     return () => {
