@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "../../../../components/ModalWithStack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
@@ -190,7 +190,6 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
 
   const [initialItemString, setInitialItemString] = useState<string>("");
   const [showUnsavedConfirm, setShowUnsavedConfirm] = useState<boolean>(false);
-  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /* --------------------------- Lifecycle & Setup --------------------------- */
 
@@ -430,22 +429,12 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
     return result;
   };
 
-  const handleClose = async () => {
-    if (autosaveTimer.current) {
-      clearTimeout(autosaveTimer.current);
-      autosaveTimer.current = null;
-    }
-    
+  const handleClose = () => {
     const currentItemString = JSON.stringify(item);
     const hasChanges = currentItemString !== initialItemString;
-    
+
     if (hasChanges) {
-      if (initialData) {
-        setShowUnsavedConfirm(true);
-      } else {
-        await persistItem(false); // explicit save when closing, not autosave
-        onRequestClose();
-      }
+      setShowUnsavedConfirm(true);
     } else {
       onRequestClose();
     }
@@ -468,22 +457,7 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
     await persistItem(false); // explicit form submit, not autosave
   };
 
-  /* ------------------------- Autosave & Shortcuts ------------------------- */
-
-  useEffect(() => {
-    if (!isOpen || initialItemString === "") return;
-    const current = JSON.stringify(item);
-    if (current === initialItemString) return;
-
-    if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
-    autosaveTimer.current = setTimeout(() => {
-      void persistItem(true); // this is autosave
-    }, 1000);
-
-    return () => {
-      if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
-    };
-  }, [item, isOpen, initialItemString]);
+  /* ------------------------------- Shortcuts ------------------------------- */
 
   useEffect(() => {
     if (!isOpen) return;
