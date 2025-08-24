@@ -10,6 +10,7 @@ import { useData } from '../../app/contexts/DataProvider';
 import { useSocket } from '../../app/contexts/SocketContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { findProjectBySlug, slugify } from '../../utils/slug';
+import { BudgetProvider } from './components/SingleProject/BudgetDataProvider';
 
 type TimelineMode = 'overview' | 'agenda';
 
@@ -132,13 +133,15 @@ const CalendarPage: React.FC = () => {
       />
 
       <div className="dashboard-layout calendar-layout" style={{ paddingBottom: '5px' }}>
-        <ProjectCalendar
-          project={activeProject as any}
-          initialFlashDate={null}
-          onDateSelect={(d: string) => {
-            setTimelineDate(d);
-          }}
-        />
+        <BudgetProvider projectId={activeProject?.projectId}>
+          <ProjectCalendar
+            project={activeProject as any}
+            initialFlashDate={null}
+            onDateSelect={(d: string) => {
+              setTimelineDate(d);
+            }}
+          />
+        </BudgetProvider>
         <TimelineChart
           project={activeProject as any}
           mode={timelineMode}
