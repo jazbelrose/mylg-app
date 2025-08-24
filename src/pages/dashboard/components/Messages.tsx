@@ -1,3 +1,4 @@
+// src/pages/dashboard/Messages.tsx
 import React, {
   useState,
   useEffect,
@@ -13,7 +14,6 @@ import { useSocket } from "../../../app/contexts/SocketContext";
 import { useOnlineStatus } from "../../../app/contexts/OnlineStatusContext";
 import { useDMConversation } from "../../../app/contexts/DMConversationContext";
 import {
-  isMessageUnread,
   dedupeById,
   mergeAndDedupeMessages,
 } from "../../../utils/messageUtils";
@@ -52,7 +52,7 @@ import {
   S3_PUBLIC_BASE,
   apiFetch,
 } from "../../../utils/api";
-import MessageItem from "./SingleProject/MessageItem"; // <-- replaced require with import
+import MessageItem from "./SingleProject/MessageItem";
 import "./SingleProject/ProjectMessagesThread.css";
 
 // Accessibility binding
@@ -60,10 +60,9 @@ if (typeof document !== "undefined") {
   Modal.setAppElement("#root");
 }
 
-/* =========================
+/* ----------------------------------
    Types
-   ========================= */
-
+----------------------------------- */
 type ID = string;
 
 interface DMFile {
@@ -108,9 +107,19 @@ interface MessagesProps {
   initialUserSlug?: string | null;
 }
 
-/* =========================
+/* ----------------------------------
    Helpers
-   ========================= */
+----------------------------------- */
+
+// Make apiFetch tolerant whether it returns Response or already JSON
+const asJson = async <T = any>(resOrData: any): Promise<T> => {
+  if (resOrData && typeof resOrData.json === "function") {
+    return (await resOrData.json()) as T;
+  }
+  return resOrData as T;
+};
+
+const hasOk = (x: any): x is Response => !!x && typeof x.ok === "boolean";
 
 const msgKey = (convId: string) => `messages_${convId}`;
 
@@ -130,14 +139,12 @@ const renderFilePreview = (file: DMFile, folderKey = "chat_uploads") => {
   if (["jpg", "jpeg", "png"].includes(extension)) {
     const thumbnailUrl = getThumbnailUrl(file.url, folderKey);
     const finalUrl = file.finalUrl || file.url;
-    return (
-      <OptimisticImage tempUrl={thumbnailUrl} finalUrl={finalUrl} alt={file.fileName} />
-    );
+    return <OptimisticImage tempUrl={thumbnailUrl} finalUrl={finalUrl} alt={file.fileName} />;
   }
   if (extension === "pdf") {
     return (
       <div style={commonStyle}>
-        <FaFilePdf size={50} color="red" />
+        <FaFilePdf size={50} />
         <span>{file.fileName}</span>
       </div>
     );
@@ -145,7 +152,7 @@ const renderFilePreview = (file: DMFile, folderKey = "chat_uploads") => {
   if (extension === "svg") {
     return (
       <div style={commonStyle}>
-        <SiSvg size={50} color="purple" />
+        <SiSvg size={50} />
         <span>{file.fileName}</span>
       </div>
     );
@@ -153,7 +160,7 @@ const renderFilePreview = (file: DMFile, folderKey = "chat_uploads") => {
   if (extension === "txt") {
     return (
       <div style={commonStyle}>
-        <FaFileAlt size={50} color="gray" />
+        <FaFileAlt size={50} />
         <span>{file.fileName}</span>
       </div>
     );
@@ -161,7 +168,7 @@ const renderFilePreview = (file: DMFile, folderKey = "chat_uploads") => {
   if (["xls", "xlsx", "csv"].includes(extension)) {
     return (
       <div style={commonStyle}>
-        <FaFileExcel size={50} color="green" />
+        <FaFileExcel size={50} />
         <span>{file.fileName}</span>
       </div>
     );
@@ -169,7 +176,7 @@ const renderFilePreview = (file: DMFile, folderKey = "chat_uploads") => {
   if (["dwg", "vwx"].includes(extension)) {
     return (
       <div style={commonStyle}>
-        <FaDraftingCompass size={50} color="brown" />
+        <FaDraftingCompass size={50} />
         <span>{file.fileName}</span>
       </div>
     );
@@ -177,7 +184,7 @@ const renderFilePreview = (file: DMFile, folderKey = "chat_uploads") => {
   if (["c4d", "obj"].includes(extension)) {
     return (
       <div style={commonStyle}>
-        <FaCube size={50} color="purple" />
+        <FaCube size={50} />
         <span>{file.fileName}</span>
       </div>
     );
@@ -185,7 +192,7 @@ const renderFilePreview = (file: DMFile, folderKey = "chat_uploads") => {
   if (extension === "ai") {
     return (
       <div style={commonStyle}>
-        <SiAdobe size={50} color="orange" />
+        <SiAdobe size={50} />
         <span>{file.fileName}</span>
       </div>
     );
@@ -193,7 +200,7 @@ const renderFilePreview = (file: DMFile, folderKey = "chat_uploads") => {
   if (extension === "afdesign") {
     return (
       <div style={commonStyle}>
-        <SiAffinitydesigner size={50} color="orange" />
+        <SiAffinitydesigner size={50} />
         <span>{file.fileName}</span>
       </div>
     );
@@ -201,23 +208,7 @@ const renderFilePreview = (file: DMFile, folderKey = "chat_uploads") => {
   if (extension === "afpub") {
     return (
       <div style={commonStyle}>
-        <SiAffinitypublisher size={50} color="green" />
-        <span>{file.fileName}</span>
-      </div>
-    );
-  }
-  if (extension === "js") {
-    return (
-      <div style={commonStyle}>
-        <FaFileAlt size={50} color="blue" style={{ fill: "blue" }} />
-        <span>{file.fileName}</span>
-      </div>
-    );
-  }
-  if (extension === "eps") {
-    return (
-      <div style={commonStyle}>
-        <FaDraftingCompass size={50} color="brown" />
+        <SiAffinitypublisher size={50} />
         <span>{file.fileName}</span>
       </div>
     );
@@ -225,19 +216,20 @@ const renderFilePreview = (file: DMFile, folderKey = "chat_uploads") => {
 
   return (
     <div style={commonStyle}>
-      <FaFileAlt size={50} color="blue" style={{ fill: "blue" }} />
+      <FaFileAlt size={50} />
       <span>{file.fileName}</span>
     </div>
   );
 };
 
-/* =========================
+/* ----------------------------------
    Component
-   ========================= */
+----------------------------------- */
 
 const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth() as { isAuthenticated: boolean };
+
   const {
     userData,
     allUsers,
@@ -321,8 +313,10 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
     const convMsgs = all.filter((m) => m.conversationId === selectedConversation);
     const filtered = convMsgs.filter(
       (m) =>
-        !(deletedMessageIds.has(m.messageId || "") ||
-          deletedMessageIds.has(m.optimisticId || ""))
+        !(
+          deletedMessageIds.has(m.messageId || "") ||
+          deletedMessageIds.has(m.optimisticId || "")
+        )
     );
     return dedupeById(
       filtered.map((m) => ({ ...m, read: true }))
@@ -340,7 +334,6 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
           read: true,
         }),
       });
-
       if (ws?.readyState === WebSocket.OPEN) {
         ws.send(
           JSON.stringify({
@@ -430,7 +423,7 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
     return () => setActiveDmConversationId(null);
   }, [selectedConversation, setActiveDmConversationId]);
 
-  // navigate to initial user (slug) if provided
+  // Navigate to initial user (slug) if provided
   useEffect(() => {
     if (initialUserSlug && userData) {
       const user = findUserBySlug(allUsers as any, initialUserSlug);
@@ -464,7 +457,7 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
     sendWhenReady();
   }, [ws, selectedConversation]);
 
-  // Fetch messages on conversation change
+  // Fetch messages on conversation change (resilient apiFetch)
   useEffect(() => {
     if (!selectedConversation || !isAuthenticated) {
       if (!selectedConversation) setIsLoading(false);
@@ -485,10 +478,10 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
       setIsLoading(true);
       setErrorMessage("");
       try {
-        const response = await apiFetch(
+        const res = await apiFetch(
           `${GET_DM_MESSAGES_URL}?conversationId=${encodeURIComponent(selectedConversation)}`
         );
-        const data = await response.json();
+        const data = await asJson<DMMessage[]>(res); // ← FIX: handles both Response or JSON
 
         if (Array.isArray(data)) {
           const readData = data
@@ -512,6 +505,8 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
           });
 
           markConversationAsRead(selectedConversation);
+        } else {
+          console.warn("Unexpected DM payload:", data);
         }
       } catch (error) {
         console.error("Error fetching messages:", error);
@@ -826,16 +821,22 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
         });
       }
 
-      // delete from store/server
+      // delete from store/server (defensive for Response vs JSON)
       if (message.messageId) {
         const url =
           `${DELETE_DM_MESSAGE_URL}?` +
           `conversationId=${encodeURIComponent(selectedConversation)}` +
           `&messageId=${encodeURIComponent(message.messageId)}`;
         const res = await apiFetch(url, { method: "DELETE" });
-        if (!res.ok) {
-          const err = await res.json();
-          console.error("Delete failed:", err);
+        if (hasOk(res) && !res.ok) {
+          // Response with error
+          let errText = "";
+          try {
+            errText = JSON.stringify(await asJson(res));
+          } catch {
+            errText = await (res as Response).text();
+          }
+          console.error("Delete failed:", errText);
           return;
         }
       }
@@ -912,9 +913,14 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
           }),
         }
       );
-      if (!res.ok) {
-        const err = await res.text();
-        console.error("Edit failed:", err);
+      if (hasOk(res) && !res.ok) {
+        let errText = "";
+        try {
+          errText = JSON.stringify(await asJson(res));
+        } catch {
+          errText = await (res as Response).text();
+        }
+        console.error("Edit failed:", errText);
         return;
       }
 
@@ -1132,6 +1138,7 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
                 fontSize: "18px",
                 zIndex: 10,
               }}
+              aria-label="Back to conversations"
             >
               ←
             </button>
@@ -1216,6 +1223,7 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
                 background: "#1c1c1c",
                 color: "#fff",
               }}
+              aria-label="Message input"
             />
             <button
               onClick={() => setShowEmojiPicker((p) => !p)}
@@ -1279,8 +1287,7 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
             {selectedPreviewFile && (
               <div className="preview-container">
                 {(() => {
-                  const ext =
-                    selectedPreviewFile.fileName.split(".").pop()?.toLowerCase() || "";
+                  const ext = selectedPreviewFile.fileName.split(".").pop()?.toLowerCase() || "";
                   if (["jpg", "jpeg", "png"].includes(ext)) {
                     return (
                       <img
@@ -1293,7 +1300,7 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
                   return renderFilePreview(selectedPreviewFile, folderKey);
                 })()}
                 <div className="preview-header">
-                  <button onClick={closePreviewModal} className="modal-button secondary">
+                  <button onClick={closePreviewModal} className="modal-button secondary" aria-label="Close preview">
                     <FontAwesomeIcon icon={faTimes} />
                   </button>
                   <a href={selectedPreviewFile.url} download style={{ color: "white" }}>

@@ -44,21 +44,27 @@ export default function Inbox({ setActiveView, setDmUserSlug }: InboxProps) {
   const refreshInbox = useCallback(async () => {
     if (!userId) return;
     try {
-      const res = (await apiFetch(
+      // ✅ apiFetch already returns parsed JSON — no res.json()
+      const data = await apiFetch(
         `${THREADS_URL}?userId=${encodeURIComponent(userId)}`
-      )) as Response;
-      const data = await res.json();
+      );
+      // Optional: sanity check in dev
+      console.debug("[Inbox] fetched threads:", data);
       setDmThreads(Array.isArray(data) ? (data as Thread[]) : []);
     } catch (err) {
       console.error("❌ inbox refresh failed", err);
+      setDmThreads([]); // keep UI consistent on error
     }
-  }, [userId, setDmThreads]);
+  }, [userId, setDmThreads]); // :contentReference[oaicite:1]{index=1}
 
   const inbox = useMemo<Thread[]>(
     () =>
-      [...(dmThreads || [])].sort(
-        (a, b) => Date.parse(b.lastMsgTs) - Date.parse(a.lastMsgTs)
-      ),
+      [...(dmThreads || [])].sort((a, b) => {
+        const ta = Date.parse(a?.lastMsgTs || "");
+        const tb = Date.parse(b?.lastMsgTs || "");
+        // Fallback to 0 if invalid date
+        return (isNaN(tb) ? 0 : tb) - (isNaN(ta) ? 0 : ta);
+      }),
     [dmThreads]
   );
 

@@ -14,16 +14,13 @@ import { useData } from "./DataProvider";
 import { useDMConversation } from "./DMConversationContext";
 import { WEBSOCKET_URL } from "../../utils/api";
 import { mergeAndDedupeMessages } from "../../utils/messageUtils";
-import {
-  createSecureWebSocketConnection,
-} from "../../utils/secureWebSocketAuth";
+import { createSecureWebSocketConnection } from "../../utils/secureWebSocketAuth";
 import { logSecurityEvent } from "../../utils/securityUtils";
 
 // ----- Types -----
 interface ExtendedWebSocket extends WebSocket {
   keepAliveInterval?: ReturnType<typeof setInterval>;
 }
-
 interface MessageData {
   timestamp: string;
   conversationId?: string;
@@ -33,24 +30,46 @@ interface MessageData {
   [key: string]: unknown;
 }
 
-// Keep the context value aligned with what the provider returns.
-// Add more fields/methods later as you implement them.
+// ===== New Slim Contexts =====
+type OnSocketEvent = (fn: (msg: any) => void) => () => void;
+
+const SocketEventsContext = createContext<OnSocketEvent | undefined>(undefined);
+const SocketConnContext = createContext<{ ws: WebSocket | null; isConnected: boolean } | undefined>(
+  undefined
+);
+const SocketPresenceContext = createContext<string[] | undefined>(undefined);
+
+// Hooks for new contexts
+export const useSocketEvents = (): OnSocketEvent => {
+  const ctx = useContext(SocketEventsContext);
+  if (!ctx) throw new Error("useSocketEvents must be used within a SocketProvider");
+  return ctx;
+};
+export const useSocketConn = () => {
+  const ctx = useContext(SocketConnContext);
+  if (!ctx) throw new Error("useSocketConn must be used within a SocketProvider");
+  return ctx;
+};
+export const useSocketPresence = () => {
+  const ctx = useContext(SocketPresenceContext);
+  if (!ctx) throw new Error("useSocketPresence must be used within a SocketProvider");
+  return ctx;
+};
+
+// ===== Legacy Context (kept for backward compatibility) =====
 interface SocketContextValue {
   ws: WebSocket | null;
   isConnected: boolean;
-  onlineUsers: string[]; // change to your stronger user type if you have one
+  onlineUsers: string[];
 }
-
-const SocketContext = createContext<SocketContextValue | undefined>(undefined);
-
+const LegacySocketContext = createContext<SocketContextValue | undefined>(undefined);
 export const useSocket = (): SocketContextValue => {
-  const ctx = useContext(SocketContext);
+  const ctx = useContext(LegacySocketContext);
   if (!ctx) throw new Error("useSocket must be used within a SocketProvider");
   return ctx;
 };
 
-// Avoid pulling NotificationContext into this provider. SocketProvider mounts
-// inside NotificationProvider; see your note for rationale.
+// ===== Provider =====
 export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { getAuthTokens } = useAuth() as {
     getAuthTokens: () => Promise<{ idToken?: string } | null>;
@@ -63,7 +82,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setProjects,
     setUserProjects,
     setActiveProject,
-    updateProjectFields, // currently unused here, but left as-is
+    updateProjectFields, // retained
     setProjectMessages,
     deletedMessageIds,
     markMessageDeleted,
@@ -75,46 +94,53 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   const { activeDmConversationId } = useDMConversation();
 
+  // Core socket state (kept internal; only exposed via slim contexts)
   const [ws, setWs] = useState<ExtendedWebSocket | null>(null);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
-  // Refs to keep latest functions for debounced calls
+  // Refs
+  const wsRef = useRef<ExtendedWebSocket | null>(null);
+  const reconnectInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const collaboratorsUpdateTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const refreshUsersRef = useRef(refreshUsers);
   const fetchUserProfileRef = useRef(fetchUserProfile);
+  const onlineUsersRef = useRef<string[]>([]);
+  const handlersRef = useRef<Set<(msg: any) => void>>(new Set());
+  const seenBackendErrorIdsRef = useRef<Set<string>>(new Set());
 
-  const collaboratorsUpdateTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const reconnectInterval = useRef<ReturnType<typeof setInterval> | null>(null);
-  const wsRef = useRef<ExtendedWebSocket | null>(null);
+  // Event subscribe API
+  const onSocketEvent = useCallback<OnSocketEvent>((fn) => {
+    handlersRef.current.add(fn);
+    return () => handlersRef.current.delete(fn);
+  }, []);
 
+  // Session id
   const generateSessionId = useCallback((): string => {
-    // Guard for SSR/non-secure contexts
     if (typeof crypto !== "undefined" && typeof (crypto as any).randomUUID === "function") {
       return (crypto as any).randomUUID();
     }
     return uuid();
   }, []);
-
   const sessionIdRef = useRef<string>(
     sessionStorage.getItem("ws_session_id") || generateSessionId()
   );
-
   useEffect(() => {
     sessionStorage.setItem("ws_session_id", sessionIdRef.current);
   }, []);
 
+  // Keep refs fresh
   useEffect(() => {
     wsRef.current = ws;
   }, [ws]);
-
   useEffect(() => {
     refreshUsersRef.current = refreshUsers;
   }, [refreshUsers]);
-
   useEffect(() => {
     fetchUserProfileRef.current = fetchUserProfile;
   }, [fetchUserProfile]);
 
+  // Helpers
   const scheduleCollaboratorsRefresh = useCallback(() => {
     if (collaboratorsUpdateTimeout.current) {
       clearTimeout(collaboratorsUpdateTimeout.current);
@@ -129,11 +155,9 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const startReconnect = useCallback(() => {
     if (reconnectInterval.current || wsRef.current) return;
     reconnectInterval.current = setInterval(() => {
-      if (!wsRef.current) {
-        void connectWebSocket();
-      }
+      if (!wsRef.current) void connectWebSocket();
     }, 5000);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const stopReconnect = useCallback(() => {
     if (reconnectInterval.current) {
@@ -142,12 +166,20 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, []);
 
-  const connectWebSocket = useCallback(async () => {
-    if (wsRef.current) {
-      // Already connected/connecting
-      return;
-    }
+  const arraysShallowEqual = (a: string[], b: string[]) =>
+    a.length === b.length && a.every((u, i) => u === b[i]);
 
+  const safeParse = (raw: string) => {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  };
+
+  // Connect
+  const connectWebSocket = useCallback(async () => {
+    if (wsRef.current) return;
     try {
       const tokens = await getAuthTokens();
       if (!tokens?.idToken) {
@@ -155,14 +187,12 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         startReconnect();
         return;
       }
-
       const sessionId = sessionIdRef.current;
       if (!sessionId) {
         console.error("No sessionId, cannot connect WebSocket.");
         startReconnect();
         return;
       }
-
       if (wsRef.current) return;
 
       const socket = (await createSecureWebSocketConnection(
@@ -177,263 +207,281 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         wsRef.current = socket;
         stopReconnect();
 
-        socket.send(JSON.stringify({ action: "presencePing" }));
-
+        const presence = JSON.stringify({ action: "presencePing" });
+        socket.send(presence);
         socket.keepAliveInterval = setInterval(() => {
-          if (socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({ action: "presencePing" }));
-          }
+          if (socket.readyState === WebSocket.OPEN) socket.send(presence);
         }, 30_000);
       };
 
       socket.onmessage = (event: MessageEvent<string>) => {
-        try {
-          const data = JSON.parse(event.data) as Record<string, unknown>;
+        const data = safeParse(event.data);
+        if (!data || typeof data !== "object") {
+          console.warn("⚠️ WS non-JSON/empty payload:", event.data);
+          return;
+        }
 
-          // Presence
-          if (data.type === "onlineUsers" && Array.isArray((data as any).users)) {
-            const users = [...((data as any).users as string[])];
-            if (userId && !users.includes(userId)) users.push(userId);
+        // Dedup noisy API GW generic error
+        if ((data as any).message === "Internal server error" && (data as any).requestId) {
+          const id = (data as any).requestId as string;
+          if (!seenBackendErrorIdsRef.current.has(id)) {
+            seenBackendErrorIdsRef.current.add(id);
+            console.warn("[WS] Backend error:", id);
+          }
+          return;
+        }
+
+        // Fan out to subscribers WITHOUT changing provider value
+        handlersRef.current.forEach((fn) => {
+          try {
+            fn(data);
+          } catch (e) {
+            console.error("WS handler error:", e);
+          }
+        });
+
+        // Presence (guard array identity)
+        if ((data as any).type === "onlineUsers" && Array.isArray((data as any).users)) {
+          const users = [...((data as any).users as string[])];
+          // Preserve your behavior if you need to force-include current user:
+          if (userId && !users.includes(userId)) users.push(userId);
+          if (!arraysShallowEqual(users, onlineUsersRef.current)) {
+            onlineUsersRef.current = users;
             setOnlineUsers(users);
-            return;
           }
+          return;
+        }
 
-          // Timeline updates
-          if (data.action === "timelineUpdated" && data.projectId && Array.isArray((data as any).events)) {
-            const pid = data.projectId as string;
-            const evts = (data as any).events;
-            setProjects((prev) =>
-              prev.map((p) => (p.projectId === pid ? { ...p, timelineEvents: evts } : p))
-            );
-            setUserProjects((prev) =>
-              prev.map((p) => (p.projectId === pid ? { ...p, timelineEvents: evts } : p))
-            );
-            setActiveProject((prev) =>
-              prev && prev.projectId === pid ? { ...prev, timelineEvents: evts } : prev
-            );
-            return;
-          }
+        // Timeline updates
+        if (
+          (data as any).action === "timelineUpdated" &&
+          (data as any).projectId &&
+          Array.isArray((data as any).events)
+        ) {
+          const pid = (data as any).projectId as string;
+          const evts = (data as any).events;
+          setProjects((prev) =>
+            prev.map((p) => (p.projectId === pid ? { ...p, timelineEvents: evts } : p))
+          );
+          setUserProjects((prev) =>
+            prev.map((p) => (p.projectId === pid ? { ...p, timelineEvents: evts } : p))
+          );
+          setActiveProject((prev) =>
+            prev && prev.projectId === pid ? { ...prev, timelineEvents: evts } : prev
+          );
+          return;
+        }
 
-          // Project updates
-          if (data.action === "projectUpdated" && data.projectId && data.fields && typeof data.fields === "object") {
-            const pid = data.projectId as string;
-            const fields = data.fields as Record<string, unknown>;
-            setProjects((prev) => prev.map((p) => (p.projectId === pid ? { ...p, ...fields } : p)));
-            setUserProjects((prev) => prev.map((p) => (p.projectId === pid ? { ...p, ...fields } : p)));
-            setActiveProject((prev) => (prev && prev.projectId === pid ? { ...prev, ...fields } : prev));
-            return;
-          }
+        // Project updates
+        if (
+          (data as any).action === "projectUpdated" &&
+          (data as any).projectId &&
+          typeof (data as any).fields === "object"
+        ) {
+          const pid = (data as any).projectId as string;
+          const fields = (data as any).fields as Record<string, unknown>;
+          setProjects((prev) => prev.map((p) => (p.projectId === pid ? { ...p, ...fields } : p)));
+          setUserProjects((prev) => prev.map((p) => (p.projectId === pid ? { ...p, ...fields } : p)));
+          setActiveProject((prev) => (prev && prev.projectId === pid ? { ...prev, ...fields } : prev));
+          return;
+        }
 
-          // Gallery created
-          if (data.action === "galleryCreated" && data.projectId) {
-            fetchProjects();
-            return;
-          }
+        // Gallery created
+        if ((data as any).action === "galleryCreated" && (data as any).projectId) {
+          fetchProjects();
+          return;
+        }
 
-          // Collaborators
-          if (data.type === "collaborators-updated") {
-            scheduleCollaboratorsRefresh();
-            return;
-          }
+        // Collaborators
+        if ((data as any).type === "collaborators-updated") {
+          scheduleCollaboratorsRefresh();
+          return;
+        }
 
-          // DM handling
-          if ((data as any).conversationType === "dm") {
-            const dm = data as any;
-            if (dm.action === "sendMessage" || dm.action === "newMessage") {
-              if (deletedMessageIds.has(dm.messageId) || deletedMessageIds.has(dm.optimisticId)) {
-                return;
-              }
-              const isSelf = dm.senderId === userId;
-              const viewing = activeDmConversationId === dm.conversationId;
+        // ----- DM -----
+        if ((data as any).conversationType === "dm") {
+          const dm = data as any;
 
-              setUserData((prev: any) => {
-                if (!prev) return prev;
-                const prevMsgs: MessageData[] = Array.isArray(prev.messages) ? prev.messages : [];
-                const merged = mergeAndDedupeMessages(prevMsgs, [{ ...dm, read: viewing || isSelf }]);
-                return { ...prev, messages: merged };
-              });
+          if (dm.action === "sendMessage" || dm.action === "newMessage") {
+            if (deletedMessageIds.has(dm.messageId) || deletedMessageIds.has(dm.optimisticId)) return;
 
-              setDmThreads((prev: any[]) => {
-                const idx = prev.findIndex((t) => t.conversationId === dm.conversationId);
-                const read = viewing || isSelf;
-                if (idx !== -1) {
-                  const updated = [...prev];
-                  updated[idx] = {
-                    ...updated[idx],
-                    snippet: dm.text,
-                    lastMsgTs: dm.timestamp,
-                    read,
-                  };
-                  return updated;
-                }
-                return [
-                  ...prev,
-                  {
-                    conversationId: dm.conversationId,
-                    snippet: dm.text,
-                    lastMsgTs: dm.timestamp,
-                    read,
-                    otherUserId: isSelf ? dm.recipientId : dm.senderId,
-                  },
-                ];
-              });
-              return;
-            }
+            const isSelf = dm.senderId === userId;
+            const viewing = activeDmConversationId === dm.conversationId;
 
-            if (dm.action === "deleteMessage") {
-              const viewing = activeDmConversationId === dm.conversationId;
-              markMessageDeleted(dm.messageId || dm.optimisticId);
-              setUserData((prev: any) => {
-                if (!prev) return prev;
-                const prevMsgs: MessageData[] = Array.isArray(prev.messages) ? prev.messages : [];
-                const updatedMsgs = prevMsgs.filter(
-                  (m) =>
-                    !((dm.messageId && m.messageId === dm.messageId) ||
-                      (dm.optimisticId && m.optimisticId === dm.optimisticId))
-                );
+            setUserData((prev: any) => {
+              if (!prev) return prev;
+              const prevMsgs: MessageData[] = Array.isArray(prev.messages) ? prev.messages : [];
+              const merged = mergeAndDedupeMessages(prevMsgs, [{ ...dm, read: viewing || isSelf }]);
+              return { ...prev, messages: merged };
+            });
 
-                const convoMsgs = updatedMsgs
-                  .filter((m) => m.conversationId === dm.conversationId)
-                  .sort(
-                    (a, b) =>
-                      new Date((b.timestamp as string) || 0).getTime() -
-                      new Date((a.timestamp as string) || 0).getTime()
-                  );
-                const lastMsg = convoMsgs[0];
-                const newSnippet = (lastMsg?.text as string) || "";
-                const newTs = (lastMsg?.timestamp as string) || new Date().toISOString();
-
-                setDmThreads((prevThreads: any[]) =>
-                  prevThreads.map((t) =>
-                    t.conversationId === dm.conversationId
-                      ? { ...t, snippet: newSnippet, lastMsgTs: newTs, read: viewing ? true : t.read }
-                      : t
-                  )
-                );
-
-                return { ...prev, messages: updatedMsgs };
-              });
-              return;
-            }
-
-            if (dm.action === "editMessage") {
-              setUserData((prev: any) => {
-                if (!prev) return prev;
-                const msgs: MessageData[] = Array.isArray(prev.messages) ? prev.messages : [];
-                return {
-                  ...prev,
-                  messages: msgs.map((m) =>
-                    m.messageId === dm.messageId
-                      ? { ...m, text: dm.text, edited: true, editedAt: dm.editedAt }
-                      : m
-                  ),
+            setDmThreads((prev: any[]) => {
+              const idx = prev.findIndex((t) => t.conversationId === dm.conversationId);
+              const read = viewing || isSelf;
+              if (idx !== -1) {
+                const updated = [...prev];
+                updated[idx] = {
+                  ...updated[idx],
+                  snippet: dm.text,
+                  lastMsgTs: dm.timestamp,
+                  read,
                 };
-              });
+                return updated;
+              }
+              return [
+                ...prev,
+                {
+                  conversationId: dm.conversationId,
+                  snippet: dm.text,
+                  lastMsgTs: dm.timestamp,
+                  read,
+                  otherUserId: isSelf ? dm.recipientId : dm.senderId,
+                },
+              ];
+            });
+            return;
+          }
 
-              setDmThreads((prev: any[]) =>
-                prev.map((t) =>
-                  t.conversationId === dm.conversationId && t.lastMsgTs === dm.timestamp
-                    ? { ...t, snippet: dm.text, lastMsgTs: dm.timestamp }
+          if (dm.action === "deleteMessage") {
+            const viewing = activeDmConversationId === dm.conversationId;
+            markMessageDeleted(dm.messageId || dm.optimisticId);
+            setUserData((prev: any) => {
+              if (!prev) return prev;
+              const prevMsgs: MessageData[] = Array.isArray(prev.messages) ? prev.messages : [];
+              const updatedMsgs = prevMsgs.filter(
+                (m) =>
+                  !((dm.messageId && m.messageId === dm.messageId) ||
+                    (dm.optimisticId && m.optimisticId === dm.optimisticId))
+              );
+
+              const convoMsgs = updatedMsgs
+                .filter((m) => m.conversationId === dm.conversationId)
+                .sort(
+                  (a, b) =>
+                    new Date((b.timestamp as string) || 0).getTime() -
+                    new Date((a.timestamp as string) || 0).getTime()
+                );
+              const lastMsg = convoMsgs[0];
+              const newSnippet = (lastMsg?.text as string) || "";
+              const newTs = (lastMsg?.timestamp as string) || new Date().toISOString();
+
+              setDmThreads((prevThreads: any[]) =>
+                prevThreads.map((t) =>
+                  t.conversationId === dm.conversationId
+                    ? { ...t, snippet: newSnippet, lastMsgTs: newTs, read: viewing ? true : t.read }
                     : t
                 )
               );
-              return;
-            }
 
-            if (dm.action === "toggleReaction") {
-              setUserData((prev: any) => {
-                if (!prev) return prev;
-                const msgs: MessageData[] = Array.isArray(prev.messages) ? prev.messages : [];
-                return {
-                  ...prev,
-                  messages: msgs.map((m) =>
-                    m.messageId === dm.messageId ? { ...m, reactions: dm.reactions } : m
-                  ),
-                };
-              });
-              return;
-            }
-
+              return { ...prev, messages: updatedMsgs };
+            });
             return;
           }
 
-          // Project messages
-          if ((data as any).conversationType === "project") {
-            const pd = data as any;
-            const projectId =
-              pd.projectId || (pd.conversationId || "").replace("project#", "");
-            if (!projectId) return;
+          if (dm.action === "editMessage") {
+            setUserData((prev: any) => {
+              if (!prev) return prev;
+              const msgs: MessageData[] = Array.isArray(prev.messages) ? prev.messages : [];
+              return {
+                ...prev,
+                messages: msgs.map((m) =>
+                  m.messageId === dm.messageId
+                    ? { ...m, text: dm.text, edited: true, editedAt: dm.editedAt }
+                    : m
+                ),
+              };
+            });
 
-            if (pd.action === "sendMessage" || pd.action === "newMessage") {
-              if (deletedMessageIds.has(pd.messageId) || deletedMessageIds.has(pd.optimisticId)) {
-                return;
-              }
-              setProjectMessages((prev: Record<string, MessageData[]>) => {
-                const msgs = Array.isArray(prev[projectId]) ? prev[projectId] : [];
-                const merged = mergeAndDedupeMessages(msgs, [pd]);
-                return { ...prev, [projectId]: merged };
-              });
-              return;
-            }
-
-            if (pd.action === "deleteMessage") {
-              markMessageDeleted(pd.messageId || pd.optimisticId);
-              setProjectMessages((prev: Record<string, MessageData[]>) => {
-                const msgs = Array.isArray(prev[projectId]) ? prev[projectId] : [];
-                return {
-                  ...prev,
-                  [projectId]: msgs.filter(
-                    (m) =>
-                      !((pd.messageId && m.messageId === pd.messageId) ||
-                        (pd.optimisticId && m.optimisticId === pd.optimisticId))
-                  ),
-                };
-              });
-              return;
-            }
-
-            if (pd.action === "editMessage") {
-              setProjectMessages((prev: Record<string, MessageData[]>) => {
-                const msgs = Array.isArray(prev[projectId]) ? prev[projectId] : [];
-                return {
-                  ...prev,
-                  [projectId]: msgs.map((m) =>
-                    m.messageId === pd.messageId
-                      ? { ...m, text: pd.text, edited: true, editedAt: pd.editedAt }
-                      : m
-                  ),
-                };
-              });
-              return;
-            }
-
-            if (pd.action === "toggleReaction") {
-              setProjectMessages((prev: Record<string, MessageData[]>) => {
-                const msgs = Array.isArray(prev[projectId]) ? prev[projectId] : [];
-                return {
-                  ...prev,
-                  [projectId]: msgs.map((m) =>
-                    m.messageId === pd.messageId ? { ...m, reactions: pd.reactions } : m
-                  ),
-                };
-              });
-              return;
-            }
-
+            setDmThreads((prev: any[]) =>
+              prev.map((t) =>
+                t.conversationId === dm.conversationId && t.lastMsgTs === dm.timestamp
+                  ? { ...t, snippet: dm.text, lastMsgTs: dm.timestamp }
+                  : t
+              )
+            );
             return;
           }
 
-          // Unexpected
-          // eslint-disable-next-line no-console
-          console.warn("⚠️ Unexpected message from server:", data);
-        } catch {
-          // eslint-disable-next-line no-console
-          console.error("❌ Failed to parse WS message:", event.data);
+          if (dm.action === "toggleReaction") {
+            setUserData((prev: any) => {
+              if (!prev) return prev;
+              const msgs: MessageData[] = Array.isArray(prev.messages) ? prev.messages : [];
+              return {
+                ...prev,
+                messages: msgs.map((m) => (m.messageId === dm.messageId ? { ...m, reactions: dm.reactions } : m)),
+              };
+            });
+            return;
+          }
+
+          return;
         }
+
+        // ----- Project messages -----
+        if ((data as any).conversationType === "project") {
+          const pd = data as any;
+          const projectId = pd.projectId || (pd.conversationId || "").replace("project#", "");
+          if (!projectId) return;
+
+          if (pd.action === "sendMessage" || pd.action === "newMessage") {
+            if (deletedMessageIds.has(pd.messageId) || deletedMessageIds.has(pd.optimisticId)) return;
+
+            setProjectMessages((prev: Record<string, MessageData[]>) => {
+              const msgs = Array.isArray(prev[projectId]) ? prev[projectId] : [];
+              const merged = mergeAndDedupeMessages(msgs, [pd]);
+              return { ...prev, [projectId]: merged };
+            });
+            return;
+          }
+
+          if (pd.action === "deleteMessage") {
+            markMessageDeleted(pd.messageId || pd.optimisticId);
+            setProjectMessages((prev: Record<string, MessageData[]>) => {
+              const msgs = Array.isArray(prev[projectId]) ? prev[projectId] : [];
+              return {
+                ...prev,
+                [projectId]: msgs.filter(
+                  (m) =>
+                    !((pd.messageId && m.messageId === pd.messageId) ||
+                      (pd.optimisticId && m.optimisticId === pd.optimisticId))
+                ),
+              };
+            });
+            return;
+          }
+
+          if (pd.action === "editMessage") {
+            setProjectMessages((prev: Record<string, MessageData[]>) => {
+              const msgs = Array.isArray(prev[projectId]) ? prev[projectId] : [];
+              return {
+                ...prev,
+                [projectId]: msgs.map((m) =>
+                  m.messageId === pd.messageId ? { ...m, text: pd.text, edited: true, editedAt: pd.editedAt } : m
+                ),
+              };
+            });
+            return;
+          }
+
+          if (pd.action === "toggleReaction") {
+            setProjectMessages((prev: Record<string, MessageData[]>) => {
+              const msgs = Array.isArray(prev[projectId]) ? prev[projectId] : [];
+              return {
+                ...prev,
+                [projectId]: msgs.map((m) => (m.messageId === pd.messageId ? { ...m, reactions: pd.reactions } : m)),
+              };
+            });
+            return;
+          }
+
+          return;
+        }
+
+        // Unexpected
+        console.warn("⚠️ Unexpected message from server:", data);
       };
 
       socket.onclose = (event: CloseEvent) => {
-        // eslint-disable-next-line no-console
         console.log("WS close", event.code, event.reason);
         setIsConnected(false);
         if (socket.keepAliveInterval) clearInterval(socket.keepAliveInterval);
@@ -443,28 +491,37 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       };
 
       socket.onerror = (err: Event) => {
-        // eslint-disable-next-line no-console
         console.error("Socket error:", err);
-        const msg =
-          (err as any)?.message ??
-          (err as Error)?.message ??
-          "Unknown error";
+        const msg = (err as any)?.message ?? (err as Error)?.message ?? "Unknown error";
         logSecurityEvent("websocket_error", { error: msg });
         if (socket.readyState === WebSocket.OPEN) socket.close();
         startReconnect();
       };
     } catch (error) {
-      const msg =
-        (error as any)?.message ??
-        (error as Error)?.message ??
-        "Unknown error";
-      // eslint-disable-next-line no-console
+      const msg = (error as any)?.message ?? (error as Error)?.message ?? "Unknown error";
       console.error("Error establishing secure WebSocket connection:", error);
       logSecurityEvent("secure_websocket_connection_error", { error: msg });
       startReconnect();
     }
-  }, [getAuthTokens, userId, activeDmConversationId, deletedMessageIds, setUserData, setDmThreads, setProjects, setUserProjects, setActiveProject, fetchProjects, scheduleCollaboratorsRefresh, setProjectMessages, markMessageDeleted, startReconnect, stopReconnect]);
+  }, [
+    getAuthTokens,
+    userId,
+    activeDmConversationId,
+    deletedMessageIds,
+    setUserData,
+    setDmThreads,
+    setProjects,
+    setUserProjects,
+    setActiveProject,
+    fetchProjects,
+    scheduleCollaboratorsRefresh,
+    setProjectMessages,
+    markMessageDeleted,
+    startReconnect,
+    stopReconnect,
+  ]);
 
+  // Mount/unmount
   useEffect(() => {
     void connectWebSocket();
     return () => {
@@ -503,14 +560,27 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     return () => ws.removeEventListener("open", handleOpen);
   }, [ws, activeProject?.projectId]);
 
-  const value = useMemo<SocketContextValue>(
-    () => ({
-      ws,
-      isConnected,
-      onlineUsers,
-    }),
+  // ===== Provide split values (each memoized) =====
+  const eventsValue = useMemo(() => onSocketEvent, [onSocketEvent]);
+  const connValue = useMemo(() => ({ ws, isConnected }), [ws, isConnected]);
+  // Presence value is the array itself (identity only changes when it actually changes)
+  const presenceValue = onlineUsers;
+
+  // Legacy value preserved for existing consumers
+  const legacyValue = useMemo<SocketContextValue>(
+    () => ({ ws, isConnected, onlineUsers }),
     [ws, isConnected, onlineUsers]
   );
 
-  return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>;
+  return (
+    <SocketEventsContext.Provider value={eventsValue}>
+      <SocketConnContext.Provider value={connValue}>
+        <SocketPresenceContext.Provider value={presenceValue}>
+          <LegacySocketContext.Provider value={legacyValue}>
+            {children}
+          </LegacySocketContext.Provider>
+        </SocketPresenceContext.Provider>
+      </SocketConnContext.Provider>
+    </SocketEventsContext.Provider>
+  );
 };
