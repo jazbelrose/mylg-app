@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import SVGThumbnail from './components/AllProjects/SVGThumbnail';
-import "./style.css";
+import './style.css';
 import { useData } from '../../app/contexts/DataProvider';
 import Spinner from '../../components/preloader-light';
 import { useNavigate } from 'react-router-dom';
 import { slugify } from '../../utils/slug';
+import AvatarStack from '../../components/AvatarStack';
+import { LayoutGrid, List } from 'lucide-react';
 
 interface Project {
   projectId: string;
@@ -14,6 +16,12 @@ interface Project {
   thumbnails?: string[];
   dateCreated?: string;
   date?: string;
+  team?: {
+    userId: string;
+    firstName?: string;
+    lastName?: string;
+    thumbnail?: string;
+  }[];
 }
 
 type SortOption = 'titleAsc' | 'titleDesc' | 'dateNewest' | 'dateOldest';
@@ -25,6 +33,7 @@ const AllProjects: React.FC = () => {
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
   const [sortOption, setSortOption] = useState<SortOption>('titleAsc');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Ensure projects are loaded when this view is displayed
   useEffect(() => {
@@ -36,11 +45,12 @@ const AllProjects: React.FC = () => {
   const onSelectProject = async (project: Project): Promise<void> => {
     try {
       await fetchProjectDetails(project.projectId);
-  const safeTitle = (project.title && project.title.trim()) || `project-${project.projectId.slice(0,6)}`;
-  const slug = slugify(safeTitle);
+      const safeTitle =
+        (project.title && project.title.trim()) ||
+        `project-${project.projectId.slice(0, 6)}`;
+      const slug = slugify(safeTitle);
       navigate(`/dashboard/projects/${slug}`);
-    }
-    catch (err) {
+    } catch (err) {
       console.error('Error loading project', err);
     }
   };
@@ -107,94 +117,178 @@ const AllProjects: React.FC = () => {
 
   if (isLoading) {
     content = (
-      <div 
-        className="all-projects-container-welcome" 
+      <div
+        className="all-projects-container-welcome"
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           flex: 1,
-          width: "100%",
+          width: '100%',
         }}
       >
         <Spinner />
       </div>
     );
+  } else if (projectsError) {
+    content = (
+      <div
+        style={{
+          display: 'flex',
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+        }}
+      >
+        <p style={{ fontSize: '14px', color: '#aaa', textAlign: 'center' }}>
+          Failed to load projects.
+        </p>
+      </div>
+    );
+  } else if (projects.length === 0) {
+    content = (
+      <div
+        style={{
+          display: 'flex',
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+        }}
+      >
+        <p style={{ fontSize: '14px', color: '#aaa', textAlign: 'center' }}>
+          No projects yet!
+        </p>
+      </div>
+    );
+  } else if (sortedProjects.length === 0) {
+    content = (
+      <div
+        style={{
+          display: 'flex',
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+        }}
+      >
+        <p style={{ fontSize: '14px', color: '#aaa', textAlign: 'center' }}>
+          No matching projects
+        </p>
+      </div>
+    );
+  } else if (viewMode === 'grid') {
+    content = (
+      <div
+        className={`all-projects-container-welcome ${
+          isSingleProject ? 'single-item' : ''
+        }`}
+      >
+        {sortedProjects.map((project: Project) => (
+          <div
+            key={project.projectId}
+            className={`project-container-welcome ${
+              isSingleProject ? 'single-item' : ''
+            }`}
+            role="button"
+            tabIndex={0}
+            onClick={() => handleProjectClick(project)}
+            onKeyDown={(e) => handleKeyDown(e, project)}
+            aria-label={`Open project ${
+              project.title?.trim() || 'Untitled project'
+            }`}
+          >
+            {!imageErrors[project.projectId] &&
+            project.thumbnails &&
+            project.thumbnails.length > 0 ? (
+              <img
+                src={project.thumbnails[0]}
+                alt={`Thumbnail of ${
+                  project.title?.trim() || 'Untitled project'
+                }`}
+                className="project-thumbnail"
+                loading="lazy"
+                decoding="async"
+                onError={() =>
+                  setImageErrors((prev) => ({
+                    ...prev,
+                    [project.projectId]: true,
+                  }))
+                }
+              />
+            ) : (
+              <SVGThumbnail
+                initial={
+                  project.title?.trim()?.charAt(0)?.toUpperCase() || '#'
+                }
+                className="project-thumbnail"
+              />
+            )}
+            <h6 className="project-title">
+              {project.title?.trim() || 'Untitled project'}
+            </h6>
+          </div>
+        ))}
+      </div>
+    );
   } else {
     content = (
-      <div className={`all-projects-container-welcome ${isSingleProject ? 'single-item' : ''}`}>
-        {projectsError ? (
-          <div style={{
-            display: "flex",
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-          }}>
-            <p style={{ fontSize: "14px", color: "#aaa", textAlign: "center" }}>
-              Failed to load projects.
-            </p>
-          </div>
-        ) : projects.length > 0 ? (
-          sortedProjects.length > 0 ? (
-            sortedProjects.map((project: Project) => (
-              <div
-                key={project.projectId}
-                className={`project-container-welcome ${isSingleProject ? 'single-item' : ''}`}
-                role="button"
-                tabIndex={0}
-                onClick={() => handleProjectClick(project)}
-                onKeyDown={(e) => handleKeyDown(e, project)}
-                aria-label={`Open project ${project.title?.trim() || 'Untitled project'}`}
-              >
-                {(!imageErrors[project.projectId] && project.thumbnails && project.thumbnails.length > 0) ? (
-                  <img
-                    src={project.thumbnails[0]}
-                    alt={`Thumbnail of ${project.title?.trim() || 'Untitled project'}`}
-                    className="project-thumbnail"
-                    loading="lazy"
-                    decoding="async"
-                    onError={() => setImageErrors((prev) => ({
-                      ...prev,
-                      [project.projectId]: true,
-                    }))}
-                  />
-                ) : (
-                  <SVGThumbnail
-                    initial={(project.title?.trim()?.charAt(0)?.toUpperCase() || '#')}
-                    className="project-thumbnail"
-                  />
-                )}
-                <h6 className="project-title">{project.title?.trim() || 'Untitled project'}</h6>
-              </div>
-            ))
-          ) : (
-            <div style={{
-              display: "flex",
-              flex: 1,
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-            }}>
-              <p style={{ fontSize: "14px", color: "#aaa", textAlign: "center" }}>
-                No matching projects
-              </p>
+      <ul className="projects-list">
+        {sortedProjects.map((project: Project) => (
+          <li
+            key={project.projectId}
+            className="project-list-item"
+            role="button"
+            tabIndex={0}
+            onClick={() => handleProjectClick(project)}
+            onKeyDown={(e) => handleKeyDown(e, project)}
+            aria-label={`Open project ${
+              project.title?.trim() || 'Untitled project'
+            }`}
+          >
+            {!imageErrors[project.projectId] &&
+            project.thumbnails &&
+            project.thumbnails.length > 0 ? (
+              <img
+                src={project.thumbnails[0]}
+                alt={`Thumbnail of ${
+                  project.title?.trim() || 'Untitled project'
+                }`}
+                className="project-list-thumb"
+                loading="lazy"
+                decoding="async"
+                onError={() =>
+                  setImageErrors((prev) => ({
+                    ...prev,
+                    [project.projectId]: true,
+                  }))
+                }
+              />
+            ) : (
+              <SVGThumbnail
+                initial={
+                  project.title?.trim()?.charAt(0)?.toUpperCase() || '#'
+                }
+                className="project-list-thumb"
+              />
+            )}
+            <div className="project-list-info">
+              <span className="project-list-title">
+                {project.title?.trim() || 'Untitled project'}
+              </span>
+              {project.status && (
+                <span className="project-list-status">{project.status}</span>
+              )}
             </div>
-          )
-        ) : (
-          <div style={{
-            display: "flex",
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-          }}>
-            <p style={{ fontSize: "14px", color: "#aaa", textAlign: "center" }}>
-              No projects yet!
-            </p>
-          </div>
-        )}
-      </div>
+            {Array.isArray(project.team) && project.team.length > 0 && (
+              <div className="project-list-team">
+                <AvatarStack members={project.team} />
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
     );
   }
 
@@ -219,7 +313,9 @@ const AllProjects: React.FC = () => {
             >
               <option value="">All statuses</option>
               {statusOptions.map((s: string) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
             </select>
           )}
@@ -234,6 +330,22 @@ const AllProjects: React.FC = () => {
             <option value="dateNewest">Date (Newest)</option>
             <option value="dateOldest">Date (Oldest)</option>
           </select>
+          <div className="view-toggle">
+            <button
+              className={viewMode === 'grid' ? 'active' : ''}
+              onClick={() => setViewMode('grid')}
+              aria-label="Grid view"
+            >
+              <LayoutGrid size={16} />
+            </button>
+            <button
+              className={viewMode === 'list' ? 'active' : ''}
+              onClick={() => setViewMode('list')}
+              aria-label="List view"
+            >
+              <List size={16} />
+            </button>
+          </div>
         </div>
       </div>
       {content}

@@ -192,6 +192,29 @@
   color: white;
 }
 
+.view-toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.view-toggle button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: transparent;
+  border: 2px solid white;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+}
+
+.view-toggle button.active {
+  background-color: white;
+  color: #0c0c0c;
+}
+
+
 .project-filter-input::placeholder {
   color: #bbb;
 }
