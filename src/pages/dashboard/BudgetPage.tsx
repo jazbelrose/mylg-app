@@ -1464,7 +1464,7 @@ const BudgetPage = () => {
         setClients(newClients);
       }
       await syncHeaderTotals(updated);
-      emitBudgetUpdate();
+      
       return { budgetItemId: item.budgetItemId };
     } catch (err) {
       console.error('Error creating line item:', err);
