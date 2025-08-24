@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $createResizableImageNode } from "./nodes/ResizableImageNode";
 import { $insertNodes, $createTextNode, $getSelection, $isRangeSelection } from "lexical";

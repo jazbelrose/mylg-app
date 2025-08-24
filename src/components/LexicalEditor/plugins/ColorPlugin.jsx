@@ -1,5 +1,5 @@
+import React, { useEffect, useState } from "react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { useEffect, useState } from "react";
 import {
   $getSelection,
   $isRangeSelection,

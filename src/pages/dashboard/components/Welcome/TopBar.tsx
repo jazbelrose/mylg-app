@@ -1,5 +1,5 @@
+import React, { useEffect, useState, type FC } from 'react';
 import { Briefcase, Calendar } from 'lucide-react';
-import { useEffect, useState, type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useData, type Project } from '../../../../app/contexts/DataProvider';
