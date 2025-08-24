@@ -1,70 +1,41 @@
-import React, { memo } from "react";
+import React from "react";
 import { Pie } from "@visx/shape";
+import type { ProvidedProps, PieArcDatum } from "@visx/shape/lib/types";
 import { Group } from "@visx/group";
 import { ParentSize } from "@visx/responsive";
 import { useTooltip, useTooltipInPortal } from "@visx/tooltip";
 import { localPoint } from "@visx/event";
-import { animated, useSpring, to } from "@react-spring/web";
+import { animated, useSpring, to as springTo, SpringValue } from "@react-spring/web";
 import { formatUSD } from "../../../../utils/budgetUtils";
 import {
   CHART_COLORS,
   generateSequentialPalette,
   getColor,
 } from "../../../../utils/colorUtils";
+import { useData } from "../../../../app/contexts/DataProvider";
 
 const EXPLODE_PX = 8;
 
-/* ── Types ───────────────────────────────────────────── */
-
-export type Datum = { name: string; value: number };
-
-export type VisxPieChartProps = {
-  data: Datum[];
-  total: number;
-  formatTooltip?: (d: Datum) => string;
-  donutRatio?: number; // 0..1
-  colors?: string[];
-  baseColor?: string;
-  colorMode?: "sequential" | "categorical";
-  projectId?: string;
-};
-
-// Minimal visx arc/context typings (keeps us independent of deep visx generics)
-type PieArcDatum<D> = {
-  data: D;
-  startAngle: number;
-  endAngle: number;
-  padAngle: number;
+export type PieDatum = {
+  name: string;
   value: number;
+  // Allow extra fields if callers pass richer objects
+  [key: string]: unknown;
 };
 
-type PieRenderContext<D> = {
-  arcs: Array<PieArcDatum<D>>;
-  path: (a: PieArcDatum<D>) => string;
-};
+type ClampResult = { left: number; top: number };
 
-/* ── Animated Arc ────────────────────────────────────── */
-
-type AnimatedArcProps = {
-  arc: PieArcDatum<Datum>;
-  pie: PieRenderContext<Datum>;
+interface AnimatedArcProps {
+  arc: PieArcDatum<PieDatum>;
+  pie: ProvidedProps<PieDatum>;
   color: string;
-  showTooltip: (args: {
-    tooltipData: Datum;
-    tooltipLeft: number;
-    tooltipTop: number;
-  }) => void;
+  showTooltip: (args: { tooltipData: PieDatum; tooltipLeft: number; tooltipTop: number }) => void;
   hideTooltip: () => void;
   containerRef: React.RefObject<HTMLDivElement>;
-  clampTooltip: (
-    x: number,
-    y: number,
-    tooltipWidth?: number,
-    tooltipHeight?: number
-  ) => { left: number; top: number };
+  clampTooltip: (x: number, y: number, tooltipWidth?: number, tooltipHeight?: number) => ClampResult;
   rafRef: React.MutableRefObject<number | null>;
   explodePx?: number;
-};
+}
 
 function AnimatedArc({
   arc,
@@ -86,86 +57,65 @@ function AnimatedArc({
 
   React.useEffect(() => {
     api.start({ startAngle: arc.startAngle, endAngle: arc.endAngle });
-  }, [arc.startAngle, arc.endAngle, api]);
+  }, [arc, api]);
 
-  const pathD = to(
-    [springs.startAngle, springs.endAngle],
+  const pathD: SpringValue<string> = springTo(
+    [springs.startAngle as SpringValue<number>, springs.endAngle as SpringValue<number>],
     (startAngle, endAngle) => pie.path({ ...arc, startAngle, endAngle })
   );
 
-  const [cx, cy] = React.useMemo(() => {
-    // Use the static path (no animation) to compute centroid
-    const tempPath = pie.path(arc);
-    // Rough centroid from arc mid-angle; simpler/more stable than parsing path
-    const mid = (arc.startAngle + arc.endAngle) / 2;
-    const R = 1; // unit vector; we'll normalize below anyway
-    return [Math.cos(mid) * R, Math.sin(mid) * R];
-  }, [pie, arc]);
-
+  const [cx, cy] = React.useMemo(() => pie.path.centroid(arc), [pie, arc]);
   const len = Math.max(1, Math.hypot(cx, cy));
-  const translate = to([springs.x, springs.y], (x, y) => `translate(${x}, ${y})`);
+  const translate = springTo(
+    [springs.x as SpringValue<number>, springs.y as SpringValue<number>],
+    (x, y) => `translate(${x}, ${y})`
+  );
   const isSingle = pie.arcs.length === 1;
-
-  // Cleanup any queued RAF when arc unmounts
-  React.useEffect(() => {
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    };
-  }, [rafRef]);
-
-  const show = (evt: React.MouseEvent<SVGGElement>) => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      const point = localPoint(evt) || { x: 0, y: 0 };
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        const screenX = rect.left + point.x;
-        const screenY = rect.top + point.y;
-        const { left, top } = clampTooltip(screenX, screenY);
-        showTooltip({
-          tooltipData: arc.data,
-          tooltipLeft: left,
-          tooltipTop: top,
-        });
-      }
-    });
-  };
-
-  const reset = () => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    api.start(isSingle
-      ? { startAngle: arc.startAngle, endAngle: arc.endAngle }
-      : { x: 0, y: 0 });
-    hideTooltip();
-  };
-
-  const explode = () => {
-    if (isSingle) {
-      api.start({
-        startAngle: arc.startAngle - 0.01,
-        endAngle: arc.endAngle + 0.01,
-      });
-    } else {
-      api.start({ x: (cx / len) * explodePx, y: (cy / len) * explodePx });
-    }
-  };
 
   return (
     <animated.g
       transform={translate}
-      onMouseEnter={explode}
-      onMouseMove={show}
-      onMouseLeave={reset}
-      onFocus={explode}
-      onBlur={reset}
-      tabIndex={0}
-      role="button"
-      aria-label={`${arc.data.name}: ${arc.data.value}`}
+      onMouseEnter={() => {
+        if (isSingle) {
+          api.start({
+            startAngle: arc.startAngle - 0.01,
+            endAngle: arc.endAngle + 0.01,
+          });
+        } else {
+          api.start({ x: (cx / len) * explodePx, y: (cy / len) * explodePx });
+        }
+      }}
+      onMouseMove={(e) => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        rafRef.current = requestAnimationFrame(() => {
+          const pt = localPoint(e) || { x: 0, y: 0 };
+          const host = containerRef.current;
+          if (host) {
+            const rect = host.getBoundingClientRect();
+            const screenX = rect.left + pt.x;
+            const screenY = rect.top + pt.y;
+            const { left, top } = clampTooltip(screenX, screenY);
+            showTooltip({
+              tooltipData: arc.data,
+              tooltipLeft: left,
+              tooltipTop: top,
+            });
+          }
+        });
+      }}
+      onMouseLeave={() => {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        api.start(
+          isSingle
+            ? { startAngle: arc.startAngle, endAngle: arc.endAngle }
+            : { x: 0, y: 0 }
+        );
+        hideTooltip();
+      }}
       style={{ cursor: "pointer" }}
     >
       <animated.path
-        d={pathD as unknown as string}
+        d={pathD}
         fill={color}
         stroke="none"
         shapeRendering="geometricPrecision"
@@ -173,15 +123,25 @@ function AnimatedArc({
         strokeLinejoin="round"
         strokeMiterlimit={2}
       >
-        <title>{arc.data.name}</title>
+        <title>{String(arc.data.name)}</title>
       </animated.path>
     </animated.g>
   );
 }
 
-/* ── Chart ───────────────────────────────────────────── */
+export interface VisxPieChartProps {
+  data: PieDatum[];
+  total: number;
+  formatTooltip?: (d: PieDatum) => React.ReactNode;
+  donutRatio?: number; // 0..1
+  colors?: string[];
+  baseColor?: string;
+  colorMode?: "sequential" | "categorical";
+  projectId?: string;
+}
 
-function VisxPieChart({
+// Generic pie/donut chart rendered with visx. Used by budget components and header summaries.
+export default function VisxPieChart({
   data,
   total,
   formatTooltip = (d) => `${d.name}: ${formatUSD(d.value)}`,
@@ -191,93 +151,94 @@ function VisxPieChart({
   colorMode = "sequential",
   projectId,
 }: VisxPieChartProps) {
-  const projectBase = baseColor || (projectId ? getColor(projectId) : "#3b82f6");
+  const { activeProject } = useData();
+  const projectBase =
+    baseColor ||
+    activeProject?.color ||
+    (projectId ? getColor(projectId) : "#3b82f6");
 
-  const palette = React.useMemo(() => {
+  const palette = React.useMemo<string[]>(() => {
     if (colors && colors.length) return colors;
     if (colorMode === "categorical") {
       return data.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]);
     }
-    // Reverse so largest value tends to be darkest.
+    // For sequential palettes, ensure the darkest color corresponds to the largest value.
     return generateSequentialPalette(projectBase, data.length).reverse();
-  }, [colors, colorMode, projectBase, data.length]);
+  }, [colors, colorMode, projectBase, data]);
 
   const containerRef = React.useRef<HTMLDivElement | null>(null);
 
-  // Tooltip state/portal
+  // useTooltip for state/handlers
   const {
     tooltipOpen,
-    tooltipLeft,
-    tooltipTop,
+    tooltipLeft = 0,
+    tooltipTop = 0,
     tooltipData,
     showTooltip,
     hideTooltip,
-  } = useTooltip<Datum>();
-  const { TooltipInPortal } = useTooltipInPortal({ scroll: true, containerRef });
+  } = useTooltip<PieDatum>();
 
+  // useTooltipInPortal for portal rendering
+  const { TooltipInPortal } = useTooltipInPortal({
+    scroll: true,
+    containerRef,
+  });
+
+  // Throttle mouse move with requestAnimationFrame
   const rafRef = React.useRef<number | null>(null);
 
   // Clamp tooltip to viewport
-  const clampTooltip = React.useCallback(
-    (x: number, y: number, tooltipWidth = 160, tooltipHeight = 40) => {
-      const offset = 8;
-      const vw = typeof window !== "undefined" ? window.innerWidth : tooltipWidth;
-      const vh = typeof window !== "undefined" ? window.innerHeight : tooltipHeight;
-      let left = x + offset;
-      let top = y + offset;
-      if (left + tooltipWidth > vw) left = x - tooltipWidth - offset;
-      if (top + tooltipHeight > vh) top = y - tooltipHeight - offset;
-      left = Math.max(0, left);
-      top = Math.max(0, top);
-      return { left, top };
-    },
-    []
-  );
-
-  // Cleanup RAF if parent unmounts
-  React.useEffect(() => {
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    };
-  }, []);
+  function clampTooltip(
+    x: number,
+    y: number,
+    tooltipWidth = 160,
+    tooltipHeight = 40
+  ): ClampResult {
+    const offset = 8;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let left = x + offset;
+    let top = y + offset;
+    if (left + tooltipWidth > vw) left = x - tooltipWidth - offset;
+    if (top + tooltipHeight > vh) top = y - tooltipHeight - offset;
+    left = Math.max(0, left);
+    top = Math.max(0, top);
+    return { left, top };
+  }
 
   return (
     <ParentSize>
-      {({ width, height }) => {
+      {({ width, height }: { width: number; height: number }) => {
         const isSingle = data.length === 1;
         const radius = Math.floor(Math.min(width, height) / 2);
         const outerRadius = Math.max(0, radius - EXPLODE_PX);
-        const innerRadius = Math.max(0, Math.round(outerRadius * donutRatio));
+        const innerRadius = Math.round(outerRadius * donutRatio);
 
         return (
           <div
             ref={containerRef}
-            style={{ position: "relative", width, height }}
-            aria-label="Budget distribution"
-            role="img"
+            style={{
+              position: "relative",
+              width,
+              height,
+            }}
           >
             <svg width={width} height={height}>
               <Group top={height / 2} left={width / 2}>
-                <Pie<Datum>
+                <Pie<PieDatum>
                   data={data}
                   pieValue={(d) => d.value}
                   innerRadius={innerRadius}
                   outerRadius={outerRadius}
                   padAngle={isSingle ? 0 : 0.004}
-                  pieSortValues={
-                    colorMode === "sequential" ? (a, b) => b - a : undefined
-                  }
+                  pieSortValues={colorMode === "sequential" ? (a, b) => b - a : undefined}
                 >
-                  {(pie) =>
-                    pie.arcs.map((arc, i) => (
+                  {(pieProps: ProvidedProps<PieDatum>) =>
+                    pieProps.arcs.map((arc, i) => (
                       <AnimatedArc
-                        key={`${arc.data.name}-${i}`}
-                        arc={arc as unknown as PieArcDatum<Datum>}
-                        pie={{
-                          arcs: pie.arcs as unknown as Array<PieArcDatum<Datum>>,
-                          path: pie.path as (a: PieArcDatum<Datum>) => string,
-                        }}
+                        key={`${String(arc.data.name)}-${i}`}
+                        arc={arc}
+                        pie={pieProps}
                         color={palette[i % palette.length]}
                         showTooltip={showTooltip}
                         hideTooltip={hideTooltip}
@@ -290,7 +251,6 @@ function VisxPieChart({
                   }
                 </Pie>
               </Group>
-
               <text
                 x={width / 2}
                 y={height / 2}
@@ -304,7 +264,6 @@ function VisxPieChart({
                   strokeWidth: 0.5,
                   paintOrder: "stroke",
                 }}
-                aria-label={`Total ${formatUSD(total)}`}
               >
                 {formatUSD(total)}
               </text>
@@ -342,30 +301,3 @@ function VisxPieChart({
     </ParentSize>
   );
 }
-
-/* ── Memo: smarter shallow compare ───────────────────── */
-
-function shallowEqualData(a: Datum[], b: Datum[]) {
-  if (a === b) return true;
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    const A = a[i];
-    const B = b[i];
-    if (A.name !== B.name || A.value !== B.value) return false;
-  }
-  return true;
-}
-
-export default memo(
-  VisxPieChart,
-  (prev, next) =>
-    prev.total === next.total &&
-    shallowEqualData(prev.data, next.data) &&
-    prev.baseColor === next.baseColor &&
-    prev.donutRatio === next.donutRatio &&
-    prev.colorMode === next.colorMode &&
-    prev.projectId === next.projectId &&
-    // palettes are typically stable by ref; if caller passes new array each render,
-    // you can remove this line to always recompute
-    prev.colors === next.colors
-);
