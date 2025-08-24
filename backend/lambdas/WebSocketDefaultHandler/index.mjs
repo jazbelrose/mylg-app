@@ -33,11 +33,13 @@ export const handler = async (event) => {
   const { action } = payload;
   if (!action) return { statusCode: 400, body: "Missing action" };
 
+  const userId = event.requestContext.authorizer?.userId;
+
   switch (action) {
     case "sendMessage":
       return await handleSendMessage(payload);
-      case "markRead":
-    return await handleMarkRead(payload);
+    case "markRead":
+      return await handleMarkRead(payload);
     case "deleteMessage":
       return await handleDeleteMessage(payload);
     case "editMessage":
@@ -58,14 +60,13 @@ export const handler = async (event) => {
     case "projectUpdated":
       return await handleProjectUpdated(payload);
     case "budgetUpdated":
-      return await handleBudgetUpdated(payload);
+      return await handleBudgetUpdated(payload, userId);
     case "lineLocked":
-      return await handleLineLocked(payload);
+      return await handleLineLocked(payload, userId);
     case "lineUnlocked":
-      return await handleLineUnlocked(payload);
+      return await handleLineUnlocked(payload, userId);
     case 'fetchNotifications': {
       const connectionId = event.requestContext.connectionId;
-      const userId = event.requestContext.authorizer.userId;
 
       const result = await dynamoDb.query({
         TableName: process.env.NOTIFICATIONS_TABLE,
@@ -858,8 +859,8 @@ const handleProjectUpdated = async (payload) => {
   return { statusCode: 200, body: 'project update broadcast' };
 };
 
-const handleBudgetUpdated = async (payload) => {
-  const { projectId, title, revision, total, conversationId, username, senderId } = payload;
+const handleBudgetUpdated = async (payload, senderId) => {
+  const { projectId, title, revision, total, conversationId, username } = payload;
 
   if (!projectId) {
     return { statusCode: 400, body: 'Missing projectId' };
@@ -870,6 +871,7 @@ const handleBudgetUpdated = async (payload) => {
     projectId,
     revision,
     total,
+    senderId,
   });
 
   const totalStr = total ? `$${Number(total).toLocaleString()}` : 'N/A';
@@ -888,7 +890,7 @@ const handleBudgetUpdated = async (payload) => {
   return { statusCode: 200, body: 'budget update broadcast' };
 };
 
-const handleLineLocked = async (payload) => {
+const handleLineLocked = async (payload, senderId) => {
   const { projectId, lineId, revision, conversationId } = payload;
 
   if (!projectId || !lineId) {
@@ -900,12 +902,13 @@ const handleLineLocked = async (payload) => {
     projectId,
     lineId,
     revision,
+    senderId,
   });
 
   return { statusCode: 200, body: 'lineLocked broadcast' };
 };
 
-const handleLineUnlocked = async (payload) => {
+const handleLineUnlocked = async (payload, senderId) => {
   const { projectId, lineId, revision, conversationId } = payload;
 
   if (!projectId || !lineId) {
@@ -917,6 +920,7 @@ const handleLineUnlocked = async (payload) => {
     projectId,
     lineId,
     revision,
+    senderId,
   });
 
   return { statusCode: 200, body: 'lineUnlocked broadcast' };
