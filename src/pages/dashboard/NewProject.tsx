@@ -1,5 +1,4 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ChangeEvent } from 'react';
 import Modal from '../../components/ModalWithStack';
 import { uploadData } from 'aws-amplify/storage';
 import NewProjectHeader from './components/NewProject/NewProjectHeader';
@@ -15,23 +14,23 @@ import { useNavigate } from 'react-router-dom';
 import { slugify } from '../../utils/slug';
 import { parseBudget } from '../../utils/budgetUtils';
 import { POST_PROJECTS_URL, SEND_PROJECT_NOTIFICATION_URL, POST_PROJECT_TO_USER_URL, S3_PUBLIC_BASE, apiFetch, } from '../../utils/api';
-const NewProject = () => {
-    const [projectName, setProjectName] = useState('');
-    const [budget, setBudget] = useState('');
-    const [finishline, setFinishLine] = useState('');
-    const [description, setDescription] = useState('');
-    const [selectedFiles, setSelectedFiles] = useState([]);
-    const [selectedFileNames, setSelectedFileNames] = useState("");
-    const [location, setLocation] = useState({ lat: 34.0522, lng: -118.2437 });
-    const [address, setAddress] = useState('Los Angeles, CA');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submissionSuccess, setSubmissionSuccess] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
+const NewProject: React.FC = () => {
+    const [projectName, setProjectName] = useState<string>('');
+    const [budget, setBudget] = useState<string>('');
+    const [finishline, setFinishLine] = useState<string>('');
+    const [description, setDescription] = useState<string>('');
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [selectedFileNames, setSelectedFileNames] = useState<string>("");
+    const [location, setLocation] = useState<{lat: number, lng: number}>({ lat: 34.0522, lng: -118.2437 });
+    const [address, setAddress] = useState<string>('Los Angeles, CA');
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [submissionSuccess, setSubmissionSuccess] = useState<boolean>(false);
+    const [uploadProgress, setUploadProgress] = useState<number>(0);
     const { userName, userId, setActiveProject, setProjects, setUserProjects } = useData();
     const navigate = useNavigate();
     const { setUser } = useAuth();
-    const [validationError, setValidationError] = useState('');
-    const [validationMessage, setValidationMessage] = useState('');
+    const [validationError, setValidationError] = useState<string>('');
+    const [validationMessage, setValidationMessage] = useState<string>('');
     const collectFormData = () => {
         const currentDate = new Date();
         const formattedDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;

@@ -1,5 +1,4 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-// Home.js
+// Home.tsx
 import React, { useEffect, useRef, useState } from "react";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { useScrollContext } from "../../app/contexts/ScrollContext";

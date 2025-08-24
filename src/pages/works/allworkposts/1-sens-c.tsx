@@ -1,4 +1,3 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import React, { useRef, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { gsap } from "gsap";
@@ -10,18 +9,18 @@ import { useData } from "../../../app/contexts/DataProvider";
 import ReactModal from "react-modal"; // Import ReactModal
 import { useScrollContext } from "../../../app/contexts/ScrollContext";
 import InlineSvg from "../../../components/inlinesvg/index.jsx";
-const SensC = () => {
+const SensC: React.FC = () => {
     const imageUrls = senscData;
-    let galleryRefs = useRef([]);
+    let galleryRefs = useRef<HTMLElement[]>([]);
     const { isLoading, setIsLoading, opacity } = useData();
     const opacityClass = opacity === 1 ? 'opacity-high' : 'opacity-low';
     const { isHeaderVisible, updateHeaderVisibility } = useScrollContext();
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [touchStart, setTouchStart] = useState(0);
-    const [touchEnd, setTouchEnd] = useState(0);
-    const [prevScrollPos, setPrevScrollPos] = useState(0);
-    const [svgReady, setSvgReady] = useState(false);
+    const [isModalOpen, setModalOpen] = useState<boolean>(false);
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const [touchStart, setTouchStart] = useState<number>(0);
+    const [touchEnd, setTouchEnd] = useState<number>(0);
+    const [prevScrollPos, setPrevScrollPos] = useState<number>(0);
+    const [svgReady, setSvgReady] = useState<boolean>(false);
     let isTransitioning = false;
     const nextImage = () => {
         if (isTransitioning)
@@ -200,7 +199,7 @@ const SensC = () => {
         }
     }, [isLoading, svgReady]);
     if (isLoading) {
-        return _jsx("div", {});
+        return <div />;
     }
     return (_jsxs(_Fragment, { children: [_jsxs(Helmet, { children: [_jsx("meta", { name: "robots", content: "noindex, nofollow" }), _jsx("title", { children: "1-Sens-C - *MYLG!*" })] }), _jsxs("div", { className: `${opacityClass} ${isModalOpen ? 'no-scroll' : ''}`, children: [_jsx("div", { className: "svg-overlay", children: _jsx("svg", { viewBox: "0 0 1000 1000", preserveAspectRatio: "none", children: _jsx("path", { id: "revealPath", d: "M0,1005S175,995,500,995s500,5,500,5V0H0Z" }) }) }), _jsx("div", { className: "workpage-heading", children: _jsx(InlineSvg, { src: "https://d2qb21tb4meex0.cloudfront.net/svg/1sensc/1senscheader.svg", onReady: () => setSvgReady(true) }) }), _jsx("div", { className: "container-restricted", children: _jsx("div", { className: "mb-5 po_items_ho", children: imageUrls.map((imageUrl, i) => (_jsx("div", { className: "po_item", ref: (el) => (galleryRefs.current[i] = el), children: _jsx("div", { className: "img-wrapper", children: _jsx("img", { src: imageUrl, alt: `Image ${i + 1}`, className: "d-block w-100", style: { objectFit: "cover", width: "100%", height: "100%", cursor: "pointer" }, onClick: () => openModal(i) }) }) }, i))) }) }), _jsxs("div", { className: "rendering-infosection", children: [_jsx("hr", { style: { opacity: "1", color: "fff", height: "2px", backgroundColor: "#fff", margin: "0.5rem", } }), _jsxs("div", { className: "rendering-infosection", children: [_jsx(InfoSection, {}), _jsx("hr", { style: { opacity: "1", color: "fff", height: "2px", backgroundColor: "#fff", margin: "0.5rem", } }), _jsx("div", { className: "single-ticker-section", children: _jsx(SingleTicker, {}) })] })] }), _jsx(ReactModal, { isOpen: isModalOpen, onRequestClose: closeModal, className: "modal-content", overlayClassName: "modal", ariaHideApp: false, children: _jsx("div", { className: "modal-content", onTouchStart: handleTouchStart, onTouchMove: handleTouchMove, onTouchEnd: handleTouchEnd, children: _jsx("img", { src: imageUrls[currentIndex], alt: `Modal Image ${currentIndex}`, className: "modal-image" }) }) })] })] }));
 };
