@@ -9,7 +9,7 @@ type Listener = () => void;
 
 class ChannelStore {
   // Map to hold latest values for each channel
-  public channels = new Map<string, any>();
+  public channels = new Map<string, unknown>();
   
   // Map to hold listeners for each channel
   private listeners = new Map<string, Set<Listener>>();
@@ -17,8 +17,8 @@ class ChannelStore {
   /**
    * Get the latest value for a channel, with optional fallback
    */
-  get(key: string, fallback: any = undefined): any {
-    return this.channels.has(key) ? this.channels.get(key) : fallback;
+  get<T>(key: string, fallback: T): T {
+    return this.channels.has(key) ? (this.channels.get(key) as T) : fallback;
   }
 
   /**
@@ -45,7 +45,7 @@ class ChannelStore {
   /**
    * Update a channel value and notify all listeners
    */
-  update(key: string, value: any): void {
+  update(key: string, value: unknown): void {
     this.channels.set(key, value);
     this.notify(key);
   }

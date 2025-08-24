@@ -10,13 +10,13 @@ import { channelStore } from '../utils/channelStore';
  * @param fallback - Default value when channel has no data
  * @returns The latest value for the channel
  */
-export function useChannel<T = any>(key: string, fallback: T): T {
+export function useChannel<T>(key: string, fallback: T): T {
   const subscribe = (onStoreChange: () => void) => {
     return channelStore.subscribe(key, onStoreChange);
   };
 
   const getSnapshot = () => {
-    return channelStore.get(key, fallback);
+    return channelStore.get<T>(key, fallback);
   };
 
   // For server-side rendering, return the fallback value
