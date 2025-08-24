@@ -38,7 +38,6 @@ import { normalizeMessage } from "../../utils/websocketUtils";
 import { findProjectBySlug, slugify } from "../../utils/slug";
 import { formatUSD } from "../../utils/budgetUtils";
 import {
-  fetchBudgetHeader,
   fetchBudgetHeaders,
   createBudgetItem,
   updateBudgetItem,
@@ -532,7 +531,6 @@ const BudgetPage = () => {
         }
       }
       await syncHeaderTotals(updatedList);
-      emitBudgetUpdate();
       setLockedLines((prev) => prev.filter((id) => !deleteTargets.includes(id)));
     } catch (err) {
       console.error('Error deleting line items:', err);
@@ -602,7 +600,6 @@ const BudgetPage = () => {
       setBudgetItems(updated);
       setSelectedRowKeys([]);
       await syncHeaderTotals(updated);
-      emitBudgetUpdate();
     } catch (err) {
       console.error("Error duplicating line items:", err);
     }
@@ -1277,9 +1274,10 @@ const BudgetPage = () => {
   const refresh = useCallback(async () => {
     if (!activeProject?.projectId) return;
     try {
-      const header = await fetchBudgetHeader(activeProject.projectId);
       const revs = await fetchBudgetHeaders(activeProject.projectId);
       setRevisions(revs);
+      const header =
+        revs.find((h) => h.revision === h.clientRevisionId) || revs[0] || null;
       if (header) {
         setBudgetHeader(header);
         if (header.budgetId) {
@@ -1517,7 +1515,6 @@ const BudgetPage = () => {
         setClients(newClients);
       }
       await syncHeaderTotals(updatedList);
-      emitBudgetUpdate();
       return { budgetItemId: updatedItem.budgetItemId };
     } catch (err) {
       console.error('Error updating line item:', err);
