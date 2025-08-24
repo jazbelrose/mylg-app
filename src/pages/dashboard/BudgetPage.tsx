@@ -1273,91 +1273,67 @@ const BudgetPage = () => {
     [beautifyLabel]
   );
 
-  useEffect(() => {
-    const loadHeader = async () => {
-      if (!activeProject || !activeProject.projectId) return;
-      try {
-        const header = await fetchBudgetHeader(activeProject.projectId);
-        const revs = await fetchBudgetHeaders(activeProject.projectId);
-        setRevisions(revs);
-        if (header) {
-          setBudgetHeader(header);
- if (header.budgetId) {
-            const items = await fetchBudgetItems(
-              header.budgetId,
-              header.revision
-            );
-            setBudgetItems(items);
-            const aSet = new Set();
-            const iSet = new Set();
-            const cSet = new Set(Array.isArray(header.clients) ? header.clients : []);
-            items.forEach((it) => {
-              if (it.areaGroup)
-                aSet.add(String(it.areaGroup).trim().toUpperCase());
-              if (it.invoiceGroup)
-                iSet.add(String(it.invoiceGroup).trim().toUpperCase());
-              if (it.client) cSet.add(it.client);
-            });
-            setAreaGroups(Array.from(aSet));
-            setInvoiceGroups(Array.from(iSet));
-            setClients(Array.from(cSet));
-          }
-        } else {
-          setBudgetHeader(null);
-          setClients([]);
+  const refresh = useCallback(async () => {
+    if (!activeProject?.projectId) return;
+    try {
+      const header = await fetchBudgetHeader(activeProject.projectId);
+      const revs = await fetchBudgetHeaders(activeProject.projectId);
+      setRevisions(revs);
+      if (header) {
+        setBudgetHeader(header);
+        if (header.budgetId) {
+          const items = await fetchBudgetItems(header.budgetId, header.revision);
+          setBudgetItems(items);
+          computeGroupsAndClients(items, header);
         }
-      } catch (err) {
-        console.error("Error fetching budget header", err);
+      } else {
+        setBudgetHeader(null);
+        setClients([]);
       }
-    };
-    loadHeader();
-  }, [activeProject]);
+    } catch (err) {
+      console.error("Error fetching budget header", err);
+    }
+  }, [activeProject?.projectId, computeGroupsAndClients]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   useEffect(() => {
     if (!ws) return;
     const handleMessage = async (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data.projectId !== activeProject?.projectId) return;
-        if (data.action === 'lineLocked' && data.revision === budgetHeader?.revision) {
+        if (
+          data.action === 'lineLocked' &&
+          data.projectId === activeProject?.projectId &&
+          data.revision === budgetHeader?.revision
+        ) {
           if (data.senderId === userId) return;
           setLockedLines((prev) => (prev.includes(data.lineId) ? prev : [...prev, data.lineId]));
-        } else if (data.action === 'lineUnlocked' && data.revision === budgetHeader?.revision) {
+        } else if (
+          data.action === 'lineUnlocked' &&
+          data.projectId === activeProject?.projectId &&
+          data.revision === budgetHeader?.revision
+        ) {
           if (data.senderId === userId) return;
           setLockedLines((prev) => prev.filter((id) => id !== data.lineId));
-        } else if (data.action === 'projectUpdated' && data.fields && data.fields.lastBudgetUpdate) {
+        } else if (
+          data.action === 'budgetUpdated' &&
+          data.projectId === activeProject?.projectId
+        ) {
           if (data.senderId === userId) return;
-          if (activeProject?.projectId) {
-            const header = await fetchBudgetHeader(activeProject.projectId);
-            if (header) {
-              setBudgetHeader(header);
-              const items = await fetchBudgetItems(header.budgetId, header.revision);
-              setBudgetItems(items);
-              computeGroupsAndClients(items, header);
-            }
-          }
-        } else if (data.action === 'budgetUpdated') {
-          if (data.senderId === userId) return;
-          if (activeProject?.projectId) {
-            const header = await fetchBudgetHeader(activeProject.projectId);
-            if (header) {
-              setBudgetHeader(header);
-              const items = await fetchBudgetItems(header.budgetId, header.revision);
-              setBudgetItems(items);
-              computeGroupsAndClients(items, header);
-            }
-          }
+          await refresh();
+        } else {
+          console.log('[BudgetPage] Ignoring websocket message', data);
         }
       } catch {
         // ignore parse errors
       }
     };
-    if (typeof ws.addEventListener === 'function') {
-      ws.addEventListener('message', handleMessage);
-      return () => ws.removeEventListener('message', handleMessage);
-    }
-    return undefined;
-  }, [ws, activeProject?.projectId, budgetHeader?.revision, userId, computeGroupsAndClients]);
+    ws.addEventListener('message', handleMessage);
+    return () => ws.removeEventListener('message', handleMessage);
+  }, [ws, activeProject?.projectId, budgetHeader?.revision, userId, refresh]);
 
   useEffect(() => {
     return () => {

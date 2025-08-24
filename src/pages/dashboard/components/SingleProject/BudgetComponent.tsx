@@ -78,6 +78,9 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
         const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
         if (data?.action === "budgetUpdated" && data.projectId === activeProject?.projectId) {
           refresh();
+        } else {
+          // Log other messages for debugging but skip refresh
+          console.log("[BudgetComponent] Ignoring websocket message", data);
         }
       } catch {
         // Ignore parse errors
@@ -183,7 +186,6 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
         setIsInvoicePreviewOpen(true);
       }
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error("Failed to load invoice", err);
     }
   };

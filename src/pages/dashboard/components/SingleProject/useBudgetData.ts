@@ -1,6 +1,31 @@
 import { useState, useEffect, useCallback } from "react";
 import { fetchBudgetHeader, fetchBudgetItems } from "../../../../utils/api";
 
+function shallowEqualObjects(
+  a: Record<string, unknown> | null,
+  b: Record<string, unknown> | null,
+): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  for (const key of keysA) {
+    if (a[key] !== b[key]) return false;
+  }
+  return true;
+}
+
+function shallowEqualArrays(a: unknown[], b: unknown[]): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
 type BudgetHeader = Record<string, unknown>;
 type BudgetItem = Record<string, unknown>;
 
@@ -98,8 +123,12 @@ export default function useBudgetData(projectId: string | undefined) {
       try {
         const { header, items } = await fetchData(projectId);
         if (!ignore) {
-          setBudgetHeader(header);
-          setBudgetItemsState(items);
+          setBudgetHeader((prev) =>
+            shallowEqualObjects(prev, header) ? prev : header,
+          );
+          setBudgetItemsState((prev) =>
+            shallowEqualArrays(prev, items) ? prev : items,
+          );
         }
       } catch (err) {
         console.error("Error fetching budget data", err);
@@ -122,8 +151,12 @@ export default function useBudgetData(projectId: string | undefined) {
     setLoading(true);
     try {
       const data = await fetchData(projectId, true);
-      setBudgetHeader(data.header);
-      setBudgetItemsState(data.items);
+      setBudgetHeader((prev) =>
+        shallowEqualObjects(prev, data.header) ? prev : data.header,
+      );
+      setBudgetItemsState((prev) =>
+        shallowEqualArrays(prev, data.items) ? prev : data.items,
+      );
       return data;
     } catch (err) {
       console.error("Error refreshing budget data", err);
@@ -136,7 +169,9 @@ export default function useBudgetData(projectId: string | undefined) {
   const setBudgetItems = useCallback(
     (items: BudgetItem[]) => {
       if (!projectId) return;
-      setBudgetItemsState(items);
+      setBudgetItemsState((prev) =>
+        shallowEqualArrays(prev, items) ? prev : items,
+      );
       const cached = budgetCache.get(projectId) || {
         header: null,
         items: [] as BudgetItem[],
@@ -154,6 +189,7 @@ export default function useBudgetData(projectId: string | undefined) {
           typeof headerOrUpdater === "function"
             ? (headerOrUpdater as (p: BudgetHeader | null) => BudgetHeader)(prev)
             : headerOrUpdater;
+        if (shallowEqualObjects(prev, next)) return prev;
         const cached = budgetCache.get(projectId) || {
           header: null,
           items: [] as BudgetItem[],
