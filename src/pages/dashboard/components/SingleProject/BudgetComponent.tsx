@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useSocketEvents } from "../../../../app/contexts/SocketContext";
+import { useChannel } from "../../../../hooks/useChannel";
 
 import { CircleDollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -53,7 +53,6 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
     loading: boolean;
   };
 
- const onSocketEvent = useSocketEvents();
   const navigate = useNavigate();
 
   // Pull only what we need; cast to any to avoid coupling with your context’s types
@@ -71,16 +70,14 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
     return () => window.removeEventListener("budgetUpdated", handleBudgetUpdated as EventListener);
   }, [activeProject?.projectId, refresh]);
 
-  // Listen for websocket budgetUpdated messages
-useEffect(() => {
-  const unsubscribe = onSocketEvent((data: any) => {
-    if (data?.action === "budgetUpdated" && data.projectId === activeProject?.projectId) {
+  // Listen for websocket budgetUpdated messages via channelStore
+  const budgetUpdate = useChannel(`budget:${activeProject?.projectId}`, null);
+  useEffect(() => {
+    if (budgetUpdate) {
       console.log("[BudgetComponent] budgetUpdated for project", activeProject?.projectId);
       refresh();
     }
-  });
-  return unsubscribe;
-}, [onSocketEvent, activeProject?.projectId, refresh]);
+  }, [budgetUpdate, activeProject?.projectId, refresh]);
   const [groupBy] = useState<"invoiceGroup" | "none">("invoiceGroup");
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
   const [invoiceRevision, setInvoiceRevision] = useState<BudgetHeader | null>(null);

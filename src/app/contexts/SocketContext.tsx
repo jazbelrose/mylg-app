@@ -16,6 +16,7 @@ import { WEBSOCKET_URL } from "../../utils/api";
 import { mergeAndDedupeMessages } from "../../utils/messageUtils";
 import { createSecureWebSocketConnection } from "../../utils/secureWebSocketAuth";
 import { logSecurityEvent } from "../../utils/securityUtils";
+import { channelStore } from "../../utils/channelStore";
 
 // ----- Types -----
 interface ExtendedWebSocket extends WebSocket {
@@ -239,6 +240,30 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             console.error("WS handler error:", e);
           }
         });
+
+        // ===== Channel Store Routing =====
+        // Route messages to specific channels based on action and data
+        const msg = data as any;
+        if (msg.action && msg.projectId) {
+          let channelKey: string | null = null;
+          
+          // Derive channel key based on message action
+          if (msg.action === "budgetUpdated") {
+            channelKey = `budget:${msg.projectId}`;
+          } else if (msg.action === "lineLocked" || msg.action === "lineUnlocked") {
+            // Route line lock/unlock messages to project-specific channel
+            channelKey = `lines:${msg.projectId}`;
+          }
+          // Add more action->channel mappings here as needed
+          // else if (msg.action === "timelineUpdated") {
+          //   channelKey = `timeline:${msg.projectId}`;
+          // }
+          
+          if (channelKey) {
+            console.log(`[ChannelStore] Routing message to channel: ${channelKey}`, msg);
+            channelStore.set(channelKey, msg);
+          }
+        }
 
         // Presence (guard array identity)
         if ((data as any).type === "onlineUsers" && Array.isArray((data as any).users)) {

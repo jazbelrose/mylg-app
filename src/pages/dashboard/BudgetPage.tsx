@@ -33,6 +33,7 @@ import BudgetChart from "./components/SingleProject/BudgetChart";
 import BudgetToolbar from "./components/SingleProject/BudgetToolbar";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
+import { useChannel } from "../../hooks/useChannel";
 import { normalizeMessage } from "../../utils/websocketUtils";
 import { findProjectBySlug, slugify } from "../../utils/slug";
 import { formatUSD } from "../../utils/budgetUtils";
@@ -1299,41 +1300,30 @@ const BudgetPage = () => {
     refresh();
   }, [refresh]);
 
+  // Listen for budget updates via channelStore
+  const budgetUpdate = useChannel(`budget:${activeProject?.projectId}`, null);
   useEffect(() => {
-    if (!ws) return;
-    const handleMessage = async (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (
-          data.action === 'lineLocked' &&
-          data.projectId === activeProject?.projectId &&
-          data.revision === budgetHeader?.revision
-        ) {
-          if (data.senderId === userId) return;
-          setLockedLines((prev) => (prev.includes(data.lineId) ? prev : [...prev, data.lineId]));
-        } else if (
-          data.action === 'lineUnlocked' &&
-          data.projectId === activeProject?.projectId &&
-          data.revision === budgetHeader?.revision
-        ) {
-          if (data.senderId === userId) return;
-          setLockedLines((prev) => prev.filter((id) => id !== data.lineId));
-        } else if (
-          data.action === 'budgetUpdated' &&
-          data.projectId === activeProject?.projectId
-        ) {
-          if (data.senderId === userId) return;
-          await refresh();
-        } else {
-          console.log('[BudgetPage] Ignoring websocket message', data);
-        }
-      } catch {
-        // ignore parse errors
-      }
-    };
-    ws.addEventListener('message', handleMessage);
-    return () => ws.removeEventListener('message', handleMessage);
-  }, [ws, activeProject?.projectId, budgetHeader?.revision, userId, refresh]);
+    if (budgetUpdate && budgetUpdate.senderId !== userId) {
+      console.log('[BudgetPage] budgetUpdated for project', activeProject?.projectId);
+      refresh();
+    }
+  }, [budgetUpdate, activeProject?.projectId, userId, refresh]);
+
+  // Listen for line locking/unlocking via channelStore
+  const lineUpdate = useChannel(`lines:${activeProject?.projectId}`, null);
+  useEffect(() => {
+    if (!lineUpdate || lineUpdate.senderId === userId) return;
+
+    if (lineUpdate.action === 'lineLocked' && 
+        lineUpdate.projectId === activeProject?.projectId &&
+        lineUpdate.revision === budgetHeader?.revision) {
+      setLockedLines((prev) => (prev.includes(lineUpdate.lineId) ? prev : [...prev, lineUpdate.lineId]));
+    } else if (lineUpdate.action === 'lineUnlocked' &&
+               lineUpdate.projectId === activeProject?.projectId &&
+               lineUpdate.revision === budgetHeader?.revision) {
+      setLockedLines((prev) => prev.filter((id) => id !== lineUpdate.lineId));
+    }
+  }, [lineUpdate, activeProject?.projectId, budgetHeader?.revision, userId]);
 
   useEffect(() => {
     return () => {
