@@ -477,6 +477,12 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           return;
         }
 
+        // Suppress known but unhandled actions (handled elsewhere)
+        const action = (data as { action?: string }).action;
+        if (action === "lineLocked" || action === "lineUnlocked" || action === "budgetUpdated") {
+          return;
+        }
+
         // Unexpected
         console.warn("⚠️ Unexpected message from server:", data);
       };
