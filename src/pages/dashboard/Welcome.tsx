@@ -7,7 +7,7 @@ import WelcomeHeader from "./components/Welcome/WelcomeHeader";
 import WelcomeWidget from "./components/Welcome/WelcomeWidget";
 import NavigationSidebar from "./components/Welcome/NavigationSidebar";
 import TopBar from "./components/Welcome/TopBar";
-import RecentActivity from "./components/Welcome/RecentActivity";
+
 import AllProjects from "./AllProjects";
 import NotificationsPage from "./components/NotificationsPage";
 import Messages from "./components/Messages";
@@ -158,7 +158,7 @@ const WelcomeScreen: React.FC = () => {
             {!isFullWidthView && (
               <div className="quickstats-sidebar">
                 <WelcomeWidget setActiveView={setActiveView} setDmUserSlug={setDmUserSlug} />
-                <RecentActivity />
+                
               </div>
             )}
 
