@@ -1407,10 +1407,15 @@ const BudgetPage = () => {
   };
 
 
-  const handleCreateLineItem = async (data) => {
+  const handleCreateLineItem = async (data, isAutoSave = false) => {
+    if (data.budgetItemId) {
+      return await handleEditLineItem(data, isAutoSave);
+    }
     if (!activeProject?.projectId || !budgetHeader?.budgetId) return;
-    // Close the modal immediately so the UI feels responsive
-    closeCreateModal();
+    if (!isAutoSave) {
+      // Close the modal immediately so the UI feels responsive
+      closeCreateModal();
+    }
     pushHistory();
     try {
       const normalized = {
@@ -1448,9 +1453,9 @@ const BudgetPage = () => {
           await updateBudgetItem(
             activeProject.projectId,
             budgetHeader.budgetItemId,
-           { clients: newClients, revision: budgetHeader.revision }
+            { clients: newClients, revision: budgetHeader.revision }
           );
-          
+
           setBudgetHeader((prev) => (prev ? { ...prev, clients: newClients } : prev));
         } catch (err) {
           console.error('Error updating clients list', err);
@@ -1459,15 +1464,19 @@ const BudgetPage = () => {
       }
       await syncHeaderTotals(updated);
       emitBudgetUpdate();
+      return { budgetItemId: item.budgetItemId };
     } catch (err) {
       console.error('Error creating line item:', err);
     }
+    return null;
   };
 
-  const handleEditLineItem = async (data) => {
-    if (!activeProject?.projectId || !editItem) return;
-    // Close the modal immediately so the user doesn't wait for the request
-    closeCreateModal();
+  const handleEditLineItem = async (data, isAutoSave = false) => {
+    if (!activeProject?.projectId || !data.budgetItemId) return;
+    if (!isAutoSave) {
+      // Close the modal immediately so the user doesn't wait for the request
+      closeCreateModal();
+    }
     pushHistory();
     try {
       const normalized = {
@@ -1478,7 +1487,7 @@ const BudgetPage = () => {
       };
       const updatedItem = await updateBudgetItem(
         activeProject.projectId,
-        editItem.budgetItemId,
+        data.budgetItemId,
         { ...normalized, revision: budgetHeader.revision }
       );
       const updatedList = budgetItems.map((it) =>
@@ -1508,9 +1517,11 @@ const BudgetPage = () => {
       }
       await syncHeaderTotals(updatedList);
       emitBudgetUpdate();
+      return { budgetItemId: updatedItem.budgetItemId };
     } catch (err) {
       console.error('Error updating line item:', err);
     }
+    return null;
   };
 
   if (!isAdmin) {
@@ -1588,8 +1599,10 @@ const BudgetPage = () => {
       <CreateLineItemModal
         isOpen={isCreateModalOpen}
         onRequestClose={closeCreateModal}
-        onSubmit={(d) =>
-          editItem ? handleEditLineItem(d) : handleCreateLineItem(d)
+        onSubmit={(d, isAutoSave) =>
+          editItem
+            ? handleEditLineItem(d, isAutoSave)
+            : handleCreateLineItem(d, isAutoSave)
         }
         defaultElementKey={nextElementKey}
         budgetItems={budgetItems}

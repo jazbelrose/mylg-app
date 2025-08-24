@@ -63,7 +63,7 @@ export interface ItemForm {
 export interface CreateLineItemModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
-  onSubmit?: (data: ItemForm) => Promise<{ budgetItemId?: string } | void | null>;
+  onSubmit?: (data: ItemForm, isAutoSave?: boolean) => Promise<{ budgetItemId?: string } | void | null>;
   defaultElementKey?: string;
   budgetItems?: Array<Partial<ItemForm>>;
   areaGroupOptions?: string[];
@@ -379,7 +379,7 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
     }
   };
 
-  const submitItem = async () => {
+  const submitItem = async (isAutoSave = false) => {
     const data: ItemForm = { ...item };
 
     ([
@@ -409,13 +409,13 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
     data.revision = revision;
 
     if (onSubmit) {
-      return await onSubmit(data);
+      return await onSubmit(data, isAutoSave);
     }
     return null;
   };
 
-  const persistItem = async () => {
-    const result = await submitItem();
+  const persistItem = async (isAutoSave = false) => {
+    const result = await submitItem(isAutoSave);
     const savedItem =
       result && (result as any).budgetItemId
         ? { ...item, budgetItemId: (result as any).budgetItemId }
@@ -424,7 +424,9 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
     if ((result as any)?.budgetItemId && !item.budgetItemId) {
       setItem(savedItem);
     }
-    setInitialItemString(JSON.stringify(savedItem));
+    
+    const newInitialString = JSON.stringify(savedItem);
+    setInitialItemString(newInitialString);
     return result;
   };
 
@@ -433,11 +435,15 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
       clearTimeout(autosaveTimer.current);
       autosaveTimer.current = null;
     }
-    if (JSON.stringify(item) !== initialItemString) {
+    
+    const currentItemString = JSON.stringify(item);
+    const hasChanges = currentItemString !== initialItemString;
+    
+    if (hasChanges) {
       if (initialData) {
         setShowUnsavedConfirm(true);
       } else {
-        await persistItem();
+        await persistItem(false); // explicit save when closing, not autosave
         onRequestClose();
       }
     } else {
@@ -446,7 +452,7 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
   };
 
   const confirmSave = async () => {
-    await persistItem();
+    await persistItem(false); // explicit save, not autosave
     setShowUnsavedConfirm(false);
     onRequestClose();
   };
@@ -458,7 +464,8 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    await persistItem();
+    e.stopPropagation();
+    await persistItem(false); // explicit form submit, not autosave
   };
 
   /* ------------------------- Autosave & Shortcuts ------------------------- */
@@ -470,7 +477,7 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
 
     if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
     autosaveTimer.current = setTimeout(() => {
-      void persistItem();
+      void persistItem(true); // this is autosave
     }, 1000);
 
     return () => {
@@ -483,7 +490,7 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        void persistItem();
+        void persistItem(false); // keyboard shortcut save, not autosave
       }
     };
     document.addEventListener("keydown", handleKeyDown);
@@ -527,6 +534,8 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
         onRequestClose={handleClose}
         contentLabel={title}
         closeTimeoutMS={300}
+        shouldCloseOnOverlayClick={true}
+        shouldCloseOnEsc={true}
         className={{
           base: styles.modalContent,
           afterOpen: styles.modalContentAfterOpen,
@@ -564,7 +573,7 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
               name: f.name,
               value: (item as any)[f.name] as any,
               onChange: handleChange,
-              disabled,
+              disabled: !!disabled,
             };
 
             return (
@@ -609,17 +618,35 @@ const CreateLineItemModal: React.FC<CreateLineItemModalProps> = ({
                       </select>
                     )
                   ) : f.type === "number" || f.type === "date" ? (
-                    <input type={f.type} {...commonProps} />
+                    <input 
+                      type={f.type} 
+                      {...commonProps}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                        }
+                      }}
+                    />
                   ) : f.type === "textarea" ? (
                     <textarea
                       {...commonProps}
                       className={f.name === "description" ? styles.descriptionInput : undefined}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                        }
+                      }}
                     />
                   ) : (
                     // text / currency / percent
                     <input
                       type="text"
                       {...commonProps}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                        }
+                      }}
                       onBlur={
                         f.type && ["currency", "percent"].includes(f.type)
                           ? handleBlur
