@@ -44,7 +44,7 @@ const Logitech = () => {
 
 
 
-    let worksRefs = useRef([]);
+    const worksRefs = useRef([]);
     const maxPosts = 16;
     const [displayedWorks, setDisplayedWorks] = useState([]);
      const [svgReady, setSvgReady] = useState(false);

@@ -21,7 +21,7 @@ const SensC = () => {
 
   const imageUrls = senscData; 
   
-  let galleryRefs = useRef([]);
+  const galleryRefs = useRef([]);
   const { isLoading, setIsLoading, opacity } = useData();
   const opacityClass = opacity === 1 ? 'opacity-high' : 'opacity-low';
   const { isHeaderVisible, updateHeaderVisibility } = useScrollContext();

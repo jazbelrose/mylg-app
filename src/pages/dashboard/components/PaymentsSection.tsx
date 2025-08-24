@@ -1,45 +1,59 @@
-import React from 'react';
-import { Download } from 'lucide-react';
+import React from "react";
+import { Download } from "lucide-react";
 
-// Light types to keep the compiler happy without over-specifying shapes
-type Project = any;
-type TimelineMode = any;
-type QuickLinksRef = any;
+type Invoice = { url: string; fileName?: string };
+type BillingDetail = Record<string, unknown>; // refine if you have a shape
 
-const PaymentsSection = ({ lastInvoiceDate, lastInvoiceAmount, invoiceList = [], projectBillingDetails = [] }: {
-    lastInvoiceDate: string | null;
-    lastInvoiceAmount: string | null;
-    invoiceList: { url: string; fileName?: string }[];
-    projectBillingDetails: any[];
+interface PaymentsSectionProps {
+  lastInvoiceDate?: string | null;
+  lastInvoiceAmount?: string | null;
+  invoiceList?: Invoice[];
+  projectBillingDetails?: BillingDetail[];
+}
+
+const formatDate = (iso?: string | null) => {
+  if (!iso) return "N/A";
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "N/A" : d.toLocaleDateString();
+};
+
+const PaymentsSection: React.FC<PaymentsSectionProps> = ({
+  lastInvoiceDate = null,
+  lastInvoiceAmount = null,
+  invoiceList = [],
+  projectBillingDetails = [], // reserved for future use
 }) => {
-    const formattedDate = lastInvoiceDate ? new Date(lastInvoiceDate).toLocaleDateString() : 'N/A';
-    return (
-        <div className="payments-section">
-            <h2>Payments &amp; Invoices</h2>
-            <div className="payments-line-one">
-                <span className="last-invoice-label">Last Invoice:</span>
-                <span className="last-invoice-value">
-                    {formattedDate} - {lastInvoiceAmount || ''}
-                </span>
+  return (
+    <div className="payments-section">
+      <h2>Payments &amp; Invoices</h2>
+
+      <div className="payments-line-one">
+        <span className="last-invoice-label">Last Invoice:</span>
+        <span className="last-invoice-value">
+          {formatDate(lastInvoiceDate)}
+          {lastInvoiceAmount ? ` - ${lastInvoiceAmount}` : ""}
+        </span>
+      </div>
+
+      <div className="invoice-list">
+        {invoiceList.length > 0 ? (
+          invoiceList.map((inv) => (
+            <div className="invoice-item" key={inv.url}>
+              <a href={inv.url} download>
+                <Download size={16} /> {inv.fileName ?? "Invoice"}
+              </a>
             </div>
-            <div className="invoice-list">
-                {invoiceList.length > 0 ? (
-                    invoiceList.map((inv, idx) => (
-                        <div className="invoice-item" key={idx}>
-                            <a href={inv.url} download>
-                                <Download size={16} /> {inv.fileName || `Invoice ${idx + 1}`}
-                            </a>
-                        </div>
-                    ))
-                ) : (
-                    <span>No invoices</span>
-                )}
-            </div>
-            <div className="future-payment-method">
-                Add payment method <span className="coming-soon-badge">coming soon</span>
-            </div>
-        </div>
-    );
+          ))
+        ) : (
+          <span>No invoices</span>
+        )}
+      </div>
+
+      <div className="future-payment-method">
+        Add payment method <span className="coming-soon-badge">coming soon</span>
+      </div>
+    </div>
+  );
 };
 
 export default PaymentsSection;

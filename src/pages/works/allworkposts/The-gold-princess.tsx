@@ -22,7 +22,7 @@ const TheGoldPrincess = () => {
      const canonicalUrl = "https://mylg.studio/works/The-gold-princess";
 
 
-  let galleryRefs = useRef([]);
+  const galleryRefs = useRef([]);
   const imageUrls = goldPrincessData; // Use the goldPrincessData for image URLs
   const { isLoading, setIsLoading, opacity } = useData();
   const opacityClass = opacity === 1 ? 'opacity-high' : 'opacity-low';
