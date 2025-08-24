@@ -52,6 +52,7 @@ import {
   S3_PUBLIC_BASE,
   apiFetch,
 } from "../../../utils/api";
+import MessageItem from "./SingleProject/MessageItem"; // <-- replaced require with import
 import "./SingleProject/ProjectMessagesThread.css";
 
 // Accessibility binding
@@ -319,7 +320,9 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
     const all = Array.isArray(userData?.messages) ? userData.messages! : [];
     const convMsgs = all.filter((m) => m.conversationId === selectedConversation);
     const filtered = convMsgs.filter(
-      (m) => !(deletedMessageIds.has(m.messageId || "") || deletedMessageIds.has(m.optimisticId || ""))
+      (m) =>
+        !(deletedMessageIds.has(m.messageId || "") ||
+          deletedMessageIds.has(m.optimisticId || ""))
     );
     return dedupeById(
       filtered.map((m) => ({ ...m, read: true }))
@@ -354,6 +357,21 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
     }
   };
 
+  const markConversationAsRead = (conversationId: string) => {
+    setUserData((prev) => {
+      if (!prev || !Array.isArray(prev.messages)) return prev as any;
+      const updated = prev.messages.map((m) =>
+        m.conversationId === conversationId ? { ...m, read: true } : m
+      );
+      return { ...(prev as AppUser), messages: updated };
+    });
+    setDmReadStatus((prev) => ({
+      ...prev,
+      [conversationId]: new Date().toISOString(),
+    }));
+    persistReadStatus(conversationId);
+  };
+
   const openConversation = async (conversationId: string) => {
     const [a, b] = conversationId.replace("dm#", "").split("___");
     const otherId = a === userData.userId ? b : a;
@@ -377,21 +395,6 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
       prev.map((t) => (t.conversationId === conversationId ? { ...t, read: true } : t))
     );
     markConversationAsRead(conversationId);
-  };
-
-  const markConversationAsRead = (conversationId: string) => {
-    setUserData((prev) => {
-      if (!prev || !Array.isArray(prev.messages)) return prev as any;
-      const updated = prev.messages.map((m) =>
-        m.conversationId === conversationId ? { ...m, read: true } : m
-      );
-      return { ...(prev as AppUser), messages: updated };
-    });
-    setDmReadStatus((prev) => ({
-      ...prev,
-      [conversationId]: new Date().toISOString(),
-    }));
-    persistReadStatus(conversationId);
   };
 
   const openPreviewModal = (file: DMFile) => {
@@ -561,7 +564,10 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
     const timestamp = new Date().toISOString();
     const optimisticId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-    const messageData: Omit<DMMessage, "read"> & { action: string; conversationType: "dm" } = {
+    const messageData: Omit<DMMessage, "read"> & {
+      action: string;
+      conversationType: "dm";
+    } = {
       action: "sendMessage",
       conversationType: "dm",
       conversationId: selectedConversation,
@@ -820,7 +826,7 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
         });
       }
 
-      // delete from store
+      // delete from store/server
       if (message.messageId) {
         const url =
           `${DELETE_DM_MESSAGE_URL}?` +
@@ -1169,27 +1175,22 @@ const Messages: React.FC<MessagesProps> = ({ initialUserSlug = null }) => {
                 No messages yet.
               </div>
             ) : (
-              messages.map((msg, index) => {
-                // Lazy import to keep types local, or import at top if preferred
-                const MessageItem =
-                  require("./SingleProject/MessageItem").default as React.ComponentType<any>;
-                return (
-                  <MessageItem
-                    key={msg.optimisticId || msg.messageId || msg.timestamp}
-                    msg={msg}
-                    prevMsg={messages[index - 1]}
-                    userData={userData}
-                    allUsers={allUsers}
-                    openPreviewModal={openPreviewModal}
-                    folderKey={folderKey}
-                    renderFilePreview={renderFilePreview}
-                    getFileNameFromUrl={getFileNameFromUrl}
-                    onDelete={(m: DMMessage) => setDeleteTarget(m)}
-                    onEditRequest={(m: DMMessage) => setEditTarget(m)}
-                    onReact={reactToMessage}
-                  />
-                );
-              })
+              messages.map((msg, index) => (
+                <MessageItem
+                  key={msg.optimisticId || msg.messageId || msg.timestamp}
+                  msg={msg}
+                  prevMsg={messages[index - 1]}
+                  userData={userData}
+                  allUsers={allUsers}
+                  openPreviewModal={openPreviewModal}
+                  folderKey={folderKey}
+                  renderFilePreview={renderFilePreview}
+                  getFileNameFromUrl={getFileNameFromUrl}
+                  onDelete={(m: DMMessage) => setDeleteTarget(m)}
+                  onEditRequest={(m: DMMessage) => setEditTarget(m)}
+                  onReact={reactToMessage}
+                />
+              ))
             )}
             <div ref={messagesEndRef} />
           </div>
