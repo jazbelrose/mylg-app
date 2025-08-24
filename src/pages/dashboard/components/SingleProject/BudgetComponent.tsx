@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useSocket } from "../../../../app/contexts/SocketContext";
+import { useSocketEvents } from "../../../../app/contexts/SocketContext";
+
 import { CircleDollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useData } from "../../../../app/contexts/DataProvider";
@@ -52,7 +53,7 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
     loading: boolean;
   };
 
-  const { ws } = useSocket() as { ws?: WebSocket | null };
+ const onSocketEvent = useSocketEvents();
   const navigate = useNavigate();
 
   // Pull only what we need; cast to any to avoid coupling with your context’s types
@@ -71,29 +72,15 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
   }, [activeProject?.projectId, refresh]);
 
   // Listen for websocket budgetUpdated messages
-  useEffect(() => {
-    if (!ws) return;
-
-    const onMessage = (event: MessageEvent) => {
-      try {
-        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-        console.log("[WebSocket] Received message:", data); // Log all WebSocket messages
-
-        if (data?.action === "budgetUpdated" && data.projectId === activeProject?.projectId) {
-          console.log("[WebSocket] budgetUpdated action detected for project:", activeProject?.projectId);
-          refresh();
-        } else {
-          console.log("[WebSocket] Ignoring message:", data);
-        }
-      } catch (error) {
-        console.error("[WebSocket] Error parsing message:", error);
-      }
-    };
-
-    ws.addEventListener("message", onMessage);
-    return () => ws.removeEventListener("message", onMessage);
-  }, [ws, activeProject?.projectId, refresh]);
-
+useEffect(() => {
+  const unsubscribe = onSocketEvent((data: any) => {
+    if (data?.action === "budgetUpdated" && data.projectId === activeProject?.projectId) {
+      console.log("[BudgetComponent] budgetUpdated for project", activeProject?.projectId);
+      refresh();
+    }
+  });
+  return unsubscribe;
+}, [onSocketEvent, activeProject?.projectId, refresh]);
   const [groupBy] = useState<"invoiceGroup" | "none">("invoiceGroup");
   const [isInvoicePreviewOpen, setIsInvoicePreviewOpen] = useState(false);
   const [invoiceRevision, setInvoiceRevision] = useState<BudgetHeader | null>(null);
