@@ -1053,7 +1053,10 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
 
           <div className="right-side">
             <div className="project-nav-tabs" style={{ padding: "0 10px 10px" }}>
-              <ProjectTabs projectSlug={projectSlug} />
+              <ProjectTabs
+                projectSlug={projectSlug}
+                projectId={activeProject?.projectId}
+              />
             </div>
           </div>
         </div>
@@ -1667,7 +1670,10 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = ({
 // -----------------------
 // Project Tabs Component
 // -----------------------
-const ProjectTabs: React.FC<{ projectSlug: string }> = ({ projectSlug }) => {
+const ProjectTabs: React.FC<{ projectSlug: string; projectId?: string }> = ({
+  projectSlug,
+  projectId,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const tabRefs = useRef<HTMLButtonElement[]>([]);
@@ -1679,11 +1685,14 @@ const ProjectTabs: React.FC<{ projectSlug: string }> = ({ projectSlug }) => {
 
   const getActiveIndex = useCallback(() => {
     const base = `/dashboard/projects/${projectSlug}`;
-    if (location.pathname.startsWith(`${base}/budget`)) return 1;
+    const budgetBase = projectId
+      ? `/dashboard/projects/${projectId}/budget`
+      : `${base}/budget`;
+    if (location.pathname.startsWith(budgetBase)) return 1;
     if (location.pathname.startsWith(`${base}/calendar`)) return 2;
     if (location.pathname.startsWith(`${base}/editor`)) return 3;
     return 0;
-  }, [location.pathname, projectSlug]);
+  }, [location.pathname, projectSlug, projectId]);
 
   const getFromIndex = useCallback(() => {
     // @ts-expect-error - react-router state shape is app-specific
@@ -1730,6 +1739,9 @@ const ProjectTabs: React.FC<{ projectSlug: string }> = ({ projectSlug }) => {
   const showBudgetTab = isAdmin;
   const showCalendarTab = isAdmin || isDesigner;
   const showEditorTab = isAdmin || isDesigner;
+  const budgetPath = projectId
+    ? `/dashboard/projects/${projectId}/budget`
+    : `/dashboard/projects/${projectSlug}/budget`;
 
   return (
     <div
@@ -1769,20 +1781,14 @@ const ProjectTabs: React.FC<{ projectSlug: string }> = ({ projectSlug }) => {
           type="button"
           ref={(el) => el && (tabRefs.current[1] = el)}
           onClick={() =>
-            navigate(`/dashboard/projects/${projectSlug}/budget`, {
+            navigate(budgetPath, {
               state: { fromTab: getActiveIndex() },
             })
           }
           className={
-            location.pathname.startsWith(
-              `/dashboard/projects/${projectSlug}/budget`
-            )
-              ? "active"
-              : ""
+            location.pathname.startsWith(budgetPath) ? "active" : ""
           }
-          aria-pressed={location.pathname.startsWith(
-            `/dashboard/projects/${projectSlug}/budget`
-          )}
+          aria-pressed={location.pathname.startsWith(budgetPath)}
         >
           <Coins size={16} />
           <span>Budget</span>

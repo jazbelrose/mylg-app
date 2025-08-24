@@ -23,7 +23,9 @@ const Dashboard = React.lazy(() => import("../pages/dashboard"));
 const DashboardWelcome = React.lazy(() => import("../pages/dashboard/Welcome"));
 const DashboardNewProject = React.lazy(() => import("../pages/dashboard/NewProject"));
 const DashboardSingleProject = React.lazy(() => import("../pages/dashboard/SingleProject"));
-const DashboardBudgetPage = React.lazy(() => import("../pages/dashboard/BudgetPage"));
+const DashboardBudgetPage = React.lazy(
+  () => import("../pages/dashboard/components/BudgetPage/BudgetPage")
+);
 const DashboardCalendarPage = React.lazy(() => import("../pages/dashboard/CalendarPage"));
 const DashboardEditorPage = React.lazy(() => import("../pages/dashboard/editorPage"));
 
@@ -191,7 +193,7 @@ const ActualRoutes: React.FC<ActualRoutesProps> = ({ location }) => {
           }
         >
           <Route path="projects/:projectSlug" element={<DashboardSingleProject />} />
-          <Route path="projects/:projectSlug/budget" element={<DashboardBudgetPage />} />
+          <Route path="projects/:projectId/budget" element={<DashboardBudgetPage />} />
           <Route path="projects/:projectSlug/calendar" element={<DashboardCalendarPage />} />
           <Route path="projects/:projectSlug/editor" element={<DashboardEditorPage />} />
           <Route path="new" element={<DashboardNewProject />} />
