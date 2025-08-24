@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useMemo, useRef } from "react";
 import { Pie } from "@visx/shape";
 import type { ProvidedProps, PieArcDatum } from "@visx/shape/lib/types";
 import { Group } from "@visx/group";
@@ -13,6 +13,49 @@ import {
   getColor,
 } from "../../../../utils/colorUtils";
 import { useData } from "../../../../app/contexts/DataProvider";
+
+// Custom hook to track previous value
+function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T>();
+  React.useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
+// Shallow comparison utility for props
+function shallowEqual(obj1: any, obj2: any): boolean {
+  if (obj1 === obj2) return true;
+  if (!obj1 || !obj2) return false;
+  if (typeof obj1 !== "object" || typeof obj2 !== "object") return false;
+  
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  
+  if (keys1.length !== keys2.length) return false;
+  
+  for (const key of keys1) {
+    if (obj1[key] !== obj2[key]) return false;
+  }
+  
+  return true;
+}
+
+// Custom comparator for React.memo
+function arePropsEqual(prevProps: VisxPieChartProps, nextProps: VisxPieChartProps): boolean {
+  return (
+    prevProps.total === nextProps.total &&
+    shallowEqual(prevProps.data, nextProps.data) &&
+    shallowEqual(prevProps.colors, nextProps.colors) &&
+    prevProps.formatTooltip === nextProps.formatTooltip &&
+    prevProps.donutRatio === nextProps.donutRatio &&
+    prevProps.baseColor === nextProps.baseColor &&
+    prevProps.colorMode === nextProps.colorMode &&
+    prevProps.projectId === nextProps.projectId &&
+    prevProps.onSliceHover === nextProps.onSliceHover &&
+    prevProps.hoveredSlice === nextProps.hoveredSlice
+  );
+}
 
 const EXPLODE_PX = 8;
 
@@ -29,11 +72,9 @@ interface AnimatedArcProps {
   arc: PieArcDatum<PieDatum>;
   pie: ProvidedProps<PieDatum>;
   color: string;
-  showTooltip: (args: { tooltipData: PieDatum; tooltipLeft: number; tooltipTop: number }) => void;
-  hideTooltip: () => void;
+  onSliceHover?: (slice: PieDatum | null, event?: { x: number; y: number }) => void;
+  hoveredSlice?: PieDatum | null;
   containerRef: React.RefObject<HTMLDivElement>;
-  clampTooltip: (x: number, y: number, tooltipWidth?: number, tooltipHeight?: number) => ClampResult;
-  rafRef: React.MutableRefObject<number | null>;
   explodePx?: number;
 }
 
@@ -41,23 +82,37 @@ function AnimatedArc({
   arc,
   pie,
   color,
-  showTooltip,
-  hideTooltip,
+  onSliceHover,
+  hoveredSlice,
   containerRef,
-  clampTooltip,
-  rafRef,
   explodePx = EXPLODE_PX,
 }: AnimatedArcProps) {
   const [springs, api] = useSpring(() => ({
-    startAngle: 0,
-    endAngle: 0,
+    startAngle: arc.startAngle,
+    endAngle: arc.endAngle,
     x: 0,
     y: 0,
   }));
 
+  // Get previous arc data to detect changes
+  const prevArc = usePrevious(arc);
+  
+  // Only animate when arc data actually changes
   React.useEffect(() => {
-    api.start({ startAngle: arc.startAngle, endAngle: arc.endAngle });
-  }, [arc, api]);
+    if (prevArc && (
+      prevArc.startAngle !== arc.startAngle ||
+      prevArc.endAngle !== arc.endAngle ||
+      prevArc.value !== arc.value
+    )) {
+      api.start({ 
+        startAngle: arc.startAngle, 
+        endAngle: arc.endAngle 
+      });
+    }
+  }, [arc, prevArc, api]);
+
+  // Check if this slice is currently hovered
+  const isHovered = hoveredSlice && hoveredSlice.name === arc.data.name;
 
   const pathD: SpringValue<string> = springTo(
     [springs.startAngle as SpringValue<number>, springs.endAngle as SpringValue<number>],
@@ -72,45 +127,51 @@ function AnimatedArc({
   );
   const isSingle = pie.arcs.length === 1;
 
+  // Handle hover animation effect
+  React.useEffect(() => {
+    if (isHovered) {
+      if (isSingle) {
+        api.start({
+          startAngle: arc.startAngle - 0.01,
+          endAngle: arc.endAngle + 0.01,
+        });
+      } else {
+        api.start({ x: (cx / len) * explodePx, y: (cy / len) * explodePx });
+      }
+    } else {
+      api.start(
+        isSingle
+          ? { startAngle: arc.startAngle, endAngle: arc.endAngle }
+          : { x: 0, y: 0 }
+      );
+    }
+  }, [isHovered, api, arc, cx, cy, len, explodePx, isSingle]);
+
   return (
     <animated.g
       transform={translate}
-      onMouseEnter={() => {
-        if (isSingle) {
-          api.start({
-            startAngle: arc.startAngle - 0.01,
-            endAngle: arc.endAngle + 0.01,
-          });
-        } else {
-          api.start({ x: (cx / len) * explodePx, y: (cy / len) * explodePx });
+      onMouseEnter={(e) => {
+        if (onSliceHover) {
+          const rect = containerRef.current?.getBoundingClientRect();
+          const pt = localPoint(e) || { x: 0, y: 0 };
+          const screenX = rect ? rect.left + pt.x : pt.x;
+          const screenY = rect ? rect.top + pt.y : pt.y;
+          onSliceHover(arc.data, { x: screenX, y: screenY });
         }
       }}
       onMouseMove={(e) => {
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        rafRef.current = requestAnimationFrame(() => {
+        if (onSliceHover && isHovered) {
+          const rect = containerRef.current?.getBoundingClientRect();
           const pt = localPoint(e) || { x: 0, y: 0 };
-          const host = containerRef.current;
-          if (host) {
-            const rect = host.getBoundingClientRect();
-            const screenX = rect.left + pt.x;
-            const screenY = rect.top + pt.y;
-            const { left, top } = clampTooltip(screenX, screenY);
-            showTooltip({
-              tooltipData: arc.data,
-              tooltipLeft: left,
-              tooltipTop: top,
-            });
-          }
-        });
+          const screenX = rect ? rect.left + pt.x : pt.x;
+          const screenY = rect ? rect.top + pt.y : pt.y;
+          onSliceHover(arc.data, { x: screenX, y: screenY });
+        }
       }}
       onMouseLeave={() => {
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        api.start(
-          isSingle
-            ? { startAngle: arc.startAngle, endAngle: arc.endAngle }
-            : { x: 0, y: 0 }
-        );
-        hideTooltip();
+        if (onSliceHover) {
+          onSliceHover(null);
+        }
       }}
       style={{ cursor: "pointer" }}
     >
@@ -138,10 +199,13 @@ export interface VisxPieChartProps {
   baseColor?: string;
   colorMode?: "sequential" | "categorical";
   projectId?: string;
+  // External hover state management
+  onSliceHover?: (slice: PieDatum | null, event?: { x: number; y: number }) => void;
+  hoveredSlice?: PieDatum | null;
 }
 
 // Generic pie/donut chart rendered with visx. Used by budget components and header summaries.
-export default function VisxPieChart({
+function VisxPieChart({
   data,
   total,
   formatTooltip = (d) => `${d.name}: ${formatUSD(d.value)}`,
@@ -150,6 +214,8 @@ export default function VisxPieChart({
   baseColor,
   colorMode = "sequential",
   projectId,
+  onSliceHover,
+  hoveredSlice,
 }: VisxPieChartProps) {
   const { activeProject } = useData();
   const projectBase =
@@ -157,43 +223,45 @@ export default function VisxPieChart({
     activeProject?.color ||
     (projectId ? getColor(projectId) : "#3b82f6");
 
-  const palette = React.useMemo<string[]>(() => {
+  // Memoize expensive palette computation
+  const palette = useMemo<string[]>(() => {
     if (colors && colors.length) return colors;
     if (colorMode === "categorical") {
       return data.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]);
     }
     // For sequential palettes, ensure the darkest color corresponds to the largest value.
     return generateSequentialPalette(projectBase, data.length).reverse();
-  }, [colors, colorMode, projectBase, data]);
+  }, [colors, colorMode, projectBase, data.length]); // Use data.length instead of data reference
 
-  const containerRef = React.useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // useTooltip for state/handlers
-  const {
-    tooltipOpen,
-    tooltipLeft = 0,
-    tooltipTop = 0,
-    tooltipData,
-    showTooltip,
-    hideTooltip,
-  } = useTooltip<PieDatum>();
+  // Memoize pie computations - only recalculate when data or donutRatio changes
+  const pieComputations = useMemo(() => {
+    return {
+      isSingle: data.length === 1,
+      sortedData: colorMode === "sequential" ? [...data].sort((a, b) => b.value - a.value) : data,
+    };
+  }, [data, colorMode]);
 
-  // useTooltipInPortal for portal rendering
+  // Internal tooltip state for backward compatibility when external hover is not provided
+  const internalTooltip = useTooltip<PieDatum>();
   const { TooltipInPortal } = useTooltipInPortal({
     scroll: true,
     containerRef,
   });
 
-  // Throttle mouse move with requestAnimationFrame
-  const rafRef = React.useRef<number | null>(null);
+  // Use external hover state if provided, otherwise fall back to internal tooltip
+  const isUsingExternalHover = onSliceHover && hoveredSlice !== undefined;
+  const tooltipData = isUsingExternalHover ? hoveredSlice : internalTooltip.tooltipData;
+  const showingTooltip = isUsingExternalHover ? !!hoveredSlice : internalTooltip.tooltipOpen;
 
-  // Clamp tooltip to viewport
-  function clampTooltip(
+  // Clamp tooltip to viewport (only used with internal tooltip)
+  const clampTooltip = React.useCallback((
     x: number,
     y: number,
     tooltipWidth = 160,
     tooltipHeight = 40
-  ): ClampResult {
+  ): ClampResult => {
     const offset = 8;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
@@ -204,12 +272,25 @@ export default function VisxPieChart({
     left = Math.max(0, left);
     top = Math.max(0, top);
     return { left, top };
-  }
+  }, []);
+
+  // Handle internal hover when external hover is not provided
+  const handleInternalHover = React.useCallback((slice: PieDatum | null, event?: { x: number; y: number }) => {
+    if (slice && event) {
+      const { left, top } = clampTooltip(event.x, event.y);
+      internalTooltip.showTooltip({
+        tooltipData: slice,
+        tooltipLeft: left,
+        tooltipTop: top,
+      });
+    } else {
+      internalTooltip.hideTooltip();
+    }
+  }, [clampTooltip, internalTooltip]);
 
   return (
     <ParentSize>
       {({ width, height }: { width: number; height: number }) => {
-        const isSingle = data.length === 1;
         const radius = Math.floor(Math.min(width, height) / 2);
         const outerRadius = Math.max(0, radius - EXPLODE_PX);
         const innerRadius = Math.round(outerRadius * donutRatio);
@@ -226,25 +307,23 @@ export default function VisxPieChart({
             <svg width={width} height={height}>
               <Group top={height / 2} left={width / 2}>
                 <Pie<PieDatum>
-                  data={data}
+                  data={pieComputations.sortedData}
                   pieValue={(d) => d.value}
                   innerRadius={innerRadius}
                   outerRadius={outerRadius}
-                  padAngle={isSingle ? 0 : 0.004}
+                  padAngle={pieComputations.isSingle ? 0 : 0.004}
                   pieSortValues={colorMode === "sequential" ? (a, b) => b - a : undefined}
                 >
                   {(pieProps: ProvidedProps<PieDatum>) =>
                     pieProps.arcs.map((arc, i) => (
                       <AnimatedArc
-                        key={`${String(arc.data.name)}-${i}`}
+                        key={`${String(arc.data.name)}-${arc.data.value}`} // Stable key using name and value
                         arc={arc}
                         pie={pieProps}
                         color={palette[i % palette.length]}
-                        showTooltip={showTooltip}
-                        hideTooltip={hideTooltip}
+                        onSliceHover={isUsingExternalHover ? onSliceHover : handleInternalHover}
+                        hoveredSlice={hoveredSlice}
                         containerRef={containerRef}
-                        clampTooltip={clampTooltip}
-                        rafRef={rafRef}
                         explodePx={EXPLODE_PX}
                       />
                     ))
@@ -269,10 +348,10 @@ export default function VisxPieChart({
               </text>
             </svg>
 
-            {tooltipOpen && tooltipData && (
+            {!isUsingExternalHover && showingTooltip && tooltipData && (
               <TooltipInPortal
-                top={tooltipTop}
-                left={tooltipLeft}
+                top={internalTooltip.tooltipTop || 0}
+                left={internalTooltip.tooltipLeft || 0}
                 style={{
                   position: "fixed",
                   zIndex: 9999,
@@ -301,3 +380,6 @@ export default function VisxPieChart({
     </ParentSize>
   );
 }
+
+// Export the memoized component
+export default memo(VisxPieChart, arePropsEqual);
