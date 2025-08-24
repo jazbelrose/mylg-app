@@ -1,15 +1,30 @@
-// @ts-nocheck
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import { DecoratorNode } from "lexical";
+import React, { useRef, useState, useEffect, CSSProperties } from "react";
+import { DecoratorNode, NodeKey } from "lexical";
 import { $getNodeByKey, $copyNode } from "lexical";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useLexicalNodeSelection } from "@lexical/react/useLexicalNodeSelection";
 import Moveable from "react-moveable";
-import React, { useRef, useState, useEffect } from "react";
 import { useData } from "../../../../app/contexts/DataProvider";
 import { useImageLocks } from "../ImageLockPlugin";
-export class ImageNode extends DecoratorNode {
-    constructor(src, altText, x = 0, y = 0, width = 300, height = 200, clipPath = "none", key) {
+export class ImageNode extends DecoratorNode<JSX.Element> {
+    __src: string;
+    __altText: string;
+    __x: number;
+    __y: number;
+    __width: number;
+    __height: number;
+    __clipPath: string;
+
+    constructor(
+        src: string,
+        altText: string,
+        x: number = 0,
+        y: number = 0,
+        width: number = 300,
+        height: number = 200,
+        clipPath: string = "none",
+        key?: NodeKey
+    ) {
         super(key);
         this.__src = src;
         this.__altText = altText;
@@ -22,22 +37,22 @@ export class ImageNode extends DecoratorNode {
     static getType() {
         return "image";
     }
-    static clone(node) {
+    static clone(node: ImageNode): ImageNode {
         return new ImageNode(node.__src, node.__altText, node.__x, node.__y, node.__width, node.__height, node.__clipPath, node.__key);
     }
     // Getters and setters for position and size
-    setX(x) {
+    setX(x: number): void {
         const writable = this.getWritable();
         writable.__x = x;
     }
-    getX() {
+    getX(): number {
         return this.__x;
     }
-    setY(y) {
+    setY(y: number): void {
         const writable = this.getWritable();
         writable.__y = y;
     }
-    getY() {
+    getY(): number {
         return this.__y;
     }
     setWidth(width) {
@@ -88,11 +103,33 @@ export class ImageNode extends DecoratorNode {
         };
     }
     // Render the node's content
-    decorate() {
-        return (_jsx(MoveableImage, { src: this.__src, altText: this.__altText, x: this.__x, y: this.__y, width: this.__width, height: this.__height, clipPath: this.__clipPath, nodeKey: this.__key }));
+    decorate(): JSX.Element {
+        return (
+            <MoveableImage
+                src={this.__src}
+                altText={this.__altText}
+                x={this.__x}
+                y={this.__y}
+                width={this.__width}
+                height={this.__height}
+                clipPath={this.__clipPath}
+                nodeKey={this.__key}
+            />
+        );
     }
 }
-function MoveableImage({ src, altText, x, y, width, height, clipPath, nodeKey }) {
+interface MoveableImageProps {
+    src: string;
+    altText: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    clipPath: string;
+    nodeKey: NodeKey;
+}
+
+function MoveableImage({ src, altText, x, y, width, height, clipPath, nodeKey }: MoveableImageProps) {
     const [editor] = useLexicalComposerContext();
     const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
     const { userName } = useData();
