@@ -42,6 +42,7 @@ interface BudgetComponentProps {
 }
 
 const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
+  console.log("[BudgetComponent] render");
   const { budgetHeader, budgetItems, refresh, loading } = useBudgetData(
     activeProject?.projectId
   ) as {
