@@ -1,26 +1,43 @@
-// @ts-nocheck
-import { jsx as _jsx } from "react/jsx-runtime";
-import React, { useRef, useEffect } from 'react';
-import { DraggableBlockPlugin_EXPERIMENTAL } from '@lexical/react/LexicalDraggableBlockPlugin';
-import '../LexicalEditor.css'; // Import the CSS file
-const DRAGGABLE_BLOCK_MENU_CLASSNAME = 'draggable-block-menu';
-// Function to check if an element is part of the draggable menu
-function isOnMenu(element) {
-    return !!element.closest(`.${DRAGGABLE_BLOCK_MENU_CLASSNAME}`);
-}
-// Main plugin component
-export default function DraggableBlockPlugin({ anchorElem }) {
-    // Create references for the menu and target line
-    const menuRef = useRef(null);
-    const targetLineRef = useRef(null);
-    // Ensure the anchorElem is the editor container
-    useEffect(() => {
-        if (anchorElem) {
-            const editorContainer = anchorElem.querySelector('.editor-container');
-            if (editorContainer) {
-                anchorElem = editorContainer;
-            }
-        }
-    }, [anchorElem]);
-    return (_jsx(DraggableBlockPlugin_EXPERIMENTAL, { anchorElem: anchorElem, menuRef: menuRef, targetLineRef: targetLineRef, menuComponent: _jsx("div", { ref: menuRef, className: "icon draggable-block-menu", children: _jsx("div", { className: "icon" }) }), targetLineComponent: _jsx("div", { ref: targetLineRef, className: "draggable-block-target-line" }), isOnMenu: isOnMenu }));
+import React from "react";
+import { DraggableBlockPlugin as DraggableBlockPluginExperimental } from "@lexical/react/LexicalDraggableBlockPlugin";
+import "../LexicalEditor.css";
+
+const DRAGGABLE_BLOCK_MENU_CLASSNAME = "draggable-block-menu";
+
+export type DraggableBlockPluginProps = {
+  /** The element that contains (or is) the Lexical editor root */
+  anchorElem: HTMLElement | null;
+};
+
+const isOnMenu = (element: HTMLElement | null): boolean =>
+  !!element?.closest(`.${DRAGGABLE_BLOCK_MENU_CLASSNAME}`);
+
+export default function DraggableBlockPlugin({ anchorElem }: DraggableBlockPluginProps) {
+  const menuRef = React.useRef<HTMLDivElement>(null);
+  const targetLineRef = React.useRef<HTMLDivElement>(null);
+
+  // Resolve the actual anchor element: prefer the editor container if it exists.
+  const resolvedAnchor = React.useMemo<HTMLElement | null>(() => {
+    if (!anchorElem) return null;
+    const editorContainer = anchorElem.querySelector<HTMLElement>(".editor-container");
+    return editorContainer ?? anchorElem;
+  }, [anchorElem]);
+
+  // If we don't have a valid anchor, don't render the plugin (prevents runtime errors)
+  if (!resolvedAnchor) return null;
+
+  return (
+    <DraggableBlockPluginExperimental
+      anchorElem={resolvedAnchor}
+      menuRef={menuRef}
+      targetLineRef={targetLineRef}
+      menuComponent={
+        <div ref={menuRef} className={`icon ${DRAGGABLE_BLOCK_MENU_CLASSNAME}`}>
+          <div className="icon" />
+        </div>
+      }
+      targetLineComponent={<div ref={targetLineRef} className="draggable-block-target-line" />}
+      isOnMenu={isOnMenu}
+    />
+  );
 }
