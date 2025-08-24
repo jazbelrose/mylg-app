@@ -4,7 +4,6 @@ import { CircleDollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useData } from "../../../../app/contexts/DataProvider";
 import { formatUSD } from "../../../../utils/budgetUtils";
-import { slugify } from "../../../../utils/slug";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileInvoiceDollar, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import ClientInvoicePreviewModal from "./ClientInvoicePreviewModal";
@@ -164,9 +163,8 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ projectId }) => {
     }, 0);
   };
   const openBudgetPage = () => {
-    if (!activeProject || !isAdmin) return;
-    const slug = slugify(activeProject.title ?? "");
-    navigate(`/dashboard/projects/${slug}/budget`);
+    if (!activeProject?.projectId || !isAdmin) return;
+    navigate(`/dashboard/projects/${activeProject.projectId}/budget`);
   };
 
 
