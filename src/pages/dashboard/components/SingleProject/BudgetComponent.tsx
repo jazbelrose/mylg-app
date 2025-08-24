@@ -43,7 +43,6 @@ interface BudgetComponentProps {
 }
 
 const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
-  console.log("[BudgetComponent] render");
   const { budgetHeader, budgetItems, refresh, loading } = useBudgetData(
     activeProject?.projectId
   ) as {
@@ -75,7 +74,6 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ activeProject }) => {
 useEffect(() => {
   const unsubscribe = onSocketEvent((data: any) => {
     if (data?.action === "budgetUpdated" && data.projectId === activeProject?.projectId) {
-      console.log("[BudgetComponent] budgetUpdated for project", activeProject?.projectId);
       refresh();
     }
   });
