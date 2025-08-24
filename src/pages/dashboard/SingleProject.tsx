@@ -9,6 +9,7 @@ import QuickLinksComponent from "./components/SingleProject/QuickLinksComponent"
 import LocationComponent from "./components/SingleProject/LocationComponent";
 import FileManagerComponent from "./components/SingleProject/FileManager";
 import TasksComponent from "./components/SingleProject/TasksComponent";
+import { BudgetProvider } from "./components/SingleProject/BudgetDataProvider";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
@@ -185,8 +186,9 @@ const SingleProject: React.FC = () => {
           exit={{ x: -100, opacity: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="overview-layout">
-            <QuickLinksComponent ref={quickLinksRef} {...({ hideTrigger: true } as any)} />
+          <BudgetProvider projectId={activeProject?.projectId}>
+            <div className="overview-layout">
+              <QuickLinksComponent ref={quickLinksRef} {...({ hideTrigger: true } as any)} />
 
             {(FileManagerComponent as any) && (
               <FileManagerComponent
@@ -199,45 +201,46 @@ const SingleProject: React.FC = () => {
               />
             )}
 
-            <div className="dashboard-layout budget-calendar-layout">
-              <div className="budget-column">
-                <BudgetComponent projectId={activeProject?.projectId} />
+              <div className="dashboard-layout budget-calendar-layout">
+                <div className="budget-column">
+                  <BudgetComponent projectId={activeProject?.projectId} />
 
-                <GalleryComponent />
+                  <GalleryComponent />
+                </div>
+                <div className="calendar-column">
+                  <ProjectCalendar
+                    project={activeProject}
+                    initialFlashDate={flashDate}
+                    showEventList={false}
+                    onWrapperClick={openCalendarPage}
+                    onDateSelect={noop}
+                  />
+                </div>
               </div>
-              <div className="calendar-column">
-                <ProjectCalendar
-                  project={activeProject}
-                  initialFlashDate={flashDate}
-                  showEventList={false}
-                  onWrapperClick={openCalendarPage}
-                  onDateSelect={noop}
-                />
+
+              <Timeline
+                activeProject={activeProject}
+                parseStatusToNumber={parseStatusToNumber}
+                onActiveProjectChange={handleActiveProjectChange}
+              />
+
+              <div className="dashboard-layout timeline-location-row">
+                <div className="location-wrapper">
+                  <LocationComponent
+                    activeProject={activeProject}
+                    onActiveProjectChange={handleActiveProjectChange}
+                  />
+                </div>
+                <div className="tasks-wrapper">
+                  <TasksComponent
+                    projectId={activeProject?.projectId}
+                    userId={userId}
+                    team={activeProject?.team}
+                  />
+                </div>
               </div>
             </div>
-
-            <Timeline
-              activeProject={activeProject}
-              parseStatusToNumber={parseStatusToNumber}
-              onActiveProjectChange={handleActiveProjectChange}
-            />
-
-            <div className="dashboard-layout timeline-location-row">
-              <div className="location-wrapper">
-                <LocationComponent
-                  activeProject={activeProject}
-                  onActiveProjectChange={handleActiveProjectChange}
-                />
-              </div>
-              <div className="tasks-wrapper">
-                <TasksComponent
-                  projectId={activeProject?.projectId}
-                  userId={userId}
-                  team={activeProject?.team}
-                />
-              </div>
-            </div>
-          </div>
+          </BudgetProvider>
         </motion.div>
       </AnimatePresence>
     </ProjectPageLayout>

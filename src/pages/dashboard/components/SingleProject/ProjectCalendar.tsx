@@ -26,7 +26,7 @@ import {
   faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import { enqueueProjectUpdate } from "../../../../utils/requestQueue";
-import useBudgetData from "./useBudgetData";
+import { useBudget } from "./BudgetDataProvider";
 
 type TimelineEvent = {
   id: string;
@@ -204,9 +204,7 @@ const ProjectCalendar: React.FC<ProjectCalendarProps> = ({
   const calendarWrapperRef = useRef<HTMLDivElement | null>(null);
   const ignoreNextWrapperClickRef = useRef(false);
 
-  const { budgetHeader, budgetItems, setBudgetItems } = useBudgetData(
-    project?.projectId
-  );
+  const { budgetHeader, budgetItems, setBudgetItems } = useBudget();
 
   const [flashDate, setFlashDate] = useState<Date | null>(
     initialFlashDate ? safeParse(initialFlashDate) : null

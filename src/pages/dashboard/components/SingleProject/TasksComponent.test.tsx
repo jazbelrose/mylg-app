@@ -14,10 +14,10 @@ jest.mock('../../../../utils/api', () => ({
   fetchUserProfilesBatch: jest.fn(() => Promise.resolve([]))
 }));
 
-const mockUseBudgetData = jest.fn(() => ({ budgetItems: [] }));
-jest.mock('./useBudgetData', () => ({
+const mockUseBudget = jest.fn(() => ({ budgetItems: [] }));
+jest.mock('./BudgetDataProvider', () => ({
   __esModule: true,
-  default: (...args: any[]) => mockUseBudgetData(...args)
+  useBudget: (...args: any[]) => mockUseBudget(...args)
 }));
 
 beforeAll(() => {
@@ -38,7 +38,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  mockUseBudgetData.mockReturnValue({ budgetItems: [] });
+  mockUseBudget.mockReturnValue({ budgetItems: [] });
   (fetchTasks as jest.Mock).mockResolvedValue([]);
   (fetchTasks as jest.Mock).mockClear();
 
