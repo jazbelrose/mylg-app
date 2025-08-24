@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  UserPlus,
-  MessageCircle,
-  ListPlus,
-  X,
-  Check,
-} from "lucide-react";
+import { UserPlus, X, Check } from "lucide-react";
 import { useData } from "../../app/contexts/DataProvider";
 import ProjectAvatar from "../../components/ProjectAvatar";
 import Modal from "../../components/ModalWithStack";
@@ -14,8 +8,9 @@ import ConfirmModal from "../../components/ConfirmModal";
 import { uploadData } from "aws-amplify/storage";
 import { useOnlineStatus } from "../../app/contexts/OnlineStatusContext";
 import { useSocket } from "../../app/contexts/SocketContext";
-import { slugify } from "../../utils/slug";
 import InviteCollaboratorModal from "./components/InviteCollaboratorModal";
+import CurrentUserProfile from "./components/CurrentUserProfile";
+import CollaboratorList from "./components/CollaboratorList";
 import {
   fetchOutgoingCollabInvites,
   fetchIncomingCollabInvites,
@@ -373,73 +368,12 @@ export default function Collaborators() {
             )}
           </div>
 
-          <div className={styles.profileBlock}>
-            <div className={styles.avatarWrapper}>
-              {userData?.thumbnail ? (
-                <img
-                  src={userData.thumbnail}
-                  alt="Me"
-                  className={styles.avatar}
-                />
-              ) : (
-                <div className={styles.avatarPlaceholder} />
-              )}
-              {onlineUsers.includes(userData?.userId) && (
-                <span className={`${styles.statusDot} ${styles.online}`} />
-              )}
-            </div>
-            <div className={styles.profileInfo}>
-              <span className={styles.name}>
-                {userData?.firstName} {userData?.lastName} (You)
-              </span>
-              <div className={styles.metaRow}>
-                {userData.role && (
-                  <span
-                    className={`${styles.roleTag} ${
-                      styles[
-                        "role" +
-                          (userData.role || "")
-                            .toLowerCase()
-                            .replace(/^[a-z]/, (c) => c.toUpperCase())
-                      ] || ""
-                    }`}
-                  >
-                    {userData.role ? userData.role[0].toUpperCase() + userData.role.slice(1).toLowerCase() : ''}
-                  </span>
-                )}
-                {userData.occupation && (
-                  <span className={styles.occupationTag}>
-                    {userData.occupation}
-                  </span>
-                )}
-                <div className={styles.projectIcons}>
-                  {(() => {
-                    const userProjects = getUserProjects(userData?.userId);
-                    const visible = isMobile
-                      ? userProjects.slice(0, 3)
-                      : userProjects;
-                    return (
-                      <>
-                        {visible.map((p) => (
-                          <ProjectAvatar
-                            key={p.projectId}
-                            thumb={p.thumbnails && p.thumbnails[0]}
-                            name={p.title}
-                            className={styles.projectIcon}
-                          />
-                        ))}
-                        {isMobile && userProjects.length > 3 && (
-                          <span className={styles.overflowBadge}>
-                            +{userProjects.length - 3}
-                          </span>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-            </div>
-          </div>
+          <CurrentUserProfile
+            userData={userData}
+            onlineUsers={onlineUsers}
+            isMobile={isMobile}
+            getUserProjects={getUserProjects}
+          />
         </div>
 
         {collabUsers.length === 0 ? (
@@ -455,128 +389,17 @@ export default function Collaborators() {
             )}
           </div>
         ) : (
-          <ul className={styles.collabGrid}>
-            {displayUsers.map((u) => {
-              const slug = slugify(`${u.firstName || ""}-${u.lastName || ""}`);
-              const isOnline = onlineUsers.includes(u.userId);
-              return (
-                <li
-                  key={u.username || u.userId}
-                  className={`${styles.collabCard} ${
-                    isAdmin ? styles.collabCardClickable : ''
-                  }`}
-                  onClick={
-                    isAdmin ? () => openModalForUser(u.userId) : undefined
-                  }
-                >
-                  <div className={styles.cardInfo}>
-                    <div className={styles.cardLeft}>
-                      {u.thumbnail ? (
-                        <img
-                          src={u.thumbnail}
-                          alt={u.firstName}
-                          className={styles.avatar}
-                        />
-                      ) : (
-                        <div className={styles.avatarPlaceholder} />
-                      )}
-                      <span
-                        className={`${styles.statusDot} ${
-                          isOnline ? styles.online : styles.offline
-                        }`}
-                      />
-                    </div>
-                    <div className={styles.infoBlock}>
-                      <div className={styles.nameRow}>
-                        <span className={styles.name}>
-                          {u.firstName} {u.lastName}
-                        </span>
-                      </div>
-                      <div className={styles.metaRow}>
-                        {u.role && (
-                          <span
-                            className={`${styles.roleTag} ${
-                              styles[
-                                "role" +
-                                  (u.role || "")
-                                    .toLowerCase()
-                                    .replace(/^[a-z]/, (c) => c.toUpperCase())
-                              ] || ""
-                            }`}
-                            title={u.role}
-                          >
-                            {u.role ? u.role[0].toUpperCase() + u.role.slice(1).toLowerCase() : ''}
-                          </span>
-                        )}
-                        {u.occupation && (
-                          <span className={styles.occupationTag}>
-                            {u.occupation}
-                          </span>
-                        )}
-                        <div className={styles.projectIcons}>
-                          {(() => {
-                            const userProjects = getUserProjects(u.userId);
-                            const visible = isMobile
-                              ? userProjects.slice(0, 3)
-                              : userProjects;
-                            return (
-                              <>
-                                {visible.map((p) => (
-                                  <ProjectAvatar
-                                    key={p.projectId}
-                                    thumb={p.thumbnails && p.thumbnails[0]}
-                                    name={p.title}
-                                    className={styles.projectIcon}
-                                  />
-                                ))}
-                                {isMobile && userProjects.length > 3 && (
-                                  <span className={styles.overflowBadge}>
-                                    +{userProjects.length - 3}
-                                  </span>
-                                )}
-                              </>
-                            );
-                          })()}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className={`${styles.cardActions} flex items-center`}>
-                    <button
-                      aria-label="Message"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/dashboard/messages/${slug}`);
-                      }}
-                    >
-                      <MessageCircle size={18} />
-                    </button>
-                    {isAdmin && (
-                      <button
-                        aria-label="Assign Task"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          alert("Assign task");
-                        }}
-                      >
-                        <ListPlus size={18} />
-                      </button>
-                    )}
-                    {isAdmin && (
-                      <label className="switch" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          checked={editValues[u.userId]?.pending || false}
-                          onChange={() => togglePending(u.userId)}
-                        />
-                        <span className="slider" />
-                      </label>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <CollaboratorList
+            users={displayUsers}
+            isAdmin={isAdmin}
+            isMobile={isMobile}
+            onlineUsers={onlineUsers}
+            getUserProjects={getUserProjects}
+            openModalForUser={openModalForUser}
+            navigate={navigate}
+            editValues={editValues}
+            togglePending={togglePending}
+          />
         )}
 
         {(outgoingInvites.length > 0 || incomingInvites.length > 0) && (
