@@ -31,7 +31,7 @@ import EventEditModal from "./components/SingleProject/EventEditModal";
 import RevisionModal from "./components/SingleProject/RevisionModal";
 import BudgetChart from "./components/SingleProject/BudgetChart";
 import BudgetToolbar from "./components/SingleProject/BudgetToolbar";
-import { useData } from "../../app/contexts/DataProvider";
+import { useData, TimelineEvent } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { normalizeMessage } from "../../utils/websocketUtils";
 import { findProjectBySlug, slugify } from "../../utils/slug";
@@ -179,11 +179,15 @@ const BudgetPage = () => {
     }
   };
 
-  const queueEventsUpdate = async (events) => {
+  const queueEventsUpdate = async (events: TimelineEvent[]) => {
     if (!activeProject?.projectId) return;
     try {
       setSaving(true);
-      await enqueueProjectUpdate(updateTimelineEvents, activeProject.projectId, events);
+      await enqueueProjectUpdate(
+        (id, { events: evts }) => updateTimelineEvents(id, evts),
+        activeProject.projectId,
+        { events }
+      );
     } finally {
       setSaving(false);
     }
