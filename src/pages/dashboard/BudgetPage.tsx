@@ -1,5 +1,4 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
-import React, { useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect, } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect, MouseEvent } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ParentSize } from "@visx/responsive";
@@ -866,7 +865,12 @@ const BudgetPage = () => {
         const display = normalizedStatus === "PAID" || normalizedStatus === "PARTIAL"
             ? cleaned
             : "UNPAID";
-        return (_jsxs("span", { className: styles.paymentStatus, children: [display, _jsx("span", { className: `${styles.statusDot} ${colorClass}` })] }));
+        return (
+            <span className={styles.paymentStatus}>
+                {display}
+                <span className={`${styles.statusDot} ${colorClass}`} />
+            </span>
+        );
     };
     const tableColumns = useMemo(() => {
         const hidden = [
@@ -942,11 +946,11 @@ const BudgetPage = () => {
                         if (!isDefined(value))
                             return "";
                         if (key === "itemFinalCost") {
-                            return _jsx("span", { children: formatUSD(value) });
+                            return <span>{formatUSD(value)}</span>;
                         }
                         const activeKey = getActiveCostKey(record);
                         const className = activeKey === key ? undefined : styles.dimmed;
-                        return _jsx("span", { className: className, children: formatUSD(value) });
+                        return <span className={className}>{formatUSD(value)}</span>;
                     };
                 }
                 if (groupBy !== "none" && key === groupBy) {

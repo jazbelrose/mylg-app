@@ -136,15 +136,15 @@ function MoveableImage({ src, altText, x, y, width, height, clipPath, nodeKey }:
     const { provider, locks } = useImageLocks();
     const lockedBy = locks[nodeKey];
     const isLocked = lockedBy && lockedBy !== userName;
-    const ref = useRef(null);
-    const moveableRef = useRef(null);
-    const pendingDragEvent = useRef(null);
-    const start = useRef({});
-    const copyOnDragRef = useRef(false);
-    const [localFrame, setLocalFrame] = useState(null);
-    const [isFocused, setIsFocused] = useState(true);
-    const [isCropping, setIsCropping] = useState(false);
-    const [contextMenu, setContextMenu] = useState(null);
+    const ref = useRef<HTMLDivElement>(null);
+    const moveableRef = useRef<any>(null);
+    const pendingDragEvent = useRef<any>(null);
+    const start = useRef<any>({});
+    const copyOnDragRef = useRef<boolean>(false);
+    const [localFrame, setLocalFrame] = useState<{x: number, y: number, width: number, height: number, clipPath: string} | null>(null);
+    const [isFocused, setIsFocused] = useState<boolean>(true);
+    const [isCropping, setIsCropping] = useState<boolean>(false);
+    const [contextMenu, setContextMenu] = useState<{x: number, y: number} | null>(null);
     useEffect(() => {
         if (isSelected && pendingDragEvent.current && moveableRef.current) {
             moveableRef.current.dragStart(pendingDragEvent.current);
@@ -351,10 +351,26 @@ function MoveableImage({ src, altText, x, y, width, height, clipPath, nodeKey }:
                         }, children: "Align Right" })] }))] }));
 }
 // Helper function to create an ImageNode
-export function $createImageNode({ src, altText = "", x = 0, y = 0, width = 300, height = 200, clipPath = "none" }) {
+export function $createImageNode({ 
+    src, 
+    altText = "", 
+    x = 0, 
+    y = 0, 
+    width = 300, 
+    height = 200, 
+    clipPath = "none" 
+}: {
+    src: string;
+    altText?: string;
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    clipPath?: string;
+}): ImageNode {
     return new ImageNode(src, altText, x, y, width, height, clipPath);
 }
 // Helper function to check if a node is an ImageNode
-export function $isImageNode(node) {
+export function $isImageNode(node: any): node is ImageNode {
     return node instanceof ImageNode;
 }
