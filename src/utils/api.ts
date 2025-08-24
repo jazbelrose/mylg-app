@@ -51,6 +51,8 @@ export interface TimelineEvent extends JsonRecord {
   date?: string; // ISO YYYY-MM-DD
   description?: string;
   createdAt?: string;
+  hours?: number | string;
+  budgetItemId?: string | null;
   payload?: { description?: string } & JsonRecord;
 }
 

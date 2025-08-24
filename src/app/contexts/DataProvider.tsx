@@ -50,6 +50,8 @@ export interface TimelineEvent {
   title?: string;
   date?: string;        // ISO string
   timestamp?: string;   // ISO string
+  hours?: number | string;
+  budgetItemId?: string | null;
   [k: string]: unknown;
 }
 

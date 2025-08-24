@@ -1,6 +1,6 @@
 interface QueueEntry {
-  updateFn: (projectId: string, payload: Record<string, any>) => Promise<any>;
-  payloads: Record<string, any>[];
+  updateFn: (projectId: string, payload: unknown) => Promise<unknown>;
+  payloads: unknown[];
   resolvers: (() => void)[];
 }
 
@@ -17,10 +17,12 @@ async function flushQueue(): Promise<void> {
   pending.clear();
   for (const [projectId, { updateFn, payloads, resolvers }] of entries) {
     try {
-      const combined = payloads.reduce(
-        (acc, payload) => ({ ...acc, ...payload }),
-        {}
-      );
+      const combined = payloads.some(Array.isArray)
+        ? payloads[payloads.length - 1]
+        : payloads.reduce<Record<string, unknown>>(
+            (acc, payload) => ({ ...acc, ...(payload as Record<string, unknown>) }),
+            {}
+          );
       await updateFn(projectId, combined);
       resolvers.forEach((r) => r());
     } catch (err) {
@@ -38,9 +40,9 @@ function scheduleFlush(): void {
 }
 
 export function enqueueProjectUpdate(
-  updateFn: (projectId: string, payload: Record<string, any>) => Promise<any>,
+  updateFn: (projectId: string, payload: unknown) => Promise<unknown>,
   projectId: string,
-  payload: Record<string, any>
+  payload: unknown
 ): Promise<void> {
   if (!updateFn || !projectId || !payload) return Promise.resolve();
   return new Promise((resolve) => {

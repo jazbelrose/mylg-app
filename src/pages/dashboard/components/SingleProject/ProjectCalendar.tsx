@@ -227,7 +227,11 @@ const ProjectCalendar: React.FC<ProjectCalendarProps> = ({
     if (!project?.projectId) return;
     try {
       setSaving(true);
-      await enqueueProjectUpdate(updateTimelineEvents, project.projectId, evts);
+      await enqueueProjectUpdate(
+        (id, { events }) => updateTimelineEvents(id, events),
+        project.projectId,
+        { events: evts }
+      );
     } finally {
       setSaving(false);
     }
