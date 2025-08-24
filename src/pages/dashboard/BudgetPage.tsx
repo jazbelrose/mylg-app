@@ -32,6 +32,7 @@ import RevisionModal from "./components/SingleProject/RevisionModal";
 import BudgetChart from "./components/SingleProject/BudgetChart";
 import BudgetToolbar from "./components/SingleProject/BudgetToolbar";
 import BudgetItemsTable from "./components/SingleProject/BudgetItemsTable";
+import useBudgetData from "./components/SingleProject/useBudgetData";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { normalizeMessage } from "../../utils/websocketUtils";
@@ -213,9 +214,11 @@ const BudgetPage = () => {
     return Array.from(set);
   }, [activeProject]);
 
-  const [budgetHeader, setBudgetHeader] = useState(null);
+  // Use the centralized budget data hook
+  const { budgetHeader, budgetItems, setBudgetHeader, setBudgetItems, refresh: refreshBudgetData } = useBudgetData(activeProject?.projectId);
+  const lastBudgetSigRef = useRef({ rev: null, total: null });
+  const prevTotalsRef = useRef({ budgeted: 0, final: 0, actual: 0, eff: 0 });
   const [budgetData, setBudgetData] = useState([]);
-  const [budgetItems, setBudgetItems] = useState([]);
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
   const [error, setError] = useState(null);
@@ -1271,32 +1274,28 @@ const BudgetPage = () => {
     [beautifyLabel]
   );
 
-  const refresh = useCallback(async () => {
+  const refreshWithRevisions = useCallback(async () => {
     if (!activeProject?.projectId) return;
     try {
       const revs = await fetchBudgetHeaders(activeProject.projectId);
       setRevisions(revs);
-      const header =
+      // Use the hook's refresh for budget data
+      await refreshBudgetData();
+      const header = budgetHeader ||
         revs.find((h) => h.revision === h.clientRevisionId) || revs[0] || null;
-      if (header) {
-        setBudgetHeader(header);
-        if (header.budgetId) {
-          const items = await fetchBudgetItems(header.budgetId, header.revision);
-          setBudgetItems(items);
-          computeGroupsAndClients(items, header);
-        }
+      if (header && budgetItems) {
+        computeGroupsAndClients(budgetItems, header);
       } else {
-        setBudgetHeader(null);
         setClients([]);
       }
     } catch (err) {
       console.error("Error fetching budget header", err);
     }
-  }, [activeProject?.projectId, computeGroupsAndClients]);
+  }, [activeProject?.projectId, computeGroupsAndClients, refreshBudgetData, budgetHeader, budgetItems]);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    refreshWithRevisions();
+  }, [refreshWithRevisions]);
 
   useEffect(() => {
     if (!ws) return;
@@ -1322,7 +1321,7 @@ const BudgetPage = () => {
           data.projectId === activeProject?.projectId
         ) {
           if (data.senderId === userId) return;
-          await refresh();
+          await refreshWithRevisions();
         } else {
           console.log('[BudgetPage] Ignoring websocket message', data);
         }
