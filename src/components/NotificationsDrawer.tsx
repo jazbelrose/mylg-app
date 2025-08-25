@@ -7,7 +7,7 @@ import { useNotificationSocket } from '../app/NotificationSocketBridge';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useData } from '../app/contexts/DataProvider';
 import { slugify } from '../utils/slug';
-import { prefetchBudgetData } from '../pages/dashboard/components/SingleProject/useBudgetData';
+import { prefetchBudgetData } from '@/features/budget/context/useBudget';
 import './NotificationsDrawer.css';
 
 interface NotificationsDrawerProps {
