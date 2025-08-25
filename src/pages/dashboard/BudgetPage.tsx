@@ -32,7 +32,7 @@ import RevisionModal from "./components/SingleProject/RevisionModal";
 import BudgetChart from "./components/SingleProject/BudgetChart";
 import BudgetToolbar from "./components/SingleProject/BudgetToolbar";
 import BudgetItemsTable from "./components/SingleProject/BudgetItemsTable";
-import useBudgetData from "./components/SingleProject/useBudgetData";
+import { BudgetProvider, useBudget } from "./components/SingleProject/BudgetDataProvider";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { normalizeMessage } from "../../utils/websocketUtils";
@@ -50,12 +50,11 @@ import { enqueueProjectUpdate } from "../../utils/requestQueue";
 const TABLE_HEADER_FOOTER = 110;
 const TABLE_BOTTOM_MARGIN = 20;
 
-const BudgetPage = () => {
+const BudgetPageContent = ({ activeProject, setActiveProject }) => {
   const { projectSlug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const {
-    activeProject: initialActiveProject,
     projects,
     fetchProjectDetails,
     user,
@@ -70,7 +69,6 @@ const BudgetPage = () => {
   const isAdmin = !!isAdminCtx;
   const canEdit = isAdmin || isBuilder || isDesigner;
   const { ws } = useSocket();
-  const [activeProject, setActiveProject] = useState(initialActiveProject);
   const [filesOpen, setFilesOpen] = useState(false);
   const quickLinksRef = useRef(null);
   const tableRef = useRef(null);
@@ -104,26 +102,16 @@ const BudgetPage = () => {
   }, []);
 
   useEffect(() => {
-    setActiveProject(initialActiveProject);
-  }, [initialActiveProject]);
-
-  useEffect(() => {
-    if (!initialActiveProject) return;
-    if (slugify(initialActiveProject.title) !== projectSlug) {
+    if (!activeProject) return;
+    if (slugify(activeProject.title) !== projectSlug) {
       const proj = findProjectBySlug(projects, projectSlug);
       if (proj) {
         fetchProjectDetails(proj.projectId);
       } else {
-        navigate(`/dashboard/projects/${slugify(initialActiveProject.title)}`);
+        navigate(`/dashboard/projects/${slugify(activeProject.title)}`);
       }
     }
-  }, [
-    projectSlug,
-    projects,
-    initialActiveProject,
-    navigate,
-    fetchProjectDetails,
-  ]);
+  }, [projectSlug, projects, activeProject, navigate, fetchProjectDetails]);
 
   const handleBack = () => {
     navigate(`/dashboard/projects/${projectSlug}`);
@@ -1694,6 +1682,24 @@ const BudgetPage = () => {
   </AnimatePresence>
 </ProjectPageLayout>
 </>
+  );
+};
+
+const BudgetPage = () => {
+  const { activeProject: initialActiveProject } = useData();
+  const [activeProject, setActiveProject] = useState(initialActiveProject);
+
+  useEffect(() => {
+    setActiveProject(initialActiveProject);
+  }, [initialActiveProject]);
+
+  return (
+    <BudgetProvider projectId={activeProject?.projectId}>
+      <BudgetPageContent
+        activeProject={activeProject}
+        setActiveProject={setActiveProject}
+      />
+    </BudgetProvider>
   );
 };
 
