@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 
-import '../pages/dashboard/style.css';
-import useModalStack from '../utils/useModalStack';
+import '@/pages/dashboard/style.css';
+import useModalStack from '@/utils/useModalStack';
 
 if (typeof document !== 'undefined') {
   const el = document.getElementById('root');

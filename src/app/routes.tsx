@@ -11,7 +11,7 @@ import { AnimatePresence, motion, Variants } from "framer-motion";
 import { NavigationDirectionContext } from "./contexts/NavigationDirectionProvider";
 import ProtectedRoute from "./contexts/ProtectedRoute";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { useData } from "../app/contexts/DataProvider";
+import { useData } from "@/app/contexts/DataProvider";
 import NotFound from "../components/notfound";
 import TermsAndPrivacy from "../pages/TermsAndPrivacy/TermsAndPrivacy";
 import { Home } from "../pages/home";
@@ -19,13 +19,16 @@ import { Works } from "../pages/works";
 import { About } from "../pages/about";
 import Spinner from "../components/preloader-light";
 
+// Feature-first imports
 const Dashboard = React.lazy(() => import("../pages/dashboard"));
-const DashboardWelcome = React.lazy(() => import("../pages/dashboard/Welcome"));
-const DashboardNewProject = React.lazy(() => import("../pages/dashboard/NewProject"));
-const DashboardSingleProject = React.lazy(() => import("../pages/dashboard/SingleProject"));
-const DashboardBudgetPage = React.lazy(() => import("../pages/dashboard/BudgetPage/BudgetPage"));
+const DashboardHome = React.lazy(() => import("@/features/dashboard/pages/DashboardHome"));
+const DashboardLayout = React.lazy(() => import("@/features/dashboard/pages/DashboardLayout"));
+const SingleProjectPage = React.lazy(() => import("@/features/projects/pages/SingleProjectPage"));
+const BudgetPage = React.lazy(() => import("@/features/budget/pages/BudgetPage"));
 const DashboardCalendarPage = React.lazy(() => import("../pages/dashboard/CalendarPage"));
+const DashboardNewProject = React.lazy(() => import("../pages/dashboard/NewProject"));
 const DashboardEditorPage = React.lazy(() => import("../pages/dashboard/editorPage"));
+const InboxPage = React.lazy(() => import("@/features/messages/pages/InboxPage"));
 
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
@@ -190,13 +193,16 @@ const ActualRoutes: React.FC<ActualRoutesProps> = ({ location }) => {
             </ProtectedRoute>
           }
         >
-          <Route path="projects/:projectSlug" element={<DashboardSingleProject />} />
-          <Route path="projects/:projectSlug/budget" element={<DashboardBudgetPage />} />
-          <Route path="projects/:projectSlug/calendar" element={<DashboardCalendarPage />} />
-          <Route path="projects/:projectSlug/editor" element={<DashboardEditorPage />} />
+          {/* New feature-first routes */}
+          <Route index element={<DashboardHome />} />
+          <Route path="projects/:projectId" element={<SingleProjectPage />} />
+          <Route path="projects/:projectId/budget" element={<BudgetPage />} />
+          <Route path="projects/:projectId/calendar" element={<DashboardCalendarPage />} />
+          <Route path="projects/:projectId/editor" element={<DashboardEditorPage />} />
+          <Route path="messages" element={<InboxPage />} />
           <Route path="new" element={<DashboardNewProject />} />
           <Route path="welcome/*" element={<Navigate to=".." replace />} />
-          <Route path="*" element={<DashboardWelcome />} />
+          <Route path="*" element={<DashboardHome />} />
         </Route>
         
         <Route 
