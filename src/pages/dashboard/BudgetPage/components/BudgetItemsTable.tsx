@@ -1,7 +1,7 @@
 import React from "react";
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import styles from "../../BudgetPage.module.css";
+import styles from "../BudgetPage.module.css";
 
 const TABLE_HEADER_FOOTER = 110;
 

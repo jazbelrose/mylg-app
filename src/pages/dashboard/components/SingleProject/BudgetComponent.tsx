@@ -8,7 +8,7 @@ import { slugify } from "../../../../utils/slug";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileInvoiceDollar, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import ClientInvoicePreviewModal from "./ClientInvoicePreviewModal";
-import { useBudget } from "./BudgetDataProvider";
+import { useBudget } from "../../BudgetPage/components/BudgetDataProvider";
 import VisxPieChart from "./VisxPieChart";
 import { generateSequentialPalette, getColor } from "../../../../utils/colorUtils";
 

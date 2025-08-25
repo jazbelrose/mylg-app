@@ -32,7 +32,7 @@ import ConfirmModal from "../../../../components/ConfirmModal";
 import { toast } from "react-toastify";
 import styles from "./InvoicePreviewModal.module.css";
 import useModalStack from "../../../../utils/useModalStack";
-import { useBudget } from "./BudgetDataProvider";
+import { useBudget } from "../../BudgetPage/components/BudgetDataProvider";
 
 // ---------- Types ----------
 interface RevisionLike {

@@ -34,7 +34,7 @@ import {
   deleteTask,
   fetchUserProfilesBatch,
 } from "../../../../utils/api";
-import { useBudget } from "./BudgetDataProvider";
+import { useBudget } from "../../BudgetPage/components/BudgetDataProvider";
 import "../../components/SingleProject/tasks-table.css";
 
 /* =========================

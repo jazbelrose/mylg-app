@@ -4,7 +4,7 @@ import { faTrash, faClone, faClock } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip as AntTooltip } from "antd";
 import { useBudget } from "./BudgetDataProvider";
 import { formatUSD } from "../../../../utils/budgetUtils";
-import styles from "../../BudgetPage.module.css";
+import styles from "../BudgetPage.module.css";
 
 interface BudgetTableLogicProps {
   groupBy: string;

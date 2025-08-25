@@ -8,33 +8,33 @@ import React, {
 } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import ConfirmModal from "../../components/ConfirmModal";
+import ConfirmModal from "../../../components/ConfirmModal";
 import * as ExcelJS from "exceljs";
 import styles from "./BudgetPage.module.css";
 
-import ProjectPageLayout from "./components/SingleProject/ProjectPageLayout";
-import ProjectHeader from "./components/SingleProject/ProjectHeader";
-import QuickLinksComponent from "./components/SingleProject/QuickLinksComponent";
-import FileManagerComponent from "./components/SingleProject/FileManager";
-import BudgetHeader from "./components/SingleProject/BudgetHeader";
-import BudgetFileModal from "./components/SingleProject/BudgetFileModal";
-import CreateLineItemModal from "./components/SingleProject/CreateLineItemModal";
-import EventEditModal from "./components/SingleProject/EventEditModal";
-import RevisionModal from "./components/SingleProject/RevisionModal";
-import BudgetChart from "./components/SingleProject/BudgetChart";
-import BudgetToolbar from "./components/SingleProject/BudgetToolbar";
-import BudgetItemsTable from "./components/SingleProject/BudgetItemsTable";
-import BudgetStateManager from "./components/SingleProject/BudgetStateManager";
-import BudgetEventManager from "./components/SingleProject/BudgetEventManager";
-import BudgetTableLogic from "./components/SingleProject/BudgetTableLogic";
-import { BudgetProvider, useBudget } from "./components/SingleProject/BudgetDataProvider";
-import { useData } from "../../app/contexts/DataProvider";
-import { findProjectBySlug, slugify } from "../../utils/slug";
+import ProjectPageLayout from "../components/SingleProject/ProjectPageLayout";
+import ProjectHeader from "../components/SingleProject/ProjectHeader";
+import QuickLinksComponent from "../components/SingleProject/QuickLinksComponent";
+import FileManagerComponent from "../components/SingleProject/FileManager";
+import BudgetHeader from "./components/BudgetHeader";
+import BudgetFileModal from "./components/BudgetFileModal";
+import CreateLineItemModal from "../components/SingleProject/CreateLineItemModal";
+import EventEditModal from "../components/SingleProject/EventEditModal";
+import RevisionModal from "../components/SingleProject/RevisionModal";
+import BudgetChart from "./components/BudgetChart";
+import BudgetToolbar from "./components/BudgetToolbar";
+import BudgetItemsTable from "./components/BudgetItemsTable";
+import BudgetStateManager from "./components/BudgetStateManager";
+import BudgetEventManager from "./components/BudgetEventManager";
+import BudgetTableLogic from "./components/BudgetTableLogic";
+import { BudgetProvider, useBudget } from "./components/BudgetDataProvider";
+import { useData } from "../../../app/contexts/DataProvider";
+import { findProjectBySlug, slugify } from "../../../utils/slug";
 import {
   fetchBudgetHeaders,
   updateBudgetItem,
   fetchBudgetItems,
-} from "../../utils/api";
+} from "../../../utils/api";
 
 const TABLE_HEADER_FOOTER = 110;
 const TABLE_BOTTOM_MARGIN = 20;

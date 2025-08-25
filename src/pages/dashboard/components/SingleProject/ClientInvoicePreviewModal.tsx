@@ -1,7 +1,7 @@
 // ClientInvoicePreviewModal.tsx
 import React from "react";
 import InvoicePreviewModal from "./InvoicePreviewModal";
-import { BudgetProvider } from "./BudgetDataProvider";
+import { BudgetProvider } from "../../BudgetPage/components/BudgetDataProvider";
 
 interface ClientInvoicePreviewModalProps {
   isOpen: boolean;

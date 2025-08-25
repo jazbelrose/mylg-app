@@ -23,7 +23,7 @@ const Dashboard = React.lazy(() => import("../pages/dashboard"));
 const DashboardWelcome = React.lazy(() => import("../pages/dashboard/Welcome"));
 const DashboardNewProject = React.lazy(() => import("../pages/dashboard/NewProject"));
 const DashboardSingleProject = React.lazy(() => import("../pages/dashboard/SingleProject"));
-const DashboardBudgetPage = React.lazy(() => import("../pages/dashboard/BudgetPage"));
+const DashboardBudgetPage = React.lazy(() => import("../pages/dashboard/BudgetPage/BudgetPage"));
 const DashboardCalendarPage = React.lazy(() => import("../pages/dashboard/CalendarPage"));
 const DashboardEditorPage = React.lazy(() => import("../pages/dashboard/editorPage"));
 

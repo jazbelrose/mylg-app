@@ -10,7 +10,7 @@ import { useData } from '../../app/contexts/DataProvider';
 import { useSocket } from '../../app/contexts/SocketContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { findProjectBySlug, slugify } from '../../utils/slug';
-import { BudgetProvider } from './components/SingleProject/BudgetDataProvider';
+import { BudgetProvider } from './BudgetPage/components/BudgetDataProvider';
 
 type TimelineMode = 'overview' | 'agenda';
 

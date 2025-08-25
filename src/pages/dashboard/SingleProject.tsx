@@ -9,7 +9,7 @@ import QuickLinksComponent from "./components/SingleProject/QuickLinksComponent"
 import LocationComponent from "./components/SingleProject/LocationComponent";
 import FileManagerComponent from "./components/SingleProject/FileManager";
 import TasksComponent from "./components/SingleProject/TasksComponent";
-import { BudgetProvider } from "./components/SingleProject/BudgetDataProvider";
+import { BudgetProvider } from "./BudgetPage/components/BudgetDataProvider";
 import { useData } from "../../app/contexts/DataProvider";
 import { useSocket } from "../../app/contexts/SocketContext";
 import { useParams, useNavigate, useLocation } from "react-router-dom";

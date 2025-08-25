@@ -26,7 +26,7 @@ import {
   faClock,
 } from "@fortawesome/free-solid-svg-icons";
 import { enqueueProjectUpdate } from "../../../../utils/requestQueue";
-import { useBudget } from "./BudgetDataProvider";
+import { useBudget } from "../../BudgetPage/components/BudgetDataProvider";
 
 type TimelineEvent = {
   id: string;
