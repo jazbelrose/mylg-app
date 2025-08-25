@@ -7,13 +7,13 @@ import React, {
   ChangeEvent,
   CSSProperties,
 } from "react";
-import Modal from "../../../../components/ModalWithStack";
+import Modal from "@/components/ModalWithStack";
 import { X, Pencil, Trash2, Link2 } from "lucide-react";
-import { useData } from "../../../../app/contexts/DataProvider";
-import { enqueueProjectUpdate } from "../../../../utils/requestQueue";
-import SpinnerOverlay from "../../../../components/SpinnerOverlay";
+import { useData } from "@/app/contexts/DataProvider";
+import { enqueueProjectUpdate } from "@/utils/requestQueue";
+import SpinnerOverlay from "@/components/SpinnerOverlay";
 import { toast } from "react-toastify";
-import { API_BASE_URL } from "../../../../utils/api";
+import { API_BASE_URL } from "@/utils/api";
 
 if (typeof document !== "undefined") {
   Modal.setAppElement("#root");

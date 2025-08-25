@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useData } from "../../app/contexts/DataProvider";
-import { slugify } from "../../utils/slug";
-import { prefetchBudgetData } from "./components/SingleProject/useBudgetData";
-import WelcomeHeader from "./components/Welcome/WelcomeHeader";
-import WelcomeWidget from "./components/Welcome/WelcomeWidget";
-import NavigationSidebar from "./components/Welcome/NavigationSidebar";
-import TopBar from "./components/Welcome/TopBar";
+import { useData } from "@/app/contexts/DataProvider";
+import { slugify } from "@/utils/slug";
+import { prefetchBudgetData } from "@/features/budget/context/useBudget";
+import WelcomeHeader from "@/pages/dashboard/components/Welcome/WelcomeHeader";
+import WelcomeWidget from "@/pages/dashboard/components/Welcome/WelcomeWidget";
+import NavigationSidebar from "@/pages/dashboard/components/Welcome/NavigationSidebar";
+import TopBar from "@/pages/dashboard/components/Welcome/TopBar";
 
-import AllProjects from "./AllProjects";
-import NotificationsPage from "./components/NotificationsPage";
-import Messages from "./components/Messages";
-import Settings from "./Settings";
-import Collaborators from "./Collaborators";
-import SpinnerScreen from "../../components/SpinnerScreen";
-import PendingApprovalScreen from "../../components/PendingApprovalScreen";
-import AllProjectsCalendar from "./components/Welcome/Calendar/AllProjectsCalendar";
-import "./style.css";
+import AllProjects from "@/pages/dashboard/AllProjects";
+import NotificationsPage from "@/pages/dashboard/components/NotificationsPage";
+import Messages from "@/pages/dashboard/components/Messages";
+import Settings from "@/pages/dashboard/Settings";
+import Collaborators from "@/pages/dashboard/Collaborators";
+import SpinnerScreen from "@/components/SpinnerScreen";
+import PendingApprovalScreen from "@/components/PendingApprovalScreen";
+import AllProjectsCalendar from "@/pages/dashboard/components/Welcome/Calendar/AllProjectsCalendar";
+import "@/pages/dashboard/style.css";
 
 type Thread = {
   lastMsgTs: string;

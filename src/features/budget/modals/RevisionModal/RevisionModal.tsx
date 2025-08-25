@@ -14,7 +14,7 @@ import {
 import { saveAs } from "file-saver";
 import { fetchBudgetItems } from "../../../../../../utils/api";
 import InvoicePreviewModal from "../InvoicePreviewModal/InvoicePreviewModal";
-import ConfirmModal from "../../../../../../components/ConfirmModal";
+import ConfirmModal from "@/shared/ui/ConfirmModal";
 import styles from "./RevisionModal.module.css";
 
 if (typeof document !== "undefined") {

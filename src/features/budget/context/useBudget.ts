@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { fetchBudgetHeader, fetchBudgetItems } from "../../../../utils/api";
+import { fetchBudgetHeader, fetchBudgetItems } from "@/utils/api";
 
 function shallowEqualObjects(
   a: Record<string, unknown> | null,

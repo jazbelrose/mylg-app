@@ -29,7 +29,7 @@ import {
 import { v4 as uuid } from "uuid";
 import { useData } from "../../../../../../app/contexts/DataProvider";
 import { slugify } from "../../../../../../utils/slug";
-import ConfirmModal from "../../../../../../components/ConfirmModal";
+import ConfirmModal from "@/shared/ui/ConfirmModal";
 import { toast } from "react-toastify";
 import styles from "./InvoicePreviewModal.module.css";
 import useModalStack from "../../../../../..//utils/useModalStack";

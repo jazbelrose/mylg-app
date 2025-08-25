@@ -19,11 +19,11 @@ import { Works } from "../pages/works";
 import { About } from "../pages/about";
 import Spinner from "../components/preloader-light";
 
-const Dashboard = React.lazy(() => import("../pages/dashboard"));
-const DashboardWelcome = React.lazy(() => import("../pages/dashboard/Welcome"));
+const Dashboard = React.lazy(() => import("../features/dashboard/pages/DashboardLayout"));
+const DashboardWelcome = React.lazy(() => import("../features/dashboard/pages/DashboardHome"));
 const DashboardNewProject = React.lazy(() => import("../pages/dashboard/NewProject"));
-const DashboardSingleProject = React.lazy(() => import("../pages/dashboard/SingleProject"));
-const DashboardBudgetPage = React.lazy(() => import("../pages/dashboard/BudgetPage/BudgetPage"));
+const DashboardSingleProject = React.lazy(() => import("../features/projects/pages/SingleProjectPage"));
+const DashboardBudgetPage = React.lazy(() => import("../features/budget/pages/BudgetPage"));
 const DashboardCalendarPage = React.lazy(() => import("../pages/dashboard/CalendarPage"));
 const DashboardEditorPage = React.lazy(() => import("../pages/dashboard/editorPage"));
 

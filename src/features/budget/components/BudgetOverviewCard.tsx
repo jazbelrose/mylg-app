@@ -2,15 +2,15 @@ import React, { useState, useMemo, useCallback } from "react";
 
 import { CircleDollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useData } from "../../../../app/contexts/DataProvider";
-import { formatUSD } from "../../../../utils/budgetUtils";
-import { slugify } from "../../../../utils/slug";
+import { useData } from "@/app/contexts/DataProvider";
+import { formatUSD } from "@/utils/budgetUtils";
+import { slugify } from "@/utils/slug";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileInvoiceDollar, faSpinner } from "@fortawesome/free-solid-svg-icons";
-import ClientInvoicePreviewModal from "./ClientInvoicePreviewModal";
-import { useBudget } from "../../BudgetPage/components/BudgetDataProvider";
-import VisxPieChart from "./VisxPieChart";
-import { generateSequentialPalette, getColor } from "../../../../utils/colorUtils";
+import ClientInvoicePreviewModal from "@/pages/dashboard/components/SingleProject/ClientInvoicePreviewModal";
+import { useBudget } from "@/features/budget/context/BudgetProvider";
+import VisxPieChart from "@/features/budget/components/VisxPieChart";
+import { generateSequentialPalette, getColor } from "@/utils/colorUtils";
 
 
 type Project = {
@@ -38,13 +38,13 @@ type BudgetItem = {
 
 type PieDatum = { name: string; value: number };
 
-interface BudgetComponentProps {
+interface BudgetOverviewCardProps {
   projectId?: string;
 }
 
-const BudgetComponent: React.FC<BudgetComponentProps> = ({ projectId }) => {
+const BudgetOverviewCard: React.FC<BudgetOverviewCardProps> = ({ projectId }) => {
   const { activeProject, isAdmin } = useData();
-  console.log("[BudgetComponent] render");
+  console.log("[BudgetOverviewCard] render");
   const { budgetHeader, budgetItems, refresh, loading } = useBudget();
   const navigate = useNavigate();
 
@@ -295,6 +295,6 @@ const BudgetComponent: React.FC<BudgetComponentProps> = ({ projectId }) => {
   );
 };
 
-export default React.memo(BudgetComponent, (prev, next) =>
+export default React.memo(BudgetOverviewCard, (prev, next) =>
   prev.projectId === next.projectId
 );

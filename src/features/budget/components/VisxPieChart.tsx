@@ -6,13 +6,13 @@ import { ParentSize } from "@visx/responsive";
 import { useTooltip, useTooltipInPortal } from "@visx/tooltip";
 import { localPoint } from "@visx/event";
 import { animated, useSpring, to as springTo, SpringValue } from "@react-spring/web";
-import { formatUSD } from "../../../../utils/budgetUtils";
+import { formatUSD } from "@/utils/budgetUtils";
 import {
   CHART_COLORS,
   generateSequentialPalette,
   getColor,
-} from "../../../../utils/colorUtils";
-import { useData } from "../../../../app/contexts/DataProvider";
+} from "@/utils/colorUtils";
+import { useData } from "@/app/contexts/DataProvider";
 
 const EXPLODE_PX = 8;
 

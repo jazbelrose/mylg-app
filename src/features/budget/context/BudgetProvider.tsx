@@ -1,7 +1,7 @@
 import React, { createContext, useContext, PropsWithChildren, useEffect, useMemo, useRef } from "react";
-import useBudgetData from "../../components/SingleProject/useBudgetData";
-import { useSocketEvents } from "../../../../app/contexts/SocketContext";
-import type { BudgetHeader, BudgetLine } from "../../../../utils/api";
+import useBudgetData from "@/features/budget/context/useBudget";
+import { useSocketEvents } from "@/app/contexts/SocketContext";
+import type { BudgetHeader, BudgetLine } from "@/utils/api";
 
 interface BudgetContextValue {
   budgetHeader: BudgetHeader | null;

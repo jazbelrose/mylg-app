@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import ProjectHeader from "./components/SingleProject/ProjectHeader";
-import BudgetComponent from "./components/SingleProject/BudgetComponent";
-import GalleryComponent from "./components/SingleProject/GalleryComponent";
-import ProjectPageLayout from "./components/SingleProject/ProjectPageLayout";
-import Timeline from "./components/SingleProject/Timeline";
-import ProjectCalendar from "./components/SingleProject/ProjectCalendar";
-import QuickLinksComponent from "./components/SingleProject/QuickLinksComponent";
-import LocationComponent from "./components/SingleProject/LocationComponent";
-import FileManagerComponent from "./components/SingleProject/FileManager";
-import TasksComponent from "./components/SingleProject/TasksComponent";
-import { BudgetProvider } from "./BudgetPage/components/BudgetDataProvider";
-import { useData } from "../../app/contexts/DataProvider";
-import { useSocket } from "../../app/contexts/SocketContext";
+import ProjectHeader from "@/features/projects/components/ProjectHeader/ProjectHeader";
+import BudgetOverviewCard from "@/features/budget/components/BudgetOverviewCard";
+import GalleryComponent from "@/pages/dashboard/components/SingleProject/GalleryComponent";
+import ProjectPageLayout from "@/pages/dashboard/components/SingleProject/ProjectPageLayout";
+import Timeline from "@/pages/dashboard/components/SingleProject/Timeline";
+import ProjectCalendar from "@/pages/dashboard/components/SingleProject/ProjectCalendar";
+import QuickLinksComponent from "@/features/dashboard/components/QuickLinks/QuickLinksComponent";
+import LocationComponent from "@/pages/dashboard/components/SingleProject/LocationComponent";
+import FileManagerComponent from "@/pages/dashboard/components/SingleProject/FileManager";
+import TasksComponent from "@/pages/dashboard/components/SingleProject/TasksComponent";
+import { BudgetProvider } from "@/features/budget/context/BudgetProvider";
+import { useData } from "@/app/contexts/DataProvider";
+import { useSocket } from "@/app/contexts/SocketContext";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { findProjectBySlug, slugify } from "../../utils/slug";
+import { findProjectBySlug, slugify } from "@/utils/slug";
 
 interface Project {
   projectId: string;
@@ -203,7 +203,7 @@ const SingleProject: React.FC = () => {
 
               <div className="dashboard-layout budget-calendar-layout">
                 <div className="budget-column">
-                  <BudgetComponent projectId={activeProject?.projectId} />
+                  <BudgetOverviewCard projectId={activeProject?.projectId} />
 
                   <GalleryComponent />
                 </div>

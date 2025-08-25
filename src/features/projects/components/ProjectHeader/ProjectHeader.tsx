@@ -11,7 +11,7 @@ import React, {
 import "./ProjectHeader.css";
 import Cropper, { Area } from "react-easy-crop";
 import "react-easy-crop/react-easy-crop.css";
-import Modal from "../../../../components/ModalWithStack";
+import Modal from "@/components/ModalWithStack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faPen } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -41,10 +41,10 @@ import {
   S3_PUBLIC_BASE,
   apiFetch,
   fetchUserProfilesBatch,
-} from "../../../../utils/api";
-import AvatarStack from "../../../../components/AvatarStack";
-import TeamModal from "./TeamModal";
-import { enqueueProjectUpdate } from "../../../../utils/requestQueue";
+} from "@/utils/api";
+import AvatarStack from "@/components/AvatarStack";
+import TeamModal from "@/pages/dashboard/components/SingleProject/TeamModal";
+import { enqueueProjectUpdate } from "@/utils/requestQueue";
 
 // ---------- Types ----------
 type TeamMember = {

@@ -10,20 +10,20 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Segmented, Switch } from "antd";
 
-import EditBallparkModal from "./modals/EditBallParkModal/EditBallparkModal";
-import ClientInvoicePreviewModal from "../../components/SingleProject/ClientInvoicePreviewModal";
-import VisxPieChart from "../../components/SingleProject/VisxPieChart";
+import EditBallparkModal from "@/features/budget/modals/EditBallParkModal/EditBallparkModal";
+import ClientInvoicePreviewModal from "@/pages/dashboard/components/SingleProject/ClientInvoicePreviewModal";
+import VisxPieChart from "@/features/budget/components/VisxPieChart";
 
-import { updateBudgetItem } from "../../../../utils/api";
-import { formatUSD } from "../../../../utils/budgetUtils";
+import { updateBudgetItem } from "@/utils/api";
+import { formatUSD } from "@/utils/budgetUtils";
 import {
   CHART_COLORS,
   generateSequentialPalette,
   getColor,
-} from "../../../../utils/colorUtils";
+} from "@/utils/colorUtils";
 
-import summaryStyles from "./BudgetHeaderSummary.module.css";
-import headerStyles from "./BudgetHeader.module.css";
+import summaryStyles from "@/pages/dashboard/BudgetPage/components/BudgetHeaderSummary.module.css";
+import headerStyles from "./HeaderStats.module.css";
 
 /* =========================
    Types

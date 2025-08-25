@@ -5,9 +5,9 @@
     "moduleResolution": "Node",
     "strict": false,
     "jsx": "react",
-    "baseUrl": "./",
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["*"]
     },
     "esModuleInterop": true,
     "skipLibCheck": true,
