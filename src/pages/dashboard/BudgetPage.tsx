@@ -203,7 +203,12 @@ const BudgetPageContent = ({ activeProject, setActiveProject }) => {
   }, [activeProject]);
 
   // Use the centralized budget data hook
- const { budgetHeader, budgetItems, refresh, loading } = useBudget();
+  const {
+    budgetHeader,
+    budgetItems,
+    refresh: refreshBudgetData,
+    loading,
+  } = useBudget();
 
   const lastBudgetSigRef = useRef({ rev: null, total: null });
   const prevTotalsRef = useRef({ budgeted: 0, final: 0, actual: 0, eff: 0 });
