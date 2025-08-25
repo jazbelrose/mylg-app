@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
-import Modal from "../../../../../../components/ModalWithStack";
+import Modal from "@/components/ModalWithStack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark, faUpload, faDownload } from "@fortawesome/free-solid-svg-icons";
-import templateFile from "../../../budget-template/budget-dynamo-template.csv?url";
+import templateFile from "@/pages/dashboard/BudgetPage/budget-template/budget-dynamo-template.csv?url";
 import styles from "./BudgetFileModal.module.css";
 
 if (typeof document !== "undefined") {

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import Modal from "../../../../../../components/ModalWithStack";
+import Modal from "@/components/ModalWithStack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import ConfirmModal from "@/shared/ui/ConfirmModal";
 import styles from "./CreateLineItemModal.module.css";
-import { parseBudget, formatUSD } from "../../../../../../utils/budgetUtils";
+import { parseBudget, formatUSD } from "@/utils/budgetUtils";
 
 /* ----------------------------- Types & Consts ----------------------------- */
 

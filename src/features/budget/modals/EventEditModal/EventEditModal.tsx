@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { v4 as uuid } from "uuid";
-import Modal from "../../../../../../components/ModalWithStack";
+import Modal from "@/components/ModalWithStack";
 import styles from "../CreateLineItemModal/CreateLineItemModal.module.css";
 
 interface Event {
