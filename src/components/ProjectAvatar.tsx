@@ -1,5 +1,5 @@
 import React from 'react';
-import SVGThumbnail from '../pages/dashboard/components/AllProjects/SVGThumbnail';
+import SVGThumbnail from '../pages/dashboard/components/SVGThumbnail';
 
 interface ProjectAvatarProps {
   thumb?: string;

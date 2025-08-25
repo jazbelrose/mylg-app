@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import SVGThumbnail from './components/AllProjects/SVGThumbnail';
+import SVGThumbnail from './components/SVGThumbnail';
 import './style.css';
 import { useData } from '../../app/contexts/DataProvider';
 import Spinner from '../../components/preloader-light';
