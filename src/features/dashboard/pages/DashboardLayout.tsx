@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
-import { useData } from "../../app/contexts/DataProvider";
-import "./style.css";
+import { useData } from "@/app/contexts/DataProvider";
+import "@/pages/dashboard/style.css";
 
 const Dashboard: React.FC = () => {
   // If your DataProvider has types, replace `any` below with the real shape.

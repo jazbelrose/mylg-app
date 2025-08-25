@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import SVGThumbnail from './components/SVGThumbnail';
-import './style.css';
-import { useData } from '../../app/contexts/DataProvider';
-import Spinner from '../../components/preloader-light';
+import SVGThumbnail from '@/pages/dashboard/components/SVGThumbnail';
+import '@/pages/dashboard/style.css';
+import { useData } from '@/app/contexts/DataProvider';
+import Spinner from '@/components/preloader-light';
 import { useNavigate } from 'react-router-dom';
-import { slugify } from '../../utils/slug';
-import AvatarStack from '../../components/AvatarStack';
+import { slugify } from '@/utils/slug';
+import AvatarStack from '@/components/AvatarStack';
 import { LayoutGrid, List } from 'lucide-react';
 
 interface Project {

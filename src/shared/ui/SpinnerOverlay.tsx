@@ -1,6 +1,6 @@
 import React from 'react';
-import Spinner from './preloader-light';
-import './spinner-overlay.css';
+import Spinner from '@/components/preloader-light';
+import '@/components/spinner-overlay.css';
 
 interface SpinnerOverlayProps {
   className?: string;
