@@ -1,6 +1,6 @@
 // ClientInvoicePreviewModal.tsx
 import React from "react";
-import InvoicePreviewModal from "./InvoicePreviewModal";
+import InvoicePreviewModal from "../../BudgetPage/components/modals/InvoicePreviewModal/InvoicePreviewModal";
 import { BudgetProvider } from "../../BudgetPage/components/BudgetDataProvider";
 
 interface ClientInvoicePreviewModalProps {

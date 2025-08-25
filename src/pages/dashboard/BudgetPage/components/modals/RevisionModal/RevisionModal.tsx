@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Modal from "../../../../components/ModalWithStack";
+import Modal from "../../../../../../components/ModalWithStack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faXmark,
@@ -12,9 +12,9 @@ import {
   faPen,
 } from "@fortawesome/free-solid-svg-icons";
 import { saveAs } from "file-saver";
-import { fetchBudgetItems } from "../../../../utils/api";
-import InvoicePreviewModal from "./InvoicePreviewModal";
-import ConfirmModal from "../../../../components/ConfirmModal";
+import { fetchBudgetItems } from "../../../../../../utils/api";
+import InvoicePreviewModal from "../InvoicePreviewModal/InvoicePreviewModal";
+import ConfirmModal from "../../../../../../components/ConfirmModal";
 import styles from "./RevisionModal.module.css";
 
 if (typeof document !== "undefined") {

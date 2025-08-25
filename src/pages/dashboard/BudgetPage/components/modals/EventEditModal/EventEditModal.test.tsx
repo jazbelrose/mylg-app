@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import EventEditModal from "./EventEditModal";
-import Modal from "../../../../components/ModalWithStack";
+import Modal from "../../../../../../components/ModalWithStack";
 
 beforeAll(() => {
   const root = document.createElement("div");

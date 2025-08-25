@@ -10,7 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Segmented, Switch } from "antd";
 
-import EditBallparkModal from "../../components/SingleProject/EditBallparkModal";
+import EditBallparkModal from "./modals/EditBallParkModal/EditBallparkModal";
 import ClientInvoicePreviewModal from "../../components/SingleProject/ClientInvoicePreviewModal";
 import VisxPieChart from "../../components/SingleProject/VisxPieChart";
 

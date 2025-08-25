@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Modal from "../../../../components/ModalWithStack";
+import Modal from "../../../../../../components/ModalWithStack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import styles from "./EditBallparkModal.module.css";

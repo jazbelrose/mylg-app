@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import Modal from "../../../../components/ModalWithStack";
+import Modal from "../../../../../../components/ModalWithStack";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft,
@@ -24,15 +24,16 @@ import {
   S3_PUBLIC_BASE,
   DELETE_FILE_FROM_S3_URL,
   apiFetch,
-} from "../../../../utils/api";
+  fetchBudgetItems,
+} from "../../../../../../utils/api";
 import { v4 as uuid } from "uuid";
-import { useData } from "../../../../app/contexts/DataProvider";
-import { slugify } from "../../../../utils/slug";
-import ConfirmModal from "../../../../components/ConfirmModal";
+import { useData } from "../../../../../../app/contexts/DataProvider";
+import { slugify } from "../../../../../../utils/slug";
+import ConfirmModal from "../../../../../../components/ConfirmModal";
 import { toast } from "react-toastify";
 import styles from "./InvoicePreviewModal.module.css";
-import useModalStack from "../../../../utils/useModalStack";
-import { useBudget } from "../../BudgetPage/components/BudgetDataProvider";
+import useModalStack from "../../../../../..//utils/useModalStack";
+import { useBudget } from "../../BudgetDataProvider";
 
 // ---------- Types ----------
 interface RevisionLike {
